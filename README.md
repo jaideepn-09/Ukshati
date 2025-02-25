@@ -212,8 +212,3 @@ If you'd like to contribute to this project, follow these steps:
 5. Open a pull request on GitHub.
 
 ---
-
-
----
-
-This `README.md` is clean, well-structured, and includes all the necessary information for users to set up and run your project. It uses proper Markdown syntax, including code blocks for commands, making it easy to follow. Let me know if you need further adjustments! 😊
