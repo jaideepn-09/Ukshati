@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  mysql:
+    image: mysql:5.7
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: chai_db
+      MYSQL_PASSWORD: abcd
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+  backend:
+    build: ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+  frontend:
+    build: ./frontend
+    env_file:
+      - ./frontend/.env.local
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
+volumes:
+  mysql-data:
