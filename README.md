@@ -1,4 +1,4 @@
-#Ukshati-2.0
+# Ukshati-2.0
 
 This is a full-stack application with a **Next.js frontend**, **Express backend**, and **MySQL database**. The project is containerized using Docker, making it easy to set up and run on any machine.
 
