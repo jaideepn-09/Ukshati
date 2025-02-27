@@ -62,7 +62,7 @@ Replace `your-username` and `your-repo` with your GitHub username and repository
    PORT=5000
 
    # Frontend Configuration
-   NEXT_PUBLIC_API_URL=http://localhost:5000
+   NEXT_PUBLIC_API_URL=http://localhost:3000
    ```
 
    Replace the placeholder values (e.g., `your_root_password`, `your_database_name`) with your actual configuration.
