@@ -30,9 +30,9 @@ Ukshati/
 │ ├── public/ # Static assets
 │ ├── styles/ # CSS files
 │ ├── package.json # Frontend dependencies
-│ └── ... # Other Next.js files
+│ └── .enc.local and ... # Other Next.js files
 ├── db/ # Database initialization scripts
-│ └── init.sql # SQL schema and data
+│ └── company_db.sql # SQL schema and data
 ├── docker-compose.yml # Docker Compose configuration
 ├── Dockerfile # Dockerfile for Next.js
 ├── .env.example # Environment variables template
