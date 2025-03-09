@@ -23,7 +23,7 @@ This is a full-stack project with a Next.js frontend and a MySQL database, conta
 ---
 
 ## Project Structure
-```
+```bash
 Ukshati/
 ├── frontend/ # Next.js application
 │ ├── pages/ # Next.js pages
