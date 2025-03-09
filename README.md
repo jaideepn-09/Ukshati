@@ -25,18 +25,18 @@ This is a full-stack project with a Next.js frontend and a MySQL database, conta
 ## Project Structure
 ```
 Ukshati/
-├── frontend/               # Next.js application
-│   ├── pages/              # Next.js pages
-│   ├── public/             # Static assets
-│   ├── styles/             # CSS files
-│   ├── package.json        # Frontend dependencies
-│   └── ...                 # Other Next.js files
-├── db/                     # Database initialization scripts
-│   └── init.sql            # SQL schema and data
-├── docker-compose.yml      # Docker Compose configuration
-├── Dockerfile              # Dockerfile for Next.js
-├── .env.example            # Environment variables template
-└── README.md               # Project documentation
+├── frontend/ # Next.js application
+│ ├── pages/ # Next.js pages
+│ ├── public/ # Static assets
+│ ├── styles/ # CSS files
+│ ├── package.json # Frontend dependencies
+│ └── ... # Other Next.js files
+├── db/ # Database initialization scripts
+│ └── init.sql # SQL schema and data
+├── docker-compose.yml # Docker Compose configuration
+├── Dockerfile # Dockerfile for Next.js
+├── .env.example # Environment variables template
+└── README.md # Project documentation
 ```
 
 ---
