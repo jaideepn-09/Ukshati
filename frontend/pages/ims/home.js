@@ -94,40 +94,43 @@ export default function Home() {
       loadUserData();}, [router]);
 
   
-  const inventoryCards = [
-    { 
-      id: 1, 
-      title: "Add Stock", 
-      Icon: FaPlus, 
-      colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"], // Dark → Light → Dark
-      route: "/ims/stocks", 
-      image: "https://cdni.iconscout.com/illustration/premium/thumb/inventory-management-6114065-5059489.png" 
-    },
-    { 
-      id: 2, 
-      title: "View Stock", 
-      Icon: FaEye, 
-      colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"], // Dark → Light → Dark
-      route: "/ims/view-stock", 
-      image: "https://www.pngmart.com/files/8/Inventory-PNG-HD.png" 
-    },
-    { 
-      id: 3, 
-      title: "Update Stock",
-      Icon: FaEdit, 
-      colors: ["#854d0e", "#ca8a04", "#fde047", "#ca8a04", "#854d0e"], // Dark → Light → Dark
-      route: "/ims/update-stock", 
-      image: "https://png.pngtree.com/png-clipart/20230825/original/pngtree-inventory-control-vector-warehouse-industry-picture-image_8773876.png" 
-    },
-    { 
-      id: 4, 
-      title: "Inventory Spent", 
-      Icon: FaTrash, 
-      colors: ["#7f1d1d", "#dc2626", "#f87171", "#dc2626", "#7f1d1d"], // Dark → Light → Dark
-      route: "/ims/inventory-spent", 
-      image: "https://www.deskera.com/blog/content/images/2021/06/InventoryManagement_Hero@3x.png" 
-    }
-  ];
+      const inventoryCards = [
+        { 
+          id: 1, 
+          title: "Add Stock", 
+          Icon: FaPlus, 
+          colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"], // Dark → Light → Dark
+          route: "/ims/stocks", 
+          image: "https://www.pngmart.com/files/8/Inventory-PNG-HD.png" 
+        },
+      
+        { 
+          id: 2, 
+          title: "View Stock", 
+          Icon: FaEye, 
+          colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"], // Dark → Light → Dark
+          route: "/ims/view-stock", 
+          image: "https://png.pngtree.com/png-clipart/20230825/original/pngtree-inventory-control-vector-warehouse-industry-picture-image_8773876.png" 
+           
+    
+        },
+        { 
+          id: 3, 
+          title: "Update Stock",
+          Icon: FaEdit, 
+          colors: ["#854d0e", "#ca8a04", "#fde047", "#ca8a04", "#854d0e"], // Dark → Light → Dark
+          route: "/ims/update-stock", 
+          image: "https://cdni.iconscout.com/illustration/premium/thumb/inventory-management-6114065-5059489.png" 
+        },
+        { 
+          id: 4, 
+          title: "Inventory Spent", 
+          Icon: FaTrash, 
+          colors: ["#7f1d1d", "#dc2626", "#f87171", "#dc2626", "#7f1d1d"], // Dark → Light → Dark
+          route: "/ims/inventory-spent", 
+          image: "https://www.deskera.com/blog/content/images/2021/06/InventoryManagement_Hero@3x.png" 
+        }
+      ];
 
   const handleAddEmployee = async (e) => {
     e.preventDefault();
@@ -164,7 +167,7 @@ export default function Home() {
     localStorage.removeItem("user");
     localStorage.removeItem("userRole");
     localStorage.removeItem("token");
-    router.push("/ims/login");
+    router.push("/dashboard");
   };
 
   return (
@@ -410,7 +413,7 @@ export default function Home() {
         </div>
       </div>
 
-      <footer className="w-full bg-gray-800 text-white py-4 text-center mt-auto">
+      <footer className="w-full backdrop-blur-sm text-white py-4 text-center mt-auto">
         <p className="text-sm">© {new Date().getFullYear()} Inventory System</p>
       </footer>
 

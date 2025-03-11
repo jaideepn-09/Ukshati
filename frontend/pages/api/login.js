@@ -17,7 +17,7 @@ export default async function handler(req, res) {
   });
 
   try {
-    // Check if user exists
+    // Check if user exists with matching email and role
     const [rows] = await connection.execute(
       "SELECT * FROM employee WHERE email = ? AND role = ?",
       [email, role]
@@ -29,23 +29,27 @@ export default async function handler(req, res) {
 
     const user = rows[0];
 
-    // Direct password check (No Hashing)
+    // Direct password check (No hashing)
     if (password !== user.password) {
       return res.status(401).json({ message: "Incorrect password" });
     }
 
-    // Generate JWT Token
+    // Use JWT_SECRET from environment or fallback to a default (for testing only)
+    const secret = process.env.JWT_SECRET || "defaultsecret";
+    console.log("Signing token with secret:", secret); // DEBUG: Remove in production
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      process.env.JWT_SECRET,
+      secret,
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({ message: "Login successful", token, user });
+    // Optionally, set a cookie with the user's role (HttpOnly for security)
+    res.setHeader("Set-Cookie", [`userRole=${user.role}; Path=/; HttpOnly`]);
 
+    res.status(200).json({ message: "Login successful", token, user });
   } catch (error) {
     console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error", error: error.message });
   } finally {
     connection.end();
   }

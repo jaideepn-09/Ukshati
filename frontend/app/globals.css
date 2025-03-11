@@ -63,3 +63,23 @@ body {
   50% { border-radius: var(--size); }
   100% { transform: translate(-50%, 0); border-radius: 0; }
 }
+
+/* Add smooth transitions */
+* {
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+}

@@ -156,7 +156,12 @@ export default function Dashboard() {
     }, 1000);
     setTimeout(() => bubbles?.classList.remove("hide"), 2400);
   };
-
+  
+  const handleHelpClick = () => {
+    const mailtoLink = `mailto:jaideepn3590@duck.com?subject=Help `;
+    window.location.href = mailtoLink;
+  };
+  
   const handleFlip = (index) => {
     setFlipped(prev => {
       const newFlipped = [...prev];
@@ -178,16 +183,24 @@ export default function Dashboard() {
 
       {/* Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
-        <Navbar className="bg-gray-800 py-4 shadow-lg">
-          <NavbarBrand>
-            <Image src="/lg.png" alt="Ukshati Logo" width={180} height={120} />
+        <Navbar className="backdrop-blur-sm py-4 shadow-lg">
+        <NavbarBrand>
+            <Link href="/">
+              <Image 
+                src="/lg.png" 
+                alt="Ukshati Logo" 
+                width={180} 
+                height={120} 
+                className="cursor-pointer hover:opacity-80 transition-opacity"
+              />
+            </Link>
           </NavbarBrand>
           <NavbarContent className="hidden sm:flex gap-6" justify="center">
             <NavbarItem>
               <button onClick={openAboutUs} className="text-blue-400 hover:text-blue-300 transition-colors">About Us</button>
             </NavbarItem>
             <NavbarItem>
-              <button onClick={openContactUs} className="text-blue-400 hover:text-blue-300 transition-colors">Contact Us</button>
+            <button onClick={handleHelpClick} className="text-blue-400 hover:text-blue-300 transition-colors">Help</button>
             </NavbarItem>
           </NavbarContent>
           <NavbarContent className="absolute left-1/2 transform -translate-x-1/2" justify="center">
@@ -211,30 +224,6 @@ export default function Dashboard() {
               Our customizable solutions work for both large gardens and small balconies. We offer water tank-based systems for areas without direct water access, with optional aesthetic enclosures. Our waterproof models withstand various weather conditions, integrating with existing home water systems.
             </p>
             <button onClick={closeAboutUs} className="mt-6 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Contact Us Content */}
-      {isContactUsOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-md">
-          <div className="p-8 max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-6 text-white">Contact Us</h2>
-            <div className="space-y-4">
-              <div className="flex items-center">
-                <FaPhone className="text-blue-600 mr-3 text-xl" />
-                <span className="text-white">+91 7259439998</span>
-              </div>
-              <div className="flex items-center">
-                <FaEnvelope className="text-red-600 mr-3 text-xl" />
-                <a href="mailto:ukshati365@gmail.com" className="text-white hover:text-blue-600">
-                  ukshati365@gmail.com
-                </a>
-              </div>
-            </div>
-            <button onClick={closeContactUs} className="mt-6 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
               Close
             </button>
           </div>
@@ -335,23 +324,170 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full bg-gray-900 text-white py-4 text-center fixed bottom-0 left-0 footer-animated footer-glow">
-      <div className="flex justify-center space-x-6 mb-2">
-          <a href="https://www.facebook.com/ukshati/" target="_blank" rel="noopener noreferrer">
-            <FaFacebook className="text-2xl hover:text-blue-500" />
-          </a>
-          <a href="https://www.instagram.com/ukshati/" target="_blank" rel="noopener noreferrer">
-            <FaInstagram className="text-2xl hover:text-pink-500" />
-          </a>
-          <a href="https://www.linkedin.com/company/ukshati-technologies/" target="_blank" rel="noopener noreferrer">
-            <FaLinkedin className="text-2xl hover:text-blue-700" />
-          </a>
-          <a href="https://twitter.com/ukshati/" target="_blank" rel="noopener noreferrer">
-            <FaTwitter className="text-2xl hover:text-blue-400" />
-          </a>
-        </div>
-        <p className="text-sm">Contact: +91 7259439998 | Email: ukshati365@gmail.com</p>
+      <footer className="w-full backdrop-blur-sm text-white py-4 text-center fixed bottom-0 left-0">
+        <ul className="example-1">
+          <li className="icon-content">
+            <a 
+              href="https://www.facebook.com/ukshati/" 
+              className="link" 
+              data-social="facebook"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <FaFacebook className="text-2xl" />
+              <span className="tooltip">Facebook</span>
+            </a>
+          </li>
+          <li className="icon-content">
+            <a 
+              href="https://www.instagram.com/ukshati/" 
+              className="link" 
+              data-social="instagram"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <FaInstagram className="text-2xl" />
+              <span className="tooltip">Instagram</span>
+            </a>
+          </li>
+          <li className="icon-content">
+            <a 
+              href="https://www.linkedin.com/company/ukshati-technologies/" 
+              className="link" 
+              data-social="linkedin"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <FaLinkedin className="text-2xl" />
+              <span className="tooltip">LinkedIn</span>
+            </a>
+          </li>
+          <li className="icon-content">
+            <a 
+              href="https://twitter.com/ukshati/" 
+              className="link" 
+              data-social="twitter"
+              target="_blank" 
+              rel="noopener noreferrer"
+            >
+              <FaTwitter className="text-2xl" />
+              <span className="tooltip">Twitter</span>
+            </a>
+          </li>
+        </ul>
+        <p className="text-sm mt-4">Contact: +91 7259439998 | Email: ukshati365@gmail.com</p>
       </footer>
+
+      <style jsx global>{`
+        /* Original Button Styles */
+        .next-button {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          border-radius: 50px;
+          border: none;
+          cursor: pointer;
+          transition: all 0.3s ease;
+          position: relative;
+        }
+
+        .arrow-container {
+          display: inline-block;
+          overflow: hidden;
+          width: 0;
+          transition: all 0.3s ease;
+        }
+
+        .arrow-icon {
+          transform: translateX(-10px);
+          opacity: 0;
+          transition: all 0.3s ease;
+        }
+
+        .next-button:hover .arrow-container {
+          width: 24px;
+        }
+
+        .next-button:hover .arrow-icon {
+          transform: translateX(0);
+          opacity: 1;
+        }
+
+        .next-button__line {
+          position: absolute;
+          bottom: 0;
+          left: 0;
+          width: 100%;
+          height: 2px;
+          background: rgba(255,255,255,0.3);
+          transform: scaleX(0);
+          transform-origin: right;
+          transition: transform 0.3s ease;
+        }
+
+        .next-button:hover .next-button__line {
+          transform: scaleX(1);
+          transform-origin: left;
+        }
+
+        /* Updated Footer Styles */
+        .example-1 {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          background-color: #000;
+          border-radius: 30px;
+          padding: 10px;
+          height: 60px;
+          width: 300px;
+          margin: 0 auto;
+        }
+
+        .icon-content {
+          margin: 0 10px;
+          position: relative;
+        }
+
+        .tooltip {
+          position: absolute;
+          top: -30px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: #fff;
+          color: #000;
+          padding: 6px 10px;
+          border-radius: 5px;
+          opacity: 0;
+          visibility: hidden;
+          font-size: 14px;
+          transition: all 0.3s ease;
+        }
+
+        .icon-content:hover .tooltip {
+          opacity: 1;
+          visibility: visible;
+          top: -50px;
+        }
+
+        .link {
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          color: #fff;
+          background-color: #000;
+          transition: all 0.3s ease-in-out;
+        }
+
+        .link:hover {
+          box-shadow: 3px 2px 45px 0px rgba(0,0,0,0.12);
+        }
+
+        .link[data-social="facebook"]:hover { color: #1877f2; }
+        .link[data-social="instagram"]:hover { color: #e4405f; }
+        .link[data-social="linkedin"]:hover { color: #0a66c2; }
+        .link[data-social="twitter"]:hover { color: #1da1f2; }
+      `}</style>
     </div>
   );
 }
