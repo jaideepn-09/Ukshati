@@ -19,6 +19,7 @@ import {
 } from "react-icons/fa";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import Image from "next/image";
+import StarryBackground from "@/components/StarryBackground";
 
 // Bubble Transition Component
 const Bubbles = () => {
@@ -29,7 +30,7 @@ const Bubbles = () => {
         className="bubbles__first"
       />
       <div
-        style={{ animationDuration: `1200ms`, background: "#ffffff" }}
+        style={{ animationDuration: `1200ms`, background: "#000000",filter: "blur(10px)" }}
         className="bubbles__second"
       />
     </div>
@@ -171,13 +172,8 @@ export default function Dashboard() {
 
   return (
     <div 
-      className="flex flex-col min-h-screen bg-cover bg-center text-gray-900"
-      style={{ 
-        background: "linear-gradient(125deg, #0a0a0a 0%, #2d1b4e 29%, #1a0b2e 67%, #0a0a0a 100%)",
-        backgroundSize: "200% 200%",
-        animation: "gradientFlow 15s ease infinite"
-      }}
-    >
+      className="flex flex-col min-h-screen bg-cover bg-center text-gray-900">
+        <StarryBackground/>
       <Bubbles />
 
       {/* Navbar */}
@@ -205,13 +201,13 @@ export default function Dashboard() {
 
       {/* About Us Content */}
       {isAboutUsOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-md">
           <div className="p-8 max-w-3xl w-full mx-4 overflow-y-auto max-h-[90vh]">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">About Us</h2>
-            <p className="text-gray-700 mb-4">
+            <h2 className="text-5xl font-bold mb-6 text-white">About Us</h2>
+            <p className="text-xl text-white mb-4">
               At Ukshati Technologies Pvt Ltd, we have created a platform for automating plant watering. Our mission is to simplify watering while reducing water waste.
             </p>
-            <p className="text-gray-700 mb-4">
+            <p className="text-xl text-white mb-4">
               Our customizable solutions work for both large gardens and small balconies. We offer water tank-based systems for areas without direct water access, with optional aesthetic enclosures. Our waterproof models withstand various weather conditions, integrating with existing home water systems.
             </p>
             <button onClick={closeAboutUs} className="mt-6 px-6 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors">
@@ -223,17 +219,17 @@ export default function Dashboard() {
 
       {/* Contact Us Content */}
       {isContactUsOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-white">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-transparent backdrop-blur-md">
           <div className="p-8 max-w-md w-full mx-4">
-            <h2 className="text-2xl font-bold mb-6 text-gray-800">Contact Us</h2>
+            <h2 className="text-2xl font-bold mb-6 text-white">Contact Us</h2>
             <div className="space-y-4">
               <div className="flex items-center">
                 <FaPhone className="text-blue-600 mr-3 text-xl" />
-                <span className="text-gray-700">+91 7259439998</span>
+                <span className="text-white">+91 7259439998</span>
               </div>
               <div className="flex items-center">
                 <FaEnvelope className="text-red-600 mr-3 text-xl" />
-                <a href="mailto:ukshati365@gmail.com" className="text-gray-700 hover:text-blue-600">
+                <a href="mailto:ukshati365@gmail.com" className="text-white hover:text-blue-600">
                   ukshati365@gmail.com
                 </a>
               </div>
@@ -339,8 +335,8 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full bg-gray-900 text-white py-4 text-center fixed bottom-0 left-0">
-        <div className="flex justify-center space-x-6 mb-2">
+      <footer className="w-full bg-gray-900 text-white py-4 text-center fixed bottom-0 left-0 footer-animated footer-glow">
+      <div className="flex justify-center space-x-6 mb-2">
           <a href="https://www.facebook.com/ukshati/" target="_blank" rel="noopener noreferrer">
             <FaFacebook className="text-2xl hover:text-blue-500" />
           </a>

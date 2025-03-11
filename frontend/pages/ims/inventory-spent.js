@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import StarryBackground from "@/components/StarryBackground";
 
 export default function InventorySpent() {
   const [spentStocks, setSpentStocks] = useState([]);
@@ -28,13 +29,8 @@ export default function InventorySpent() {
   if (error) return <div className="text-red-500 p-4">Error: {error}</div>;
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-gray-100 p-6 text-black"
-      style={{
-        backgroundImage: "url('https://img.freepik.com/premium-photo/automated-inventory-management-system-wallpaper_987764-40035.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+    <div className="min-h-screen flex flex-col items-center  p-6 text-black">
+      <StarryBackground/>
       <h1 className="text-3xl font-bold mb-6 text-white">Inventory Spent</h1>
 
       <div className="bg-white bg-opacity-80 p-8 rounded-lg shadow-md w-full max-w-2xl">

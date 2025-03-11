@@ -63,14 +63,3 @@ body {
   50% { border-radius: var(--size); }
   100% { transform: translate(-50%, 0); border-radius: 0; }
 }
-@keyframes gradientFlow {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
-}

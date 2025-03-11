@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation"; // Import Next.js router for navigation
+import StarryBackground from "@/components/StarryBackground";
 
 export default function StockDetails() {
   const router = useRouter();
@@ -99,8 +100,8 @@ export default function StockDetails() {
   );
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-cover bg-center p-6"
-      style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/automated-inventory-management-system-wallpaper_987764-40035.jpg')" }}>
+    <div className="min-h-screen flex flex-col items-center bg-cover bg-center p-6">
+      <StarryBackground/>
       
       {/* Back Button */}
       <button onClick={() => router.push("/ims/home")} className="absolute top-5 left-5 bg-gray-800 text-white px-4 py-2 rounded-lg hover:bg-gray-700">

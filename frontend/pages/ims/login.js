@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
+import StarryBackground from "@/components/StarryBackground";
 
 export default function Login() {
   const router = useRouter();
@@ -9,6 +10,7 @@ export default function Login() {
   const [error, setError] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  
 
   useEffect(() => {
     // Clear previous session on component mount
@@ -59,9 +61,8 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-cover bg-center"
-      style={{ backgroundImage: "url('https://cepr.org/sites/default/files/styles/16_9_small/public/2023-08/AdobeStock_609595064.jpeg?itok=iwjtIZkQ')" }}
-    >
+    <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
+      <StarryBackground/>
       <div className="bg-white bg-opacity-10 p-8 rounded-lg shadow-xl w-96 transform transition duration-300 hover:scale-105 hover:shadow-[0px_4px_20px_rgba(0,255,255,0.5)] hover:backdrop-blur-lg">
         <h2 className="text-3xl font-semibold text-center text-white mb-6">Login</h2>
         

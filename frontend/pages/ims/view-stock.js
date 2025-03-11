@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import StarryBackground from "@/components/StarryBackground";
 
 export default function ViewStock() {
   const [stocks, setStocks] = useState([]);
@@ -19,13 +20,8 @@ export default function ViewStock() {
 
   return (
     <div
-      className="flex flex-col min-h-screen bg-cover bg-center p-6 text-black"
-      style={{
-        backgroundImage: "url('https://img.freepik.com/premium-photo/automated-inventory-management-system-wallpaper_987764-40035.jpg')",
-        backgroundSize: "cover",
-        backgroundPosition: "center",
-      }}
-    >
+      className="flex flex-col min-h-screen bg-cover bg-center p-6 text-black">
+        <StarryBackground/>
       <h1 className="text-3xl font-bold text-center mb-6 text-black">Stock Details</h1>
 
       <div className="bg-white p-6 rounded-lg shadow-lg max-w-4xl mx-auto w-full bg-opacity-90">

@@ -11,6 +11,7 @@
   "dependencies": {
     "@heroui/react": "^2.7.4",
     "bcryptjs": "^3.0.2",
+    "delaunay-fast": "^1.0.1",
     "framer-motion": "^12.4.7",
     "jsonwebtoken": "^9.0.2",
     "lucide-react": "^0.477.0",

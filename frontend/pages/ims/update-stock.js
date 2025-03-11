@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import StarryBackground from "@/components/StarryBackground";
 
 export default function StockUpdate() {
   const [userRole, setUserRole] = useState("");
@@ -97,8 +98,8 @@ export default function StockUpdate() {
   const totalPages = Math.ceil(filteredStocks.length / itemsPerPage);
 
   return (
-    <div className="min-h-screen flex flex-col items-center bg-cover bg-center p-6"
-      style={{ backgroundImage: "url('https://img.freepik.com/premium-photo/automated-inventory-management-system-wallpaper_987764-40035.jpg')" }}>
+    <div className="min-h-screen flex flex-col items-center bg-cover bg-center p-6">
+      <StarryBackground/>
       
       <h1 className="text-3xl font-bold mb-6 text-white">Stock Management</h1>
 
