@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { FaPlus, FaEye, FaEdit, FaTrash, FaUserPlus, FaCheck, FaUsers, FaBars, FaTimes, FaUser, FaSignOutAlt } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
 import StarryBackground from "@/components/StarryBackground";
+import BackButton from "@/components/BackButton";
 
 export default function Home() {
   const router = useRouter();
@@ -23,7 +24,6 @@ export default function Home() {
   const [loadingEmployees, setLoadingEmployees] = useState(false);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [error, setError] = useState(null);
-  const [loggedInUser, setLoggedInUser] = useState(null);
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState({});
   const [expandedEmployee, setExpandedEmployee] = useState(null);
@@ -31,26 +31,18 @@ export default function Home() {
   const fetchEmployees = async () => {
     try {
       setLoadingEmployees(true);
-      const startTime = Date.now();
       const response = await fetch('/api/employees');
       
-      console.log('Fetch response:', {
-        status: response.status,
-        timeTaken: `${Date.now() - startTime}ms`
-      });
-  
       if (!response.ok) {
         const errorText = await response.text();
         throw new Error(`HTTP ${response.status}: ${errorText}`);
       }
-  
+
       const data = await response.json();
-      console.log('Received employees:', data.employees);
-      
       if (!Array.isArray(data.employees)) {
         throw new Error('Invalid employee data format');
       }
-  
+
       setEmployees(data.employees);
       setError(null);
     } catch (error) {
@@ -62,10 +54,32 @@ export default function Home() {
     }
   };
 
+  const handleDeleteEmployee = async (employeeId) => {
+    try {
+      const response = await fetch('/api/employees', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id: employeeId }),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete employee');
+      }
+
+      fetchEmployees();
+    } catch (error) {
+      console.error("Delete error:", error);
+      setError(error.message);
+    }
+  };
+
   const toggleEmployeeDetails = (employeeId) => {
     setExpandedEmployee(expandedEmployee === employeeId ? null : employeeId);
   };
-  
+
   useEffect(() => {
     const loadUserData = () => {
       try {
@@ -73,64 +87,59 @@ export default function Home() {
         const storedRole = localStorage.getItem("userRole");
         
         if (!storedUser || !storedRole) {
-          router.push("/ims/login");
+          router.push("/login");
           return;
         }
-  
+
         const parsedUser = JSON.parse(storedUser);
-        if (!parsedUser?.email) throw new Error("Invalid user data");
-        
         setUserData({
           name: parsedUser.name,
           email: parsedUser.email,
           phone: parsedUser.phone || 'N/A'
         });
-        
         setUserRole(storedRole.toLowerCase());
       } catch (error) {
         console.error("Session load error:", error);
         router.push("/ims/login");
-      } } 
-      loadUserData();}, [router]);
+      }
+    };
+    loadUserData();
+  }, [router]);
 
-  
-      const inventoryCards = [
-        { 
-          id: 1, 
-          title: "Add Stock", 
-          Icon: FaPlus, 
-          colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"], // Dark → Light → Dark
-          route: "/ims/stocks", 
-          image: "https://www.pngmart.com/files/8/Inventory-PNG-HD.png" 
-        },
-      
-        { 
-          id: 2, 
-          title: "View Stock", 
-          Icon: FaEye, 
-          colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"], // Dark → Light → Dark
-          route: "/ims/view-stock", 
-          image: "https://png.pngtree.com/png-clipart/20230825/original/pngtree-inventory-control-vector-warehouse-industry-picture-image_8773876.png" 
-           
-    
-        },
-        { 
-          id: 3, 
-          title: "Update Stock",
-          Icon: FaEdit, 
-          colors: ["#854d0e", "#ca8a04", "#fde047", "#ca8a04", "#854d0e"], // Dark → Light → Dark
-          route: "/ims/update-stock", 
-          image: "https://cdni.iconscout.com/illustration/premium/thumb/inventory-management-6114065-5059489.png" 
-        },
-        { 
-          id: 4, 
-          title: "Inventory Spent", 
-          Icon: FaTrash, 
-          colors: ["#7f1d1d", "#dc2626", "#f87171", "#dc2626", "#7f1d1d"], // Dark → Light → Dark
-          route: "/ims/inventory-spent", 
-          image: "https://www.deskera.com/blog/content/images/2021/06/InventoryManagement_Hero@3x.png" 
-        }
-      ];
+  const inventoryCards = [
+    { 
+      id: 1, 
+      title: "Add Stock", 
+      Icon: FaPlus, 
+      colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"],
+      route: "/ims/stocks", 
+      image: "https://www.pngmart.com/files/8/Inventory-PNG-HD.png" 
+    },
+    { 
+      id: 2, 
+      title: "View Stock", 
+      Icon: FaEye, 
+      colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"],
+      route: "/ims/view-stock", 
+      image: "https://png.pngtree.com/png-clipart/20230825/original/pngtree-inventory-control-vector-warehouse-industry-picture-image_8773876.png"
+    },
+    { 
+      id: 3, 
+      title: "Update Stock",
+      Icon: FaEdit, 
+      colors: ["#854d0e", "#ca8a04", "#fde047", "#ca8a04", "#854d0e"],
+      route: "/ims/update-stock", 
+      image: "https://cdni.iconscout.com/illustration/premium/thumb/inventory-management-6114065-5059489.png" 
+    },
+    { 
+      id: 4, 
+      title: "Inventory Spent", 
+      Icon: FaTrash, 
+      colors: ["#7f1d1d", "#dc2626", "#f87171", "#dc2626", "#7f1d1d"],
+      route: "/ims/inventory-spent", 
+      image: "https://www.deskera.com/blog/content/images/2021/06/InventoryManagement_Hero@3x.png" 
+    }
+  ];
 
   const handleAddEmployee = async (e) => {
     e.preventDefault();
@@ -143,12 +152,12 @@ export default function Home() {
         },
         body: JSON.stringify(formData),
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create employee');
       }
-  
+
       const newEmployee = await response.json();
       setEmployees(prev => [...prev, newEmployee]);
       setShowSuccessMessage(true);
@@ -157,23 +166,23 @@ export default function Home() {
       setShowEmployeeModal(false);
     } catch (error) {
       setError(error.message);
-      console.error("Submission error:", error);
     } finally {
       setFormSubmitting(false);
     }
   };
-  
+
   const handleLogout = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("userRole");
     localStorage.removeItem("token");
-    router.push("/dashboard");
+    router.push("/login");
   };
 
   return (
-    <div 
-      className="flex flex-col min-h-screen bg-cover text-black">
-        <StarryBackground/>
+    <div className="flex flex-col min-h-screen bg-cover text-black">
+      <StarryBackground/>
+      <BackButton route="/dashboard"/>
+      
       {showSuccessMessage && (
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -195,16 +204,15 @@ export default function Home() {
 
       <div className={`fixed inset-y-0 right-0 w-64 bg-gray-800 text-white shadow-lg transform transition-transform duration-200 ease-in-out ${isMenuOpen ? "translate-x-0" : "translate-x-full"} z-40`}>
         <div className="p-6">
-          {/* Profile Section */}
           <div className="mb-6">
             <h2 className="text-lg font-semibold mb-4">Profile</h2>
             <div className="flex items-center space-x-3">
               <FaUser className="text-2xl" />
               <div>
-    <p className="text-sm font-medium">{userData?.name || 'Unknown User'}</p>
-    <p className="text-xs text-gray-400">{userData?.email || 'No email'}</p>
-    <p className="text-xs text-gray-400 capitalize">{userRole || 'unknown'}</p>
-  </div>
+                <p className="text-sm font-medium">{userData?.name || 'Unknown User'}</p>
+                <p className="text-xs text-gray-400">{userData?.email || 'No email'}</p>
+                <p className="text-xs text-gray-400 capitalize">{userRole || 'unknown'}</p>
+              </div>
             </div>
           </div>
 
@@ -216,9 +224,8 @@ export default function Home() {
             <span>Logout</span>
           </button>
 
-          {userRole === 'admin' &&(
+          {userRole === 'admin' && (
             <>
-              
               <button
                 onClick={() => setShowEmployeeDetails(!showEmployeeDetails)}
                 className="w-full flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 mb-4"
@@ -316,6 +323,12 @@ export default function Home() {
                                       {employee.role}
                                     </span>
                                   </div>
+                                  <button
+                                    onClick={() => handleDeleteEmployee(employee.id)}
+                                    className="w-full bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-200 mt-2"
+                                  >
+                                    Delete Employee
+                                  </button>
                                 </div>
                               </motion.div>
                             )}
@@ -466,7 +479,7 @@ export default function Home() {
                 >
                   <option value="">Select Role</option>
                   <option value="admin">Admin</option>
-                  <option value="staff">Staff</option>
+                  <option value="employee">Employee</option>
                 </select>
               </div>
               <div className="mb-6">
@@ -488,12 +501,12 @@ export default function Home() {
                   Cancel
                 </button>
                 <button
-        type="submit"
-        disabled={formSubmitting}
-        className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-800 disabled:cursor-not-allowed"
-      >
-        {formSubmitting ? 'Creating...' : 'Create Account'}
-      </button>
+                  type="submit"
+                  disabled={formSubmitting}
+                  className="px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-green-800 disabled:cursor-not-allowed"
+                >
+                  {formSubmitting ? 'Creating...' : 'Create Account'}
+                </button>
               </div>
             </form>
           </motion.div>

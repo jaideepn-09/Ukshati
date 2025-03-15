@@ -418,7 +418,7 @@ export default function StockDetails() {
             <table className="w-full">
               <thead className="bg-gray-700">
                 <tr>
-                  {["Product", "Category", "Quantity", "Unit Price", "Actions"].map((header, i) => (
+                  {["Product", "Category", "Quantity", "Unit Price"].map((header, i) => (
                     <th key={i} className="p-3 text-left text-sm font-semibold min-w-[150px]">
                       {header}
                     </th>
@@ -446,51 +446,9 @@ export default function StockDetails() {
                       className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors text-white"
                     >
                       <td className="p-3">{stock.item_name}</td>
-                      <td className="p-3">{stock.category_name}</td>
+                      <td className="p-3">{stock.category_id}</td>
                       <td className="p-3">{stock.quantity}</td>
                       <td className="p-3">₹{stock.price_pu}</td>
-                      <td className="p-3">
-                        <div className="flex gap-2 items-center">
-                          <input
-                            type="number"
-                            min="1"
-                            max={stock.quantity}
-                            className="w-20 p-2 bg-gray-800 rounded"
-                            value={spendQty[stock.stock_id] || ""}
-                            onChange={(e) => setSpendQty({
-                              ...spendQty,
-                              [stock.stock_id]: e.target.value
-                            })}
-                          />
-                          <button
-  onClick={() => handleSpendStock(stock.stock_id)}
-  className="group relative px-4 h-[35px] w-[100px] bg-red-600 rounded-lg hover:bg-red-700 transition-all duration-300 " data-tooltip={`Spend ${spendQty[stock.stock_id] || 0} units`}>
-  <div className="relative w-full h-full">
-    {/* Text - visible by default */}
-    <div className="absolute inset-0 flex items-center justify-center transition-opacity duration-300 group-hover:opacity-0">
-      <span className="text-sm text-white">Spend</span>
-    </div>
-    
-    {/* Icon - hidden by default */}
-    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        className="w-5 h-5 text-white"
-        fill="currentColor"
-        viewBox="0 0 16 16"
-      >
-        <path d="M0 2.5A.5.5 0 0 1 .5 2H2a.5.5 0 0 1 .485.379L2.89 4H14.5a.5.5 0 0 1 .485.621l-1.5 6A.5.5 0 0 1 13 11H4a.5.5 0 0 1-.485-.379L1.61 3H.5a.5.5 0 0 1-.5-.5zM3.14 5l1.25 5h8.22l1.25-5H3.14zM5 13a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0zm9-1a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-2 1a2 2 0 1 1 4 0 2 2 0 0 1-4 0z"/>
-      </svg>
-    </div>
-  </div>
-
-  {/* Tooltip */}
-  <div className="absolute hidden group-hover:block -top-[30px] left-1/2 -translate-x-1/2 w-[130px] px-2 py-1 text-xs bg-gray-700 text-white rounded-md after:content-[''] after:absolute after:top-full after:left-1/2 after:-translate-x-1/2 after:border-8 after:border-x-transparent after:border-b-transparent after:border-t-gray-700">
-    {`Spend ${spendQty[stock.stock_id] || 0} units`}
-  </div>
-</button>
-                        </div>
-                      </td>
                     </tr>
                   ))
                 )}

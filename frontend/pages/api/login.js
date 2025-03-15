@@ -1,56 +1,72 @@
-import mysql from "mysql2/promise";
-import jwt from "jsonwebtoken";
+import bcrypt from 'bcryptjs';
+import { connectToDB } from '@/lib/db';
+import { generateToken } from '@/lib/auth';
 
 export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ message: "Method not allowed" });
+  if (req.method !== 'POST') {
+    return res.status(405).json({ message: 'Method not allowed' });
   }
 
   const { email, password, role } = req.body;
 
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    port: process.env.MYSQL_PORT || 3306,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
   try {
-    // Check if user exists with matching email and role
+    // Validate input
+    if (!email || !password || !role) {
+      return res.status(400).json({ message: 'All fields are required' });
+    }
+
+    // Connect to database
+    const connection = await connectToDB();
+
+    // Debug: Log the input values
+    console.log('Input:', { email, password, role });
+
+    // Find user by email and role
     const [rows] = await connection.execute(
-      "SELECT * FROM employee WHERE email = ? AND role = ?",
-      [email, role]
+      'SELECT * FROM employee WHERE email = ? AND role = ?',
+      [email.toLowerCase().trim(), role.toLowerCase().trim()]
     );
 
+    // Debug: Log the database query result
+    console.log('Database Query Result:', rows);
+
     if (rows.length === 0) {
-      return res.status(401).json({ message: "User not found or role mismatch" });
+      await connection.end();
+      return res.status(401).json({ message: 'Invalid credentials: User not found' });
     }
 
     const user = rows[0];
 
-    // Direct password check (No hashing)
-    if (password !== user.password) {
-      return res.status(401).json({ message: "Incorrect password" });
+    // Debug: Log the user data from the database
+    console.log('User Data:', user);
+
+    // Compare passwords
+    const isPasswordValid = await bcrypt.compare(password.trim(), user.password);
+
+    // Debug: Log password comparison result
+    console.log('Password Comparison Result:', isPasswordValid);
+
+    if (!isPasswordValid) {
+      await connection.end();
+      return res.status(401).json({ message: 'Invalid credentials: Password mismatch' });
     }
 
-    // Use JWT_SECRET from environment or fallback to a default (for testing only)
-    const secret = process.env.JWT_SECRET || "defaultsecret";
-    console.log("Signing token with secret:", secret); // DEBUG: Remove in production
-    const token = jwt.sign(
-      { id: user.id, email: user.email, role: user.role },
-      secret,
-      { expiresIn: "1h" }
-    );
+    // Generate JWT token
+    const token = generateToken(user);
 
-    // Optionally, set a cookie with the user's role (HttpOnly for security)
-    res.setHeader("Set-Cookie", [`userRole=${user.role}; Path=/; HttpOnly`]);
+    // Remove password from user data
+    const { password: _, ...userData } = user;
 
-    res.status(200).json({ message: "Login successful", token, user });
+    await connection.end();
+    
+    res.status(200).json({ 
+      token,
+      user: userData,
+      message: 'Login successful'
+    });
+
   } catch (error) {
-    console.error("Login error:", error);
-    res.status(500).json({ message: "Internal server error", error: error.message });
-  } finally {
-    connection.end();
+    console.error('Login error:', error);
+    res.status(500).json({ message: 'Internal server error' });
   }
 }

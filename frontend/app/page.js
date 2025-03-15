@@ -2,10 +2,10 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { FaFacebook, FaInstagram, FaLinkedin, FaTwitter } from "react-icons/fa";
 import StarryBackground from '@/components/StarryBackground';
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import Image from "next/image";
+import Footer from "@/components/Footer";
 
 const Bubbles = () => {
   return (
@@ -26,6 +26,7 @@ export default function Home() {
   const router = useRouter();
   const [isAboutUsOpen, setIsAboutUsOpen] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -133,24 +134,28 @@ export default function Home() {
 
         {/* Main Content */}
         <div className="flex flex-col items-center justify-center flex-grow pt-16 md:pt-6 px-2">
-        <div className="bg-gradient-to-br from-green-200/50 via-green-400 to-transparent backdrop-blur-sm p-4 md:p-16 rounded-lg shadow-lg text-center w-full max-w-md relative min-h-[300px] md:min-h-[400px] border border-white/20">
-            <h1 className="text-2xl md:text-4xl font-bold mb-4 text-gray-900">
-              Ukshati Technologies Private Ltd.
-            </h1>
-            <p className="text-sm md:text-lg text-gray-800 mb-4 md:mb-6">
-              Welcome!!
-            </p>
+          <div className="bg-gradient-to-br from-green-200/50 via-green-400 to-transparent backdrop-blur-sm p-4 md:p-16 rounded-lg shadow-lg text-center w-full max-w-md relative min-h-[300px] md:min-h-[400px] border border-white/20 group">
+            <div className={`transition-all duration-300 ${isHovered ? 'opacity-0 invisible -translate-y-5' : 'opacity-100 visible translate-y-0'}`}>
+              <h1 className="text-2xl md:text-4xl font-bold mb-4 text-gray-900">
+                Ukshati Technologies Private Ltd.
+              </h1>
+              <p className="text-sm md:text-lg text-gray-800 mb-4 md:mb-6">
+                Welcome!!
+              </p>
+            </div>
 
             <motion.button
-              onClick={() => router.push("/dashboard")}
-             className="plant-button md:mt-16"
+              onHoverStart={() => setIsHovered(true)}
+              onHoverEnd={() => setIsHovered(false)}
+              onClick={() => router.push("/login")}
+              className="plant-button md:mt-16"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
               Explore
               <div className="icon-1">
-              <svg className="w-full h-full" viewBox="0 0 208.52 511.88">
+                <svg className="w-full h-full" viewBox="0 0 208.52 511.88">
                   <path className="fil-leaf-1" d="M121.86 141.25c16.73,2.91 65.77,9.16 77.74,-14.94 14.49,-29.19 12.6,-56.91 -15.12,-69.09 -11.3,-4.96 -22.28,-7.7 -32.28,-9.66 -24.58,24.72 -41.22,75.51 -43.83,83.82 4.31,3.56 8.81,6.86 13.49,9.87zm-17.26 41.05c2.87,7.92 8.26,29.59 7.63,79.7 -0.16,12.74 -0.48,25.41 -0.81,38.43 -1.4,55.59 -2.96,117.52 7.12,210.69l-7.09 0.75c-10.12,-93.56 -8.56,-155.77 -7.15,-211.61 0.33,-13.06 0.65,-25.77 0.81,-38.35 0.53,-42.42 -3.06,-63.29 -5.69,-72.77 -7.55,8.48 -18.48,15.07 -34.33,16.54 -26.77,2.47 -43.19,-16.99 -52.84,-36.58 16.49,-8.49 65.65,-32.22 98.27,-31.47 1.86,1.42 3.76,2.8 5.69,4.13 -0.15,5.56 -1.43,24.61 -11.62,40.53zm-41.18 -148.65c-0.32,0.84 1.68,9.87 -6.19,10.71 -7.87,0.84 -3.26,-5.14 -6.82,-7.98 -3.57,-2.84 -9.97,-14.59 1.99,-15.96 11.97,-1.37 11.02,13.23 11.02,13.23zm124.63 55.54c0,0 -3.89,14.8 -10.18,18.69 -6.3,3.88 -22.78,7.24 -28.87,0.11 -6.09,-7.14 -1.57,-31.71 17.64,-30.45 19.21,1.26 22.68,8.4 21.42,11.65zm-101.53 67.51c0,0 5.88,5.56 5.46,9.87 -0.42,4.3 -5.78,19.21 -14.07,20.05 -8.29,0.84 -24.15,-6.82 -21.84,-17.53 2.31,-10.71 10.5,-11.34 12.6,-10.6 2.1,0.74 3.36,2.1 17.85,-1.78zm61.49 -109.94c-12.74,-2.33 -23.63,-3.69 -31.15,-7.4 0,0 -2.41,15.22 -4.51,19.74 -2.1,4.51 -6.3,17.32 -14.8,21.1 -8.5,3.78 -9.87,-28.14 4.62,-45.15 0,0 -10.13,-4.4 -22.34,-9.92 -11.47,31.21 -7.3,64.58 -7.28,64.68l-0.48 0.06c9.73,14.77 20.76,28.04 33.37,39.01 3.68,-11.43 19.48,-57.46 42.58,-82.12zm-71.44 -23.1c-16.59,-7.55 -35.59,-16.58 -38.25,-19.47 -1.97,-2.14 -4.87,-3.72 -7.63,-4.2 9.11,27.4 20.23,54.59 34.36,78.62 1.13,1.92 2.28,3.82 3.45,5.7 -0.66,-11.21 -0.85,-36.56 8.07,-60.65zm-49.59 -23.57c-2.34,0.66 -4.05,2.62 -4.09,6.41 -0.1,9.45 -9.03,35.38 -9.03,35.38 0,0 33.07,14.91 22.99,23.1 -10.08,8.19 -25.41,-8.5 -26.35,-9.34 0,0 -5.94,16.24 -8.44,35.85 11.53,-1.14 38.81,-2.11 72.53,8.35 -4.45,-6.19 -8.65,-12.68 -12.61,-19.42 -14.44,-24.56 -25.77,-52.36 -35.01,-80.32zm-25.33 95.01c-0.61,6.01 -0.86,12.26 -0.49,18.39 0,0 56.17,-9.87 57.33,8.71 1.15,18.58 -58.48,9.45 -58.48,9.45 0,0 2.71,16.68 10.73,34.23 16.07,-8.25 62.14,-30.45 95.29,-31.76l-1.75 -1.5 0.01 -0.03c-9.54,-8.13 -18.2,-17.54 -26.08,-27.89l-0.01 0.04c-36.16,-12.16 -65.36,-10.82 -76.53,-9.63z"></path>
                 </svg>
               </div>
@@ -171,7 +176,7 @@ export default function Home() {
               </div>
               <div className="icon-5">
                 <svg className="w-full h-full" viewBox="0 0 513.57 1042.57">
-                  <path className="fil-leaf-5" d="M207.74 252.52c0,0 -3.36,127.53 94.31,130.89 0,0 36.92,0.67 66.79,-32.89 0,0 -39.94,-10.4 -50.01,-47.99 -10.07,-37.59 63.1,-27.52 82.23,3.36 0,0 17.47,-34.44 35.17,-77.24 -60.5,-36.51 -169.57,-35.65 -182.77,-35.4 -16.15,16.52 -28.62,31.28 -37.69,42.91l-0 -0c-3.79,4.86 -6.98,9.18 -9.61,12.86l0.02 -0.03c-0.48,0.66 -0.93,1.31 -1.37,1.93l-0.05 0.08 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.7 1 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07c1.63,-0.35 3.25,-0.73 4.87,-1.16zm202.05 -202.04c0,0 -10.74,-24.5 15.1,-37.92 25.84,-13.42 40.95,2.68 38.93,7.72 -2.01,5.03 -36.92,38.6 -54.03,30.21zm41.95 28.86c0,0 3.69,-24.84 23.16,-20.14 19.47,4.7 -2.35,24.16 -6.71,25.51 -4.36,1.34 -17.79,3.36 -16.45,-5.37zm-13.33 143.98c6.34,-15.57 12.61,-32.08 18.03,-48.32 0,0 -14.77,-5.71 -43.63,-9.06 -28.86,-3.36 -48.67,-8.06 -47.99,-20.47 0.67,-12.42 19.47,-12.42 31.21,-12.08 11.75,0.34 44.3,9.4 65.45,21.48 0,0 6.06,-15.02 14,-34.26 -13.59,-6.7 -55.53,-24.2 -111.04,-17.16 -44.54,28.56 -79.28,58.2 -105.29,84.07 26.84,-0.04 122.78,2.26 179.27,35.82zm39.24 -107.98c11.26,-27.2 25.32,-60.47 31.48,-72.24 2.59,-4.94 4.04,-8.91 4.44,-12.19l-0.07 0.03c-7.86,2.78 -15.55,5.64 -23.08,8.58l-0.06 0.03c-43.75,17.09 -81.99,36.73 -115.12,57.12 50.7,-3.62 88.86,12.06 102.42,18.68zm-266.36 117.31l-0 0 0.19 -0.24c1.61,-2.06 3.33,-4.22 5.15,-6.47l0.6 -0.74c1.8,-2.22 3.71,-4.51 5.72,-6.89l0.53 -0.62c0.65,-0.77 1.31,-1.54 1.99,-2.33l0.45 -0.53c0.8,-0.93 1.62,-1.87 2.44,-2.82l-0.47 -0.16c26.43,-78.83 20.84,-169.24 18.14,-197.94 -29.06,6.17 -63.45,14.58 -92.65,24.81 0,0 -10.74,27.18 -8.73,47.66 2.01,20.47 10.4,39.6 17.79,47.99 7.38,8.39 -4.03,19.8 -14.1,11.08 -10.07,-8.73 -33.9,-27.86 -31.88,-85.58 0,0 -51.69,29.87 -54.37,96.99 -2.41,60.36 60.31,104.42 124.22,99.27 -29.57,40.64 -52.99,92.96 -71.11,145.44 -34.37,99.52 -49.74,199.84 -51.89,221.41 -1.69,16.94 -9.22,61.56 -18.01,108.82 -8.48,45.59 -18.12,93.5 -24.81,121.32 -13.86,57.6 -20.46,188.53 -20.47,188.9l11.37 0.54c0.02,-0.37 6.56,-130.3 20.16,-186.81 6.77,-28.15 16.45,-76.26 24.95,-121.9 8.84,-47.51 16.42,-92.5 18.15,-109.76 2.13,-21.29 17.32,-120.37 51.32,-218.82 17.84,-51.67 40.86,-103.1 69.86,-142.81 3.19,-7.16 11.12,-24.22 15.49,-29.83zm25.46 -30.01c1.38,-1.51 2.8,-3.04 4.25,-4.58l0.29 -0.31c0.84,-0.89 1.69,-1.8 2.55,-2.7l0.67 -0.7c2.7,-2.84 5.52,-5.73 8.45,-8.67l0.65 -0.65c0.97,-0.98 1.96,-1.96 2.96,-2.95l0.38 -0.38c3.13,-3.09 6.39,-6.23 9.77,-9.41l0.58 -0.54c4.62,-4.35 9.48,-8.77 14.57,-13.25l0.68 -0.6c3.78,-3.32 7.7,-6.68 11.74,-10.06l0.29 -0.24c5.54,-4.63 11.33,-9.29 17.36,-13.99l0.57 -0.44c6.07,-4.71 12.39,-9.44 18.97,-14.18l0.24 -0.17c4.93,-3.55 10.01,-7.1 15.23,-10.64l0.24 -0.16c4.13,-2.8 8.36,-5.6 12.68,-8.38 1.65,-4.78 23.49,-68.56 28.59,-99.33 -14.9,-0.31 -31.83,-0.37 -51.18,-0.15 0,0 -12.75,35.24 -9.73,54.03 3.02,18.79 9.73,34.9 -0.34,37.25 -10.07,2.35 -31.21,-20.47 -17.79,-89.27 0,0 -24.82,3.76 -57.81,10.6 2.58,27.06 8.08,112.25 -14.87,189.88zm130.78 -107.89l1.53 -0.95 0.35 -0.22c7.57,-4.71 15.41,-9.39 23.53,-14l0.16 -0.09c6.06,-3.44 12.27,-6.86 18.63,-10.22l0.29 -0.16c8.49,-4.49 17.26,-8.91 26.3,-13.23l0.6 -0.29c6.76,-3.22 13.68,-6.39 20.75,-9.5l0.12 -0.05c2.34,-1.03 4.7,-2.05 7.07,-3.06l0.5 -0.21c7,-2.98 14.15,-5.89 21.45,-8.74l1.17 -0.46c2.38,-0.92 4.78,-1.84 7.19,-2.75l0.09 -0.03c5.13,-1.93 10.34,-3.82 15.61,-5.68l0.07 -0.03c-2.61,-6.39 -11.96,-9.39 -26.62,-13.87 -18.07,-5.52 -44.02,-9.54 -92.15,-10.8 -4.31,26.52 -20.49,76.07 -26.62,94.33z"></path>
+                  <path className="fil-leaf-5" d="M207.74 252.52c0,0 -3.36,127.53 94.31,130.89 0,0 36.92,0.67 66.79,-32.89 0,0 -39.94,-10.4 -50.01,-47.99 -10.07,-37.59 63.1,-27.52 82.23,3.36 0,0 17.47,-34.44 35.17,-77.24 -60.5,-36.51 -169.57,-35.65 -182.77,-35.4 -16.15,16.52 -28.62,31.28 -37.69,42.91l-0 -0c-3.79,4.86 -6.98,9.18 -9.61,12.86l0.02 -0.03c-0.48,0.66 -0.93,1.31 -1.37,1.93l-0.05 0.08 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.7 1 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07 -0.05 0.07c1.63,-0.35 3.25,-0.73 4.87,-1.16zm202.05 -202.04c0,0 -10.74,-24.5 15.1,-37.92 25.84,-13.42 40.95,2.68 38.93,7.72 -2.01,5.03 -36.92,38.6 -54.03,30.21zm41.95 28.86c0,0 3.69,-24.84 23.16,-20.14 19.47,4.7 -2.35,24.16 -6.71,25.51 -4.36,1.34 -17.79,3.36 -16.45,-5.37zm-13.33 143.98c6.34,-15.57 12.61,-32.08 18.03,-48.32 0,0 -14.77,-5.71 -43.63,-9.06 -28.86,-3.36 -48.67,-8.06 -47.99,-20.47 0.67,-12.42 19.47,-12.42 31.21,-12.08 11.75,0.34 44.3,9.4 65.45,21.48 0,0 6.06,-15.02 14,-34.26 -13.59,-6.7 -55.53,-24.2 -111.04,-17.16 -44.54,28.56 -79.28,58.2 -105.29,84.07 26.84,-0.04 122.78,2.26 179.27,35.82zm39.24 -107.98c11.26,-27.2 25.32,-60.47 31.48,-72.24 2.59,-4.94 4.04,-8.91 4.44,-12.19l-0.07 0.03c-7.86,2.78 -15.55,5.64 -23.08,8.58l-0.06 0.03c-43.75,17.09 -81.99,36.73 -115.12,57.12 50.7,-3.62 88.86,12.06 102.42,18.68zm-266.36 117.31l-0 0 0.19 -0.24c1.61,-2.06 3.33,-4.22 5.15,-6.47l0.6 -0.74c1.8,-2.22 3.71,-4.51 5.72,-6.89l0.53 -0.62c0.65,-0.77 1.31,-1.54 1.99,-2.33l0.45 -0.53c0.8,-0.93 1.62,-1.87 2.44,-2.82l-0.47 -0.16c26.43,-78.83 20.84,-169.24 18.14,-197.94 -29.06,6.17 -63.45,14.58 -92.65,24.81 0,0 -10.74,27.18 -8.73,47.66 2.01,20.47 10.4,39.6 17.79,47.99 7.38,8.39 -4.03,19.8 -14.1,11.08 -10.07,-8.73 -33.9,-27.86 -31.88,-85.58 0,0 -51.69,29.87 -54.37,96.99 -2.41,60.36 60.31,104.42 124.22,99.27 -29.57,40.64 -52.99,92.96 -71.11,145.44 -34.37,99.52 -49.74,199.84 -51.89,221.41 -1.69,16.94 -9.22,61.56 -18.01,108.82 -8.48,45.59 -18.12,93.5 -24.81,121.32 -13.86,57.6 -20.46,188.53 -20.47,188.9l11.37 0.54c0.02,-0.37 6.56,-130.3 20.16,-186.81 6.77,-28.15 16.45,-76.26 24.95,-121.9 8.84,-47.51 16.42,-92.5 18.15,-109.76 2.13,-21.29 17.32,-120.37 51.32,-218.82 17.84,-51.67 40.86,-103.1 69.86,-142.81 3.19,-7.16 11.12,-24.22 15.49,-29.83zm25.46 -30.01c1.38,-1.51 2.8,-3.04 4.25,-4.58l0.29 -0.31c0.84,-0.89 1.69,-1.8 2.55,-2.7l0.67 -0.7c2.7,-2.84 5.52,-5.73 8.45,-8.67l0.65 -0.65c0.97,-0.98 1.96,-1.96 2.96,-2.95l0.38 -0.38c3.13,-3.09 6.39,-6.23 9.77,-9.41l0.58 -0.54c4.62,-4.35 9.48,-8.77 14.57,-13.25l0.68 -0.6c3.78,-3.32 7.7,-6.68 11.74,-10.06l0.29 -0.24c5.54,-4.63 11.33,-9.29 17.36,-13.99l0.57 -0.44c6.07,-4.71 12.39,-9.44 18.97,-14.18l0.24 -0.17c4.93,-3.55 10.01,-7.1 15.23,-10.64l0.24 -0.16c4.13,-2.8 8.36,-5.6 12.68,-8.38 1.65,-4.78 23.49,-68.56 28.59,-99.33 -14.9,-0.31 -31.83,-0.37 -51.18,-0.15 0,0 -12.75,35.24 -9.73,54.03 3.02,18.79 9.73,34.9 -0.34,37.25 -10.07,2.35 -31.21,-20.47 -17.79,-89.27 0,0 -24.82,3.76 -57.81,10.6 2.58,27.06 8.08,112.25 -14.87,189.88zm130.78 -107.89l1.53 -0.95 0.35 -0.22c7.57,-4.71 15.41,-9.39 23.53,-14l0.16 -0.09c6.06,-3.44 12.27,-6.86 18.63,-10.22l0.29 -0.16c8.49,-4.49 17.26,-8.91 26.3,-13.23l0.6 -0.29c6.76,-3.22 13.68,-6.39 20.75,-9.5l0.12 -0.05c2.34,-1.03 4.7,-2.05 7.07,-3.06l0.5 -0.21c7,-2.98 14.15,-5.89 21.45,-8.74l1.17 -0.46c2.38,-0.92 4.78,-1.84 7.19,-2.75l0.09 -0.03c5.13,-1.93 10.34,-3.82 15.61,-5.68l0.07 -0.03c-2.61,-6.39 -11.96,-9.39 -26.62,-13.87 -18.07,-5.52 -44.02,-9.54 -92.15,-10.8 -4.31,26.52 -20.49,76.07 -26.62,94.33z"></path>
                 </svg>
               </div>
             </motion.button>
@@ -179,71 +184,10 @@ export default function Home() {
         </div>
         
         {/* Footer */}
-        <footer className="w-full backdrop-blur-sm text-white py-4 text-center fixed bottom-0 left-0">
-        <ul className="example-1">
-          <li className="icon-content">
-            <a 
-              href="https://www.facebook.com/ukshati/" 
-              className="link" 
-              data-social="facebook"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaFacebook className="text-2xl" />
-              <span className="tooltip">Facebook</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://www.instagram.com/ukshati/" 
-              className="link" 
-              data-social="instagram"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaInstagram className="text-2xl" />
-              <span className="tooltip">Instagram</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://www.linkedin.com/company/ukshati-technologies/" 
-              className="link" 
-              data-social="linkedin"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaLinkedin className="text-2xl" />
-              <span className="tooltip">LinkedIn</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://twitter.com/ukshati/" 
-              className="link" 
-              data-social="twitter"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaTwitter className="text-2xl" />
-              <span className="tooltip">Twitter</span>
-            </a>
-          </li>
-        </ul>
-        <p className="text-sm mt-4">Contact: +91 7259439998 | Email: ukshati365@gmail.com</p>
-      </footer>
+        <Footer/>
 
-      <style jsx global>{`
-        /* Original Button Styles */
-        .next-button {
-          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-          border-radius: 50px;
-          border: none;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          position: relative;
-        }
-        .plant-button {
+        <style jsx global>{`
+          .plant-button {
             position: relative;
             padding: 13px 35px;
             background: #f5ddb7;
@@ -254,6 +198,7 @@ export default function Home() {
             border-radius: 8px;
             box-shadow: 2px 2px 5px #18181869, inset 2px 2px 10px #ffffffb0;
             transition: all .3s ease-in-out;
+            z-index: 2;
           }
 
           .plant-button:hover {
@@ -349,105 +294,66 @@ export default function Home() {
           .fil-leaf-4 { fill: #3C4819 }
           .fil-leaf-5 { fill: #3C4819 }
 
-        .arrow-container {
-          display: inline-block;
-          overflow: hidden;
-          width: 0;
-          transition: all 0.3s ease;
-        }
+          /* Footer styles */
+          .example-1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: #000;
+            border-radius: 30px;
+            padding: 10px;
+            height: 60px;
+            width: 300px;
+            margin: 0 auto;
+          }
 
-        .arrow-icon {
-          transform: translateX(-10px);
-          opacity: 0;
-          transition: all 0.3s ease;
-        }
+          .icon-content {
+            margin: 0 10px;
+            position: relative;
+          }
 
-        .next-button:hover .arrow-container {
-          width: 24px;
-        }
+          .tooltip {
+            position: absolute;
+            top: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #fff;
+            color: #000;
+            padding: 6px 10px;
+            border-radius: 5px;
+            opacity: 0;
+            visibility: hidden;
+            font-size: 14px;
+            transition: all 0.3s ease;
+          }
 
-        .next-button:hover .arrow-icon {
-          transform: translateX(0);
-          opacity: 1;
-        }
+          .icon-content:hover .tooltip {
+            opacity: 1;
+            visibility: visible;
+            top: -50px;
+          }
 
-        .next-button__line {
-          position: absolute;
-          bottom: 0;
-          left: 0;
-          width: 100%;
-          height: 2px;
-          background: rgba(255,255,255,0.3);
-          transform: scaleX(0);
-          transform-origin: right;
-          transition: transform 0.3s ease;
-        }
+          .link {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            color: #fff;
+            background-color: #000;
+            transition: all 0.3s ease-in-out;
+          }
 
-        .next-button:hover .next-button__line {
-          transform: scaleX(1);
-          transform-origin: left;
-        }
+          .link:hover {
+            box-shadow: 3px 2px 45px 0px rgba(0,0,0,0.12);
+          }
 
-        /* Updated Footer Styles */
-        .example-1 {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          background-color: #000;
-          border-radius: 30px;
-          padding: 10px;
-          height: 60px;
-          width: 300px;
-          margin: 0 auto;
-        }
-
-        .icon-content {
-          margin: 0 10px;
-          position: relative;
-        }
-
-        .tooltip {
-          position: absolute;
-          top: -30px;
-          left: 50%;
-          transform: translateX(-50%);
-          background-color: #fff;
-          color: #000;
-          padding: 6px 10px;
-          border-radius: 5px;
-          opacity: 0;
-          visibility: hidden;
-          font-size: 14px;
-          transition: all 0.3s ease;
-        }
-
-        .icon-content:hover .tooltip {
-          opacity: 1;
-          visibility: visible;
-          top: -50px;
-        }
-
-        .link {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          width: 40px;
-          height: 40px;
-          border-radius: 50%;
-          color: #fff;
-          background-color: #000;
-          transition: all 0.3s ease-in-out;
-        }
-
-        .link:hover {
-          box-shadow: 3px 2px 45px 0px rgba(0,0,0,0.12);
-        }
-
-        .link[data-social="facebook"]:hover { color: #1877f2; }
-        .link[data-social="instagram"]:hover { color: #e4405f; }
-        .link[data-social="linkedin"]:hover { color: #0a66c2; }
-        .link[data-social="twitter"]:hover { color: #1da1f2; }
-      `}</style>
+          .link[data-social="facebook"]:hover { color: #1877f2; }
+          .link[data-social="instagram"]:hover { color: #e4405f; }
+          .link[data-social="linkedin"]:hover { color: #0a66c2; }
+          .link[data-social="twitter"]:hover { color: #1da1f2; }
+        `}</style>
       </div>
     </div>
   );

@@ -20,6 +20,7 @@ import {
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import Image from "next/image";
 import StarryBackground from "@/components/StarryBackground";
+import Footer from "@/components/Footer";
 
 // Bubble Transition Component
 const Bubbles = () => {
@@ -82,7 +83,7 @@ export default function Dashboard() {
     },
     { 
       name: "Inventory", 
-      path: "/ims/login", 
+      path: "/ims/home", 
       icon: <FaBoxOpen className="text-5xl" />, 
       gradient: "bg-gradient-to-r from-green-400 to-teal-500", 
       description: "Track stock and supplies.",
@@ -127,7 +128,7 @@ export default function Dashboard() {
     },
     { 
       name: "Quotation", 
-      path: "/quotation", 
+      path: "/quotation/home", 
       icon: <FaFileContract className="text-5xl" />, 
       gradient: "bg-gradient-to-r from-orange-400 to-yellow-500", 
       description: "Create and send quotations.",
@@ -185,7 +186,7 @@ export default function Dashboard() {
       <div className="fixed top-0 left-0 w-full z-50">
         <Navbar className="backdrop-blur-sm py-4 shadow-lg">
         <NavbarBrand>
-            <Link href="/">
+            <Link href="/dashboard">
               <Image 
                 src="/lg.png" 
                 alt="Ukshati Logo" 
@@ -324,59 +325,7 @@ export default function Dashboard() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full backdrop-blur-sm text-white py-4 text-center fixed bottom-0 left-0">
-        <ul className="example-1">
-          <li className="icon-content">
-            <a 
-              href="https://www.facebook.com/ukshati/" 
-              className="link" 
-              data-social="facebook"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaFacebook className="text-2xl" />
-              <span className="tooltip">Facebook</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://www.instagram.com/ukshati/" 
-              className="link" 
-              data-social="instagram"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaInstagram className="text-2xl" />
-              <span className="tooltip">Instagram</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://www.linkedin.com/company/ukshati-technologies/" 
-              className="link" 
-              data-social="linkedin"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaLinkedin className="text-2xl" />
-              <span className="tooltip">LinkedIn</span>
-            </a>
-          </li>
-          <li className="icon-content">
-            <a 
-              href="https://twitter.com/ukshati/" 
-              className="link" 
-              data-social="twitter"
-              target="_blank" 
-              rel="noopener noreferrer"
-            >
-              <FaTwitter className="text-2xl" />
-              <span className="tooltip">Twitter</span>
-            </a>
-          </li>
-        </ul>
-        <p className="text-sm mt-4">Contact: +91 7259439998 | Email: ukshati365@gmail.com</p>
-      </footer>
+      <Footer/>
 
       <style jsx global>{`
         /* Original Button Styles */

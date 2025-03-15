@@ -59,7 +59,6 @@ export default function StockUpdate() {
   const itemsPerPage = 10; // Adjust as necessary
 
   useEffect(() => {
-    // Get user role from localStorage (set by api/login or api/auth/me)
     const role = localStorage.getItem("userRole") || "";
     console.log("User role:", role);
     setUserRole(role);
@@ -75,7 +74,15 @@ export default function StockUpdate() {
 
   const fetchStocks = async () => {
     try {
-      const response = await fetch("/api/stocks");
+      const token = localStorage.getItem("token"); // Retrieve token
+      if (!token) throw new Error("No token found");
+
+      const response = await fetch("/api/stocks", {
+        headers: {
+          "Authorization": `Bearer ${token}`,
+        },
+      });
+
       if (!response.ok) throw new Error("Failed to fetch stocks");
       const data = await response.json();
       setStocks(data);
@@ -85,6 +92,7 @@ export default function StockUpdate() {
   };
 
   const handleUpdateStock = async () => {
+    // Case-insensitive role check
     if (userRole?.toLowerCase() !== "admin") { 
       alert("Admin access required to update stock");
       return;
@@ -99,12 +107,15 @@ export default function StockUpdate() {
       if (!price || isNaN(price)) 
         throw new Error("Invalid price");
 
-      const token = localStorage.getItem("userRole");
+      // Retrieve the token from localStorage
+      const token = localStorage.getItem("token");
+      if (!token) throw new Error("No token found");
+
       const response = await fetch("/api/updateStock", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}`
+          "Authorization": `Bearer ${token}` // Send token in the Authorization header
         },
         body: JSON.stringify({
           stockId: currentStock.stock_id,
@@ -152,28 +163,28 @@ export default function StockUpdate() {
       
       {/* Header */}
       <header className="ml-6 p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
-              <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <button
-                  onClick={() => router.push("/ims/home")}
-                  className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-                >
-                  <FiArrowLeft className="text-xl" />
-                  <span className="font-semibold">Back</span>
-                </button>
-      
-                <div className="flex-1 text-center">
-                  <h1 className="text-2xl font-bold text-blue-400">Stock Management</h1>
-                </div>
-      
-                <button
-                  onClick={() => router.push("/ims/view-stock")}
-                  className="flex mr-8 items-center gap-2 hover:text-blue-400 transition-colors"
-                >
-                  <FiActivity className="text-xl" />
-                  <span className="font-semibold">View Inventory</span>
-                </button>
-              </div>
-            </header>
+        <div className="max-w-7xl mx-auto flex items-center justify-between">
+          <button
+            onClick={() => router.push("/ims/home")}
+            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <FiArrowLeft className="text-xl" />
+            <span className="font-semibold">Back</span>
+          </button>
+
+          <div className="flex-1 text-center">
+            <h1 className="text-2xl font-bold text-blue-400">Stock Management</h1>
+          </div>
+
+          <button
+            onClick={() => router.push("/ims/view-stock")}
+            className="flex mr-8 items-center gap-2 hover:text-blue-400 transition-colors"
+          >
+            <FiActivity className="text-xl" />
+            <span className="font-semibold">View Inventory</span>
+          </button>
+        </div>
+      </header>
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-4 space-y-8">

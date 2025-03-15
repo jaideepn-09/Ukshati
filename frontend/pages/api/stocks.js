@@ -7,9 +7,9 @@ export default async function handler(req, res) {
     try {
       console.log("Received POST request:", req.body);
 
-      const { categoryId, productName, quantity, price } = req.body;
+      const { category_name, productName, quantity, price } = req.body;
 
-      if (!categoryId || !productName || !quantity || !price) {
+      if (!category_name || !productName || !quantity || !price) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
@@ -27,21 +27,18 @@ export default async function handler(req, res) {
         const newQuantity = oldQuantity + parseInt(quantity);
       
         // Compute the new price per unit (weighted average)
-        const newPricePerUnit = (parseFloat(price) + oldPricePerUnit);
+        const newPricePerUnit = ((oldPricePerUnit * oldQuantity) + (parseFloat(price) * parseInt(quantity))) / newQuantity;
 
         console.log(`Updating Stock ID: ${stockId}, Old Price: ${oldPricePerUnit}, New Price: ${newPricePerUnit}`);
       
         // Update stock with new quantity & price
         await db.execute(
           "UPDATE stock SET quantity = ?, price_pu = ? WHERE stock_id = ?",
-          [newQuantity, newPricePerUnit, stockId]
+          [newQuantity, newPricePerUnit+oldPricePerUnit, stockId]
         );
       
-        // Fetch updated stock details including the category name
-        const [updatedStock] = await db.execute(
-          "SELECT s.*, c.category_name FROM stock s JOIN category c ON s.category_id = c.category_id WHERE s.stock_id = ?",
-          [stockId]
-        );
+        // Fetch updated stock details
+        const [updatedStock] = await db.execute("SELECT * FROM stock WHERE stock_id = ?", [stockId]);
       
         return res.status(200).json({ message: "Stock updated successfully", stock: updatedStock[0] });
       } else {
@@ -50,14 +47,8 @@ export default async function handler(req, res) {
           "INSERT INTO stock (item_name, category_id, quantity, price_pu) VALUES (?, ?, ?, ?)",
           [productName, categoryId, quantity, price]
         );
-        
-        // Fetch inserted stock details including the category name
-        const [newStock] = await db.execute(
-          "SELECT s.*, c.category_name FROM stock s JOIN category c ON s.category_id = c.category_id WHERE s.stock_id = ?",
-          [result.insertId]
-        );
 
-        return res.status(201).json({ message: "Stock added successfully", stock: newStock[0] });
+        return res.status(201).json({ message: "Stock added successfully", stockId: result.insertId });
       }
     } catch (error) {
       console.error("Error adding stock:", error);
@@ -65,10 +56,7 @@ export default async function handler(req, res) {
     }
   } else if (req.method === "GET") {
     try {
-      // Fetch stocks including the category name
-      const [stocks] = await db.execute(
-        "SELECT s.*, c.category_name FROM stock s JOIN category c ON s.category_id = c.category_id ORDER BY s.stock_id DESC"
-      );
+      const [stocks] = await db.execute("SELECT * FROM stock ORDER BY stock_id DESC");
       return res.status(200).json(stocks);
     } catch (error) {
       console.error("Error fetching stocks:", error);

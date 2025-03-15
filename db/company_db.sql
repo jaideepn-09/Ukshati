@@ -130,11 +130,11 @@ CREATE TABLE `employee` (
 LOCK TABLES `employee` WRITE;
 /*!40000 ALTER TABLE `employee` DISABLE KEYS */;
 INSERT INTO `employee` (`name`, `email`, `phone`, `password`, `role`) VALUES
-('Alice Johnson', 'admin@example.com', '9876543210', 'admin123', 'Admin'),
-('Bob Smith', 'bob@example.com', '9123456789', 'bob@123', 'Employee'),
-('Charlie Brown', 'employee@example.com', '9456723421', 'Charlie@123', 'Employee'),
-('David Lee', 'david@example.com', '9781234567', 'david123', 'Employee'),
-('Eva White', 'eva@example.com', '9345678901', 'Eva@123', 'Admin');
+('Alice Johnson', 'admin@example.com', '9876543210', '$2b$10$paEhzm4yqGvqSgGpm4vGAeuhAQGcIMvQm8dtEgrbS0K6U6fGg52jS', 'Admin'),
+('Bob Smith', 'bob@example.com', '9123456789', '$2b$10$G8vHZuRKnA.jR6fzELaWyOo3XpRDFogSvK0nEWq0gVk2eEz2TyZDG', 'Employee'),
+('Charlie Brown', 'employee@example.com', '9456723421', '$2b$10$8xY5DPDdxD8oGWAEL3xAL..VjDG0rvZevr7bNOoLEzaO7E4fV/EZq', 'Employee'),
+('David Lee', 'david@example.com', '9781234567', '$2b$10$EPwbVb6bnIT7M0xZLb0UneVrScwlbjVnFQwTO0p093xs0Iev/falK', 'Employee'),
+('Eva White', 'eva@example.com', '9345678901', '$2b$10$2HIxE4dJc/bhoCBURewwHeyvz6dCesqAaQicQDFI/SogbZhIgDZ3i', 'Admin');
 /*!40000 ALTER TABLE `employee` ENABLE KEYS */;
 UNLOCK TABLES;
 
