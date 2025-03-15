@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   nextjs:
     build: .
@@ -15,7 +17,6 @@ services:
       - NODE_ENV=development
       - CHOKIDAR_USEPOLLING=true 
       - WATCHPACK_POLLING=true 
- 
     depends_on:
       db:
         condition: service_healthy
@@ -38,8 +39,8 @@ services:
       MYSQL_USER: company
       MYSQL_PASSWORD: Ukshati@123
     volumes:
-      - mysql-data:/var/lib/mysql
-      - ./db/company_db.sql:/docker-entrypoint-initdb.d/init.sql
+      - mysql-data:/var/lib/mysql 
+      - ./db/company_db.sql:/docker-entrypoint-initdb.d/init.sql  
     networks:
       - app-network
     healthcheck:
@@ -49,7 +50,7 @@ services:
       retries: 10
 
 volumes:
-  mysql-data:
+  mysql-data:  # Volume to persist MySQL database data
 
 networks:
   app-network:
