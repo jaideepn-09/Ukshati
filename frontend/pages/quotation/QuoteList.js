@@ -2,6 +2,9 @@
 
 import { useState } from "react";
 import jsPDF from "jspdf";
+import { motion } from "framer-motion"; // Ensure motion is imported
+import { FaSearch } from "react-icons/fa"; // Import search icon from React Icons
+import {FiSearch} from "react-icons/fi"
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from "@/components/BackButton";
 import ScrollToTopButton from "@/components/scrollup";
@@ -97,39 +100,35 @@ export default function SearchQuotes() {
             const logo = await loadImage(logoUrl);
             const qrCode = await loadImage(qrCodeUrl);
 
-            doc.setFillColor(173, 216, 230); // RGB for light blue
-doc.rect(15, 15, 180, 20, 'F');
-            doc.addImage(logo, "PNG", 20,15 , 25, 25);
+            doc.setFillColor(173, 216, 230);
+            doc.rect(0, 0, 210, 30, "F");
+            doc.addImage(logo, "PNG", 15, 5, 20, 20);
 
             doc.setFont("helvetica", "bold");
             doc.setTextColor(0, 64, 128);
             doc.setFontSize(18);
             const companyName = "Ukshati Technologies Pvt Ltd";
-            const quoteDate = new Date().toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: 'long', 
-                year: 'numeric' 
-              });
             const textWidth = doc.getTextWidth(companyName);
             const pageWidth = doc.internal.pageSize.width;
-            doc.text(companyName, (pageWidth - textWidth) / 2, 25);
+            doc.text(companyName, (pageWidth - textWidth) / 2, 15);
 
             doc.setFontSize(10);
             doc.setTextColor(0, 0, 0);
-            doc.text("2nd Floor, Pramod Automobiles Building,", 15, 45);
-            doc.text("Karangalpady, Mangalore - 575003, Karnataka", 15, 50);
-            doc.text("Phone: +91 8861567365", 15, 56);
-            doc.text("www.ukshati.com", 15, 62);
+            doc.text("2nd Floor, Pramod Automobiles Building,", 15, 38);
+            doc.text("Karangalpady, Mangalore - 575003, Karnataka", 15, 44);
+            doc.text("Phone: +91 8861567365", 15, 50);
+            doc.text("www.ukshati.com", 15, 56);
 
             doc.setDrawColor(50, 50, 150);
             doc.setLineWidth(0.6);
-            doc.line(15, 70, 195, 70);
+            doc.line(15, 60, 195, 60);
 
             doc.setFont("helvetica", "normal");
-            doc.text(`Quote ID: ${quote.quote_id}                                      Date: ${quoteDate}`, 20, 80);
-            doc.text(`Customer: ${quote.customer_name}                            Address: ${quote.address || "N/A"}`, 20, 90);
-       
-            doc.text(`Phone: ${quote.phone || "N/A"}`, 20, 100);
+            doc.text(`Quote ID: ${quote.quote_id}`, 15, 68);
+            doc.text(`Date: ${quote.date}`, 15, 76);
+            doc.text(`Customer: ${quote.customer_name}`, 15, 84);
+            doc.text(`Address: ${quote.address || "N/A"}`, 15, 92);
+            doc.text(`Phone: ${quote.phone || "N/A"}`, 15, 100);
 
             let yPos = 115;
             doc.setFillColor(200, 200, 200);
@@ -170,12 +169,12 @@ doc.rect(15, 15, 180, 20, 'F');
             doc.setTextColor(0, 0, 0);
             doc.text("Total Cost", 20, yPos + 5);
             doc.text(`Rs ${totalCostValue.toFixed(2)}`, 140, yPos + 5);
-            yPos += 24;
+            yPos += 14;
 
             doc.setFontSize(11);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(50, 50, 150);
-            doc.text("Bank Details", 20, yPos);
+            doc.text("Bank Details", 15, yPos);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(0, 0, 0);
             yPos += 8;
@@ -187,7 +186,7 @@ doc.rect(15, 15, 180, 20, 'F');
             ];
 
             bankDetails.forEach((detail) => {
-                doc.text(detail, 20, yPos);
+                doc.text(detail, 15, yPos);
                 yPos += 8;
             });
             // Draw the line after bank details
@@ -195,26 +194,7 @@ doc.rect(15, 15, 180, 20, 'F');
           doc.setLineWidth(0.6);
           doc.line(15, yPos + 5, 195, yPos + 5);
 
-            doc.addImage(qrCode, "PNG", 145, 180, 30, 30);
-
-           // 5 units below the QR code (which is 40px tall)
-  // Green color (RGB: 0,128,0)
-      // Thick line
-  // Draw line from x=20 to x=190
-  
-  // 3. Add Special Notes below the green line (starting a little further down)
-  const specialNotesY = yPos +15 ; // 10 units below the green line
-  doc.setFont('150', 'normal');
-  doc.setFontSize(12);
-  doc.text('Special Notes:', 20, specialNotesY);
-  doc.text('Two-year warranty included.', 20, specialNotesY + 6);
-  doc.text('SIM card not included in the package.', 20, specialNotesY + 12);
-  doc.text('Payment terms: 70% advance, 30% after installation.', 20, specialNotesY + 18);
-  doc.text('Extra work charged separately.', 20, specialNotesY + 24);
-  doc.text('Wi-Fi extender extra if signal weak.', 20, specialNotesY + 30);
-  doc.text('Quote validity: 6 months from date of issue.', 20, specialNotesY + 36);
-
-            
+            doc.addImage(qrCode, "PNG", 160, 260, 30, 30);
             doc.save(`Quote_${quote.quote_id}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);
@@ -222,98 +202,142 @@ doc.rect(15, 15, 180, 20, 'F');
     };
 
     return (
-        <div className='flex flex-col bg-center'>
-        <StarryBackground/>
-        <BackButton route="/quotation/home"/>
-        <ScrollToTopButton/>
-        <div className="items-center justify-center">
-        <div className="max-w-4xl mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg text-black">
-            <h2 className="text-3xl font-bold mb-4">Quote Management System</h2>
-
-            <div className="p-6 border rounded-lg shadow-md bg-gray-100">
-                <h3 className="text-2xl font-semibold mb-4">Search Quotes</h3>
-
-                <div className="mb-4">
-                    <label className="block font-medium mb-1">Select Search Type:</label>
-                    <select value={filterType} onChange={(e) => setFilterType(e.target.value)} className="w-full p-2 border rounded">
-                        <option value="quoteId">Quote ID</option>
-                        <option value="monthRange">Month Range</option>
-                        <option value="customerName">Customer Name</option>
-                    </select>
-                </div>
-
-                {filterType === "quoteId" && (
-                    <input type="number" value={quoteId} onChange={(e) => setQuoteId(e.target.value)} className="w-full p-2 border rounded mb-4" placeholder="Enter Quote ID" />
-                )}
-
-                {filterType === "monthRange" && (
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block font-medium mb-1">From Month:</label>
-                            <select value={fromMonth} onChange={(e) => setFromMonth(e.target.value)} className="w-full p-2 border rounded">
-                                {months.map((month) => (
-                                    <option key={month.value} value={month.value}>{month.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block font-medium mb-1">To Month:</label>
-                            <select value={toMonth} onChange={(e) => setToMonth(e.target.value)} className="w-full p-2 border rounded">
-                                {months.map((month) => (
-                                    <option key={month.value} value={month.value}>{month.label}</option>
-                                ))}
-                            </select>
-                        </div>
-                    </div>
-                )}
-                 {filterType === "customerName" && (
-    <input
-        type="text"
-        value={customerName}
-        onChange={(e) => setCustomerName(e.target.value)}
-        className="w-full p-2 border rounded mb-4 text-black"
-        placeholder="Enter Customer Name"
-    />
-)}
-
-
-                <button onClick={handleSearch} className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600 transition">
-                    Search
-                </button>
-
-                {error && <p className="text-red-500 mt-4">{error}</p>}
-
-                {quotes.length > 0 && (
-    <div className="mt-6">
-        <h3 className="text-xl font-semibold mb-2 text-black">Search Results</h3>
-        {quotes.map((quote) => (
-            <div key={quote.quote_id} className="mb-4 p-4 border rounded shadow-md bg-gray-50">
-                <div className="flex justify-between mb-2 text-black">
-                    <span><strong>Quote ID:</strong> {quote.quote_id}</span>
-                    <span><strong>Customer:</strong> {quote.customer_name}</span>
-                </div>
-                <div className="flex justify-between mb-2 text-black">
-                    <span><strong>Project Id:</strong> {quote.project_id}</span>
-                    <span><strong>Project Name:</strong> {quote.pname}</span>
-                    <span><strong>Date:</strong> {quote.date}</span>
-                </div>
-                <div className="flex justify-between mb-4 text-black">
-                    <span><strong>Total Cost:</strong> ₹ {parseFloat(quote.total_cost).toFixed(2)}</span>
-                    <button
-                        onClick={() => generateQuote(quote)}
-                        className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
+        <div className="min-h-screen p-6 text-white">
+          <StarryBackground/>
+          <BackButton route="/quotation/home"/>
+          <ScrollToTopButton/>
+          <div className="mt-10 text-white flex flex-col items-center justify-center">
+          <div className="max-w-4xl w-full">
+            <div className="p-6 border rounded-lg shadow-md bg-gray-800/90 mb-24">
+              <h3 className="text-2xl font-semibold mb-4">
+               </h3>
+                <h2 className="text-3xl font-bold mb-4 flex flex-col ">Quote Management System</h2>
+      
+              <div className="mb-4">
+                <label className="block font-medium mb-1 text-white">Select Search Type:</label>
+                <select
+                  value={filterType}
+                  onChange={(e) => setFilterType(e.target.value)}
+                  className="w-full p-2 border rounded bg-gray-700 text-white"
+                >
+                  <option value="quoteId">Quote ID</option>
+                  <option value="monthRange">Month Range</option>
+                  <option value="customerName">Customer Name</option>
+                </select>
+              </div>
+      
+              {filterType === "quoteId" && (
+                <input
+                  type="number"
+                  value={quoteId}
+                  onChange={(e) => setQuoteId(e.target.value)}
+                  className="w-full p-2 border rounded mb-4 bg-gray-700 text-white"
+                  placeholder="Enter Quote ID"
+                />
+              )}
+      
+              {filterType === "monthRange" && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block font-medium mb-1 text-white">From Month:</label>
+                    <select
+                      value={fromMonth}
+                      onChange={(e) => setFromMonth(e.target.value)}
+                      className="w-full p-2 border rounded bg-gray-700 text-white"
                     >
-                        Generate
-                    </button>
+                      {months.map((month) => (
+                        <option key={month.value} value={month.value}>
+                          {month.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-medium mb-1 text-white">To Month:</label>
+                    <select
+                      value={toMonth}
+                      onChange={(e) => setToMonth(e.target.value)}
+                      className="w-full p-2 border rounded bg-gray-700 text-white"
+                    >
+                      {months.map((month) => (
+                        <option key={month.value} value={month.value}>
+                          {month.label}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
+              )}
+      
+              {filterType === "customerName" && (
+                <input
+                  type="text"
+                  value={customerName}
+                  onChange={(e) => setCustomerName(e.target.value)}
+                  className="w-full p-2 border rounded mb-4 bg-gray-700 text-white"
+                  placeholder="Enter Customer Name"
+                />
+              )}
+      
+              <motion.button
+                onClick={handleSearch}
+                className="bg-blue-600 text-white py-2 px-4 mt-4 rounded hover:bg-blue-700 transition flex items-center gap-2"
+                whileHover={{ scale: 1.05 }} // Scale up on hover
+                whileTap={{ scale: 0.95 }} // Scale down on click
+              >
+                <FaSearch className="inline-block" /> {/* Search icon */}
+                Search
+              </motion.button>
+      
+              {error && <p className="text-red-500 mt-4">{error}</p>}
+      
+              {quotes.length > 0 && (
+                <div className="mt-6">
+                  <h3 className="text-xl font-semibold mb-2 text-white">Search Results</h3>
+                  {quotes.map((quote) => (
+                    <div
+                      key={quote.quote_id}
+                      className="mb-4 p-4 border rounded shadow-md bg-gray-700/90"
+                    >
+                      <div className="flex justify-between mb-2 text-white">
+                        <span>
+                          <strong>Quote ID:</strong> {quote.quote_id}
+                        </span>
+                        <span>
+                          <strong>Customer:</strong> {quote.customer_name}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mb-2 text-white">
+                        <span>
+                          <strong>Project Id:</strong> {quote.project_id}
+                        </span>
+                        <span>
+                          <strong>Project Name:</strong> {quote.pname}
+                        </span>
+                        <span>
+                          <strong>Date:</strong> {quote.date}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mb-4 text-white">
+                        <span>
+                          <strong>Total Cost:</strong> Rs {parseFloat(quote.total_cost).toFixed(2)}
+                        </span>
+                        <motion.button
+                          onClick={() => generateQuote(quote)}
+                          className="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700 transition"
+                          whileHover={{ scale: 1.05 }} // Scale up on hover
+                          whileTap={{ scale: 0.95 }} // Scale down on click
+                        >
+                          Generate
+                        </motion.button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
-        ))}
-    </div>
-)}
-
-            </div>
-            </div>
-            </div>
+          </div>
+          </div>
         </div>
-    );
+      );
 }

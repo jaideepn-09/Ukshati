@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { FiArrowLeft, FiActivity } from "react-icons/fi";
+import { FiArrowLeft, FiActivity, FiSearch } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 
 // Pagination Component (same style as in ViewStock)
@@ -122,16 +122,16 @@ export default function InventorySpent() {
       <section className="rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700 m-6 p-6 w-full max-w-3xl mx-auto">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
           <h2 className="text-2xl font-semibold text-white">Spent Stock List</h2>
-          <input
-            type="text"
-            placeholder="Search products..."
-            className="p-3 bg-gray-700 rounded-lg w-full md:w-64 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
+          <div className="flex items-center space-x-2">
+                      <FiSearch className="text-blue-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="p-2 bg-gray-700 rounded-lg w-full md:w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
         </div>
 
         {loading ? (

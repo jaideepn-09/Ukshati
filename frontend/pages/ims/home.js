@@ -345,9 +345,9 @@ export default function Home() {
       </div>
 
       <div className="flex flex-col items-center flex-grow p-6 pt-20">
-        <h1 className="text-4xl font-bold mb-16 mt-16 text-center text-white">Inventory Management System</h1>
+        <h1 className="text-4xl font-bold mb-16 mt-8 text-center text-white">Inventory Management System</h1>
 
-        <div className="w-full max-w-7xl px-4">
+        <div className="w-full max-w-6xl px-4">
           <motion.div
             className="flex gap-4 h-[500px]"
             animate={{

@@ -6,6 +6,7 @@ import { FiArrowUp } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from '@/components/BackButton';
 import ScrollToTopButton from '@/components/scrollup';
+import { motion } from 'framer-motion';
 
 const QuoteManager = () => {
   const [projectId, setProjectId] = useState('');
@@ -325,157 +326,245 @@ const bankXOffset = 45;  // Change this value to shift more to the right
   
 
   return (
-    <div  className="flex flex-col min-h-screen bg-cover bg-center text-gray-900 ">
-    <StarryBackground/>
-    <BackButton route='/quotation/home'/>
-    <ScrollToTopButton/>
-    <div className='flex flex-col min-h-screen bg-center items-center justify-center'>
-      <h1 className="text-3xl font-bold mb-6 text-white">Quote Management</h1>
-      <div className="bg-white bg-opacity-90 p-6 mb-24 rounded-lg shadow-lg w-full max-w-4xl text-black">
-      <label>Select Project ID:</label>
-      <select
-        onChange={(e) => setProjectId(e.target.value)}
-        value={projectId}
-        style={{
-          padding: '10px',
-          margin: '10px 0',
-          borderRadius: '5px',
-          border: '1px solid #ddd',
-          width: '50%',
-        }}
+    <div className="bg-cover bg-center text-white">
+        <StarryBackground/>
+        <ScrollToTopButton/>
+       {/* Back Button (Unchanged) */}
+       <BackButton route='/quotation/home'/>
+      <div className="flex flex-col mt-20 bg-cover bg-center text-white items-center justify-center">
+      <h1 className="text-3xl font-bold mb-6">Quote Management</h1>
+  
+      {/* New Animated Card */}
+      <motion.div
+        className="bg-gray-900 bg-opacity-90 p-6 rounded-lg shadow-lg w-full max-w-4xl"
+        initial={{ opacity: 0, y: 50 }} // Initial animation state
+        animate={{ opacity: 1, y: 0 }} // Animate to this state
+        transition={{ duration: 0.5 }} // Animation duration
       >
-        <option value="">-- Select Project --</option>
-        {projects.map((proj) => (
-          <option key={proj.pid} value={proj.pid}>{proj.pid}</option>
+        <label className="text-white">Select Project ID:</label>
+        <select
+          onChange={(e) => setProjectId(e.target.value)}
+          value={projectId}
+          className="bg-gray-700 text-white"
+          style={{
+            padding: '10px',
+            margin: '10px 0',
+            borderRadius: '5px',
+            border: '1px solid #ddd',
+            width: '50%',
+          }}
+        >
+          <option value="">-- Select Project --</option>
+          {projects.map((proj) => (
+            <option key={proj.pid} value={proj.pid}>
+              {proj.pid}
+            </option>
+          ))}
+        </select>
+  
+        {customer && (
+          <p className="text-white">
+            <strong>Customer:</strong> {customer.customer_name}, <strong>Address:</strong> {customer.address}
+          </p>
+        )}
+  
+        {categories.map((cat) => (
+          <div key={cat.category_id} style={{ marginBottom: '20px', width: '100%' }}>
+            <h3 className="text-white" style={{ marginBottom: '10px' }}>
+              {cat.category_name}
+            </h3>
+            <input
+              type="text"
+              placeholder={`Search items in ${cat.category_name}`}
+              value={searchFilters[cat.category_id] || ''}
+              onChange={(e) => handleSearchChange(cat.category_id, e.target.value)}
+              className="bg-gray-700 text-white"
+              style={{
+                padding: '10px',
+                marginBottom: '10px',
+                width: '50%',
+                borderRadius: '5px',
+                border: '1px solid #ddd',
+              }}
+            />
+  
+            {getFilteredItems(cat.category_id)?.map((item) => (
+              <motion.div
+                key={item.item_id}
+                style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}
+                initial={{ opacity: 0, x: -20 }} // Initial animation state
+                animate={{ opacity: 1, x: 0 }} // Animate to this state
+                transition={{ duration: 0.3 }} // Animation duration
+              >
+                <input
+                  type="checkbox"
+                  id={`item-${item.item_id}`}
+                  onChange={() => handleItemSelection(cat.category_id, item.item_id, item.price_pu)}
+                  checked={selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) || false}
+                  style={{ marginRight: '10px' }}
+                />
+                <label htmlFor={`item-${item.item_id}`} className="text-white" style={{ flex: 1 }}>
+                  {item.item_name} (₹{item.price_pu})
+                </label>
+                {selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) && (
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '50%' }}>
+                    <input
+                      type="number"
+                      value={selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1}
+                      min="1"
+                      onChange={(e) => handleQuantityChange(cat.category_id, item.item_id, e.target.value)}
+                      className="bg-gray-700 text-white"
+                      style={{
+                        padding: '5px',
+                        width: '50px',
+                        borderRadius: '4px',
+                        border: '1px solid #ddd',
+                      }}
+                    />
+                    <span className="text-white" style={{ marginLeft: '10px' }}>
+                      Total: ₹{(selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1) *
+                      item.price_pu}
+                    </span>
+                  </div>
+                )}
+              </motion.div>
+            ))}
+          </div>
         ))}
-      </select>
-
-      {customer && (
-        <p>
-          <strong>Customer:</strong> {customer.customer_name}, <strong>Address:</strong> {customer.address}
-        </p>
-      )}
-
-      {categories.map((cat) => (
-        <div key={cat.category_id} style={{ marginBottom: '20px', width: '100%' }}>
-          <h3 style={{ marginBottom: '10px' }}>{cat.category_name}</h3>
+  
+        <div style={{ marginBottom: '20px', width: '100%' }}>
+          <label className="text-white">Add Additional Cost:</label>
           <input
-            type="text"
-            placeholder={`Search items in ${cat.category_name}`}
-            value={searchFilters[cat.category_id] || ''}
-            onChange={(e) => handleSearchChange(cat.category_id, e.target.value)}
+            type="number"
+            value={additionalCost}
+            onChange={(e) => setAdditionalCost(e.target.value)}
+            className="bg-gray-700 text-white"
             style={{
               padding: '10px',
               marginBottom: '10px',
-              width: '50%',
+              width: '100%',
               borderRadius: '5px',
-              border: '1px solid #ddd'
+              border: '1px solid #ddd',
             }}
           />
-
-          {getFilteredItems(cat.category_id)?.map((item) => (
-            <div key={item.item_id} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}>
-              <input
-                type="checkbox"
-                id={`item-${item.item_id}`}
-                onChange={() => handleItemSelection(cat.category_id, item.item_id, item.price_pu)}
-                checked={selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) || false}
-                style={{ marginRight: '10px' }}
-              />
-              <label htmlFor={`item-${item.item_id}`} style={{ flex: 1 }}>{item.item_name} (₹{item.price_pu})</label>
-              {selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) && (
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '50%' }}>
-                  <input
-                    type="number"
-                    value={selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1}
-                    min="1"
-                    onChange={(e) => handleQuantityChange(cat.category_id, item.item_id, e.target.value)}
-                    style={{
-                      padding: '5px',
-                      width: '50px',
-                      borderRadius: '4px',
-                      border: '1px solid #ddd',
-                    }}
-                  />
-                  <span style={{ marginLeft: '10px' }}>
-                    Total: ₹{(selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1) * item.price_pu}
-                  </span>
-                  </div>
-              
-              )}
-            </div>
-          ))}
-            </div>
-        
-      ))}
-
-      <div style={{ marginBottom: '20px', width: '100%' }}>
-        <label>Add Additional Cost:</label>
-        <input
-          type="number"
-          value={additionalCost}
-          onChange={(e) => setAdditionalCost(e.target.value)}
-          style={{
-            padding: '10px',
-            marginBottom: '10px',
-            width: '100%',
-            borderRadius: '5px',
-            border: '1px solid #ddd'
-          }}
-        />
-      </div>
-
-      <h3>Total Cost: ₹{totalCost.toFixed(2)}</h3>
-
-      <div>
-        <button
-          onClick={saveQuote}
-          style={{
-            padding: '10px 20px',
-            marginRight: '10px',
-            backgroundColor: '#4CAF50',
-            color: 'white',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          Save Quote
-        </button>
-        {loading && <p>Saving quote...</p>}
-        {successMessage && <p style={{ color: 'green', marginTop: '20px' }}>{successMessage}</p>}
-        <button
-          onClick={generateQuote}
-          style={{
-            padding: '10px 20px',
-            backgroundColor: '#007BFF',
-            color: 'white',
-            borderRadius: '5px',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-        >
-          Generate Quote
-        </button>
         </div>
-      </div>
+  
+        <h3 className="text-white">Total Cost: ₹{totalCost.toFixed(2)}</h3>
+  
+        <div className="flex gap-4">
+          <motion.button
+            onClick={saveQuote}
+            className="px-6 py-2 bg-green-600 text-white rounded-lg shadow-md hover:bg-green-700 transition-colors"
+            whileHover={{ scale: 1.05 }} // Scale up on hover
+            whileTap={{ scale: 0.95 }} // Scale down on click
+          >
+            Save Quote
+          </motion.button>
+          {loading && <div className="text-gray-500">Saving...</div>}
 
+          {successMessage && <div className="text-green-500">{successMessage}</div>}
+          <motion.button
+            onClick={generateQuote}
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg shadow-md hover:bg-blue-700 transition-colors"
+            whileHover={{ scale: 1.05 }} // Scale up on hover
+            whileTap={{ scale: 0.95 }} // Scale down on click
+          >
+            Generate Quote
+          </motion.button>
+        </div>
+      </motion.div>
+  
       {/* Display Generated Quote PDF */}
       {generatedQuote && (
-        <div style={{ marginTop: '20px' }}>
-          <h3>Generated Quote</h3>
-          <iframe
-            src={generatedQuote}
-            width="100%"
-            height="600px"
-            title="Generated Quote"
-          />
-        </div>
+        <motion.div
+          style={{ marginTop: '20px' }}
+          initial={{ opacity: 0, y: 20 }} // Initial animation state
+          animate={{ opacity: 1, y: 0 }} // Animate to this state
+          transition={{ duration: 0.5 }} // Animation duration
+        >
+          <h3 className="text-white">Generated Quote</h3>
+          <iframe src={generatedQuote} width="100%" height="600px" title="Generated Quote" />
+        </motion.div>
       )}
+       <style jsx>{`
+        .button {
+          display: block;
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          width: 56px;
+          height: 56px;
+          margin: 0;
+          overflow: hidden;
+          outline: none;
+          background-color: transparent;
+          cursor: pointer;
+          border: 0;
+          z-index: 10;
+        }
+
+        .button:before,
+        .button:after {
+          content: "";
+          position: absolute;
+          border-radius: 50%;
+          inset: 7px;
+        }
+
+        .button:before {
+          border: 4px solid #f0eeef;
+          transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
+            transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
+        }
+
+        .button:after {
+          border: 4px solid rgb(240, 243, 244);
+          transform: scale(1.3);
+          transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+            transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+          opacity: 0;
+        }
+
+        .button:hover:before,
+        .button:focus:before {
+          opacity: 0;
+          transform: scale(0.7);
+          transition: opacity 0.4s cubic-bezier(0.165, 0.84, 0.44, 1),
+            transform 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        .button:hover:after,
+        .button:focus:after {
+          opacity: 1;
+          transform: scale(1);
+          transition: opacity 0.4s cubic-bezier(0.77, 0, 0.175, 1) 80ms,
+            transform 0.5s cubic-bezier(0.455, 0.03, 0.515, 0.955) 80ms;
+        }
+
+        .button-box {
+          display: flex;
+          position: absolute;
+          top: 0;
+          left: 0;
+        }
+
+        .button-elem {
+          display: block;
+          width: 20px;
+          height: 20px;
+          margin: 17px 18px 0 18px;
+          transform: rotate(0deg); /* Arrow faces left by default */
+          fill: #f0eeef;
+        }
+
+        .button:hover .button-box,
+        .button:focus .button-box {
+          transition: 0.4s;
+          transform: translateX(-56px);
+        }
+      `}</style>
       </div>
     </div>
   );
-
-};
-
-export default QuoteManager;
+}
+  export default QuoteManager;

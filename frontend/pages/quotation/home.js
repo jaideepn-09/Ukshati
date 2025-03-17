@@ -5,6 +5,7 @@ import { FaPlus, FaEye } from "react-icons/fa";
 import { motion } from "framer-motion";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from "@/components/BackButton";
+import Image from "next/image";
 
 export default function Home() {
   const router = useRouter();
@@ -18,7 +19,7 @@ export default function Home() {
       Icon: FaPlus, 
       colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"],
       route: "/quotation/QuoteManager", 
-      image: "https://www.shutterstock.com/shutterstock/photos/2208542867/display_1500/stock-photo-close-up-wooden-house-model-businesswoman-using-laptop-housing-purchase-property-real-estate-2208542867.jpg" 
+      image: "/download.jpg" 
     },
     { 
       id: 2, 
@@ -26,12 +27,12 @@ export default function Home() {
       Icon: FaEye, 
       colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"],
       route: "/quotation/QuoteList", 
-      image: "https://www.shutterstock.com/shutterstock/photos/105700781/display_1500/stock-photo-graphs-and-charts-of-stock-market-105700781.jpg"
+      image: "https://images.unsplash.com/photo-1556155092-490a1ba16284?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D"
     },
   ];
 
   return (
-    <div className="flex flex-col min-h-screen  text-black">
+    <div className="flex flex-col min-h-screen  text-white">
         <StarryBackground/>
         <BackButton route="/dashboard"/>
       {/* Main Content */}
@@ -39,7 +40,7 @@ export default function Home() {
         <h1 className="text-4xl font-bold mb-12 text-center">Quote Management System</h1>
 
         {/* Accordion-Style Cards */}
-        <div className="w-full max-w-7xl px-4">
+        <div className="w-full max-w-7xl px-4 text-black">
         <div className="w-full max-w-7xl px-4">
           <motion.div
             className="flex gap-4 h-[500px]"
@@ -121,7 +122,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="w-full bg-gray-800 text-white py-4 text-center mt-auto">
+      <footer className="w-full backdrop-blur-sm text-white py-4 text-center mt-auto">
         <p className="text-sm">© {new Date().getFullYear()} Quote Management System</p>
       </footer>
     </div>

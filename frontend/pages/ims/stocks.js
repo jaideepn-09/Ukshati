@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import StarryBackground from "@/components/StarryBackground";
-import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiCheck, FiActivity } from "react-icons/fi";
+import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiCheck, FiActivity, FiSearch } from "react-icons/fi";
 import ScrollToTopButton from "@/components/scrollup";
 
 export default function StockDetails() {
@@ -18,7 +18,6 @@ export default function StockDetails() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // Fetch initial data
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,7 +42,6 @@ export default function StockDetails() {
     fetchData();
   }, []);
 
-  // Enhanced CSV parsing
   const handleFileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -366,13 +364,16 @@ export default function StockDetails() {
               <FiShoppingCart className="text-blue-400" />
               Current Stock List
             </h2>
-            <input
-              type="text"
-              placeholder="Search products..."
-              className="p-2 bg-gray-700 rounded-lg w-full md:w-64"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
+            <div className="flex items-center space-x-2">
+                        <FiSearch className="text-blue-400" />
+                <input
+                  type="text"
+                  placeholder="Search products..."
+                  className="p-2 bg-gray-700 rounded-lg w-full md:w-64"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
           </div>
 
           <div className="overflow-x-auto">

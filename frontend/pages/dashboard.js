@@ -233,7 +233,7 @@ export default function Dashboard() {
 
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center flex-grow pt-24">
-        <div className="mb-16 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-8 w-full max-w-6xl px-4 perspective-1000 lg:h-[500px]">
+        <div className="mb-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-8 w-full max-w-5xl px-4 perspective-1000 lg:h-[500px]">
           {features.map((feature, index) => (
             <Tilt
               key={index}
