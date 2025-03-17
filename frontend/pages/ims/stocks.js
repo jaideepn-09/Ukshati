@@ -3,7 +3,8 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import StarryBackground from "@/components/StarryBackground";
-import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiCheck, FiArrowUp, FiActivity } from "react-icons/fi";
+import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiCheck, FiActivity } from "react-icons/fi";
+import ScrollToTopButton from "@/components/scrollup";
 
 export default function StockDetails() {
   const router = useRouter();
@@ -16,8 +17,6 @@ export default function StockDetails() {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [spendQty, setSpendQty] = useState({});
-  const [showScrollButton, setShowScrollButton] = useState(false);
 
   // Fetch initial data
   useEffect(() => {
@@ -42,14 +41,6 @@ export default function StockDetails() {
       }
     };
     fetchData();
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setShowScrollButton(window.scrollY > 100);
-    };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   // Enhanced CSV parsing
@@ -219,30 +210,6 @@ export default function StockDetails() {
     window.location.reload();
   };
 
-  // Spend Stock
-  const handleSpendStock = async (stockId) => {
-    if (!spendQty[stockId] || spendQty[stockId] <= 0) return;
-
-    try {
-      const response = await fetch("/api/spend", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ stockId, spentQty: spendQty[stockId] })
-      });
-
-      if (!response.ok) throw new Error("Failed to update stock");
-      
-      const updatedStock = await response.json();
-      setStocks(prev => prev.map(stock => 
-        stock.stock_id === stockId ? updatedStock : stock
-      ));
-      setSpendQty(prev => ({ ...prev, [stockId]: "" }));
-    } catch (error) {
-      setErrors([error.message]);
-    }
-    window.location.reload();
-  };
-
   // Filtered stocks
   const filteredStocks = stocks.filter(stock => {
     const itemName = String(stock?.item_name || '').toLowerCase();
@@ -253,13 +220,7 @@ export default function StockDetails() {
   return (
     <div className="min-h-screen text-gray-100">
       <StarryBackground />
-      <button
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-        className="fixed bottom-8 right-8 p-3 bg-blue-600 rounded-full shadow-lg hover:bg-blue-500 transition-colors"
-      >
-        <FiArrowUp className="text-xl" />
-      </button>
-
+      <ScrollToTopButton/>
       <header className="ml-8 p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button

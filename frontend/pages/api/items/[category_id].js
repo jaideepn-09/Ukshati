@@ -5,7 +5,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method not allowed" });
   }
 
-  const { category_id } = req.query; // ✅ Corrected extraction
+  const { category_id } = req.query; // Extract from route parameters
 
   if (!category_id) {
     return res.status(400).json({ error: "Category ID is required." });

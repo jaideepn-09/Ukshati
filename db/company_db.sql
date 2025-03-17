@@ -25,33 +25,6 @@ USE `company_db`;
 -- Table structure for table `add_expenses`
 --
 
-DROP TABLE IF EXISTS `add_expenses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `add_expenses` (
-  `Exp_ID` int NOT NULL,
-  `Date` date NOT NULL,
-  `id` int NOT NULL,
-  `pid` int NOT NULL,
-  `Amount` decimal(10,2) NOT NULL,
-  `Status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
-  `Comments` text,
-  PRIMARY KEY (`Exp_ID`),
-  KEY `id` (`id`),
-  KEY `pid` (`pid`),
-  CONSTRAINT `add_expenses_ibfk_1` FOREIGN KEY (`id`) REFERENCES `employee` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `add_expenses_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `add_expenses`
---
-
-LOCK TABLES `add_expenses` WRITE;
-/*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
-/*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `category`
@@ -74,7 +47,7 @@ CREATE TABLE `category` (
 
 LOCK TABLES `category` WRITE;
 /*!40000 ALTER TABLE `category` DISABLE KEYS */;
-INSERT INTO `category` VALUES (4,'Drip'),(2,'Electronics'),(3,'Pumping'),(1,'Tools');
+INSERT INTO `category` VALUES (4,'Drip'),(2,'Electronics'),(3,'Pumping'),(1,'Tools'),(5,'Plumbing'),(6,'Automation'),(7,'Labour');
 /*!40000 ALTER TABLE `category` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -141,6 +114,70 @@ UNLOCK TABLES;
 --
 -- Table structure for table `inventory_spent`
 --
+
+
+DROP TABLE IF EXISTS `add_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `add_expenses` (
+  `Exp_ID` int NOT NULL,
+  `Date` date NOT NULL,
+  `id` int NOT NULL,
+  `pid` int NOT NULL,
+  `Amount` decimal(10,2) NOT NULL,
+  `Comments` text,
+  PRIMARY KEY (`Exp_ID`),
+  KEY `id` (`id`),
+  KEY `pid` (`pid`),
+  CONSTRAINT `add_expenses_ibfk_1` FOREIGN KEY (`id`) REFERENCES `employee` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `add_expenses_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+
+
+DROP TABLE IF EXISTS `stock`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `stock` (
+  `stock_id` int NOT NULL AUTO_INCREMENT,
+  `item_name` varchar(100) NOT NULL,
+  `category_id` int NOT NULL,
+  `quantity` int NOT NULL,
+  `price_pu` decimal(10,2) NOT NULL,
+  PRIMARY KEY (`stock_id`),
+  KEY `category_id` (`category_id`),
+  CONSTRAINT `stock_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `stock`
+--
+
+LOCK TABLES `stock` WRITE;
+/*!40000 ALTER TABLE `stock` DISABLE KEYS */;
+INSERT INTO `stock` VALUES 
+(1, 'Hammer', 1, 20, 500.00),
+(2, 'Screwdriver Set', 1, 15, 750.00),
+(3, 'LED Monitor', 2, 12, 15000.00),
+(4, 'Laptop', 2, 10, 60000.00),
+(5, 'Water Pump', 3, 5, 25000.00),
+(6, 'Submersible Pump', 3, 3, 30000.00),
+(7, 'Drip Irrigation Kit', 4, 8, 10000.00),
+(8, 'Smart Irrigation Controller', 4, 6, 12000.00),
+(9, 'PVC Pipes', 5, 25, 2000.00),
+(10, 'Pipe Fittings Set', 5, 30, 1500.00),
+(11, 'Electric Valve', 6, 10, 5000.00),
+(12, 'Automation Controller', 6, 5, 25000.00),
+(13, 'Solar Panel', 6, 7, 40000.00),
+(14, 'Wiring Kit', 6, 20, 3000.00),
+(15, 'Skilled Labour ', 7, 50, 500.00),
+(16, 'Unskilled Labour ', 7, 70, 300.00),
+(17, 'Plumbing Labour ', 7, 40, 400.00),
+(18, 'Masonry Labour ', 7, 30, 450.00);
+/*!40000 ALTER TABLE `stock` ENABLE KEYS */;
+UNLOCK TABLES;
 
 DROP TABLE IF EXISTS `inventory_spent`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
@@ -210,30 +247,23 @@ DROP TABLE IF EXISTS `quotesdata`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `quotesdata` (
-  `quote_id` int NOT NULL AUTO_INCREMENT,
-  `pid` int DEFAULT NULL,
-  `cname` varchar(255) DEFAULT NULL,
-  `additional_cost` decimal(10,2) DEFAULT NULL,
-  `date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `drip_cost` decimal(10,2) DEFAULT NULL,
-  `plumbing_cost` decimal(10,2) DEFAULT NULL,
-  `automation_cost` decimal(10,2) DEFAULT NULL,
-  `labour_cost` decimal(10,2) DEFAULT NULL,
-  `total_cost` decimal(10,2) DEFAULT NULL,
-  `pdf` longblob,
-  `stock_id` int DEFAULT NULL,
-  `rate_id` int DEFAULT NULL,
-  `category_id` int DEFAULT NULL,
-  PRIMARY KEY (`quote_id`),
-  KEY `pid` (`pid`),
-  KEY `stock_id` (`stock_id`),
-  KEY `rate_id` (`rate_id`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `quotesdata_ibfk_1` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`) ON DELETE CASCADE,
-  CONSTRAINT `quotesdata_ibfk_2` FOREIGN KEY (`stock_id`) REFERENCES `stock` (`stock_id`),
-  CONSTRAINT `quotesdata_ibfk_3` FOREIGN KEY (`rate_id`) REFERENCES `rates` (`rate_id`),
-  CONSTRAINT `quotesdata_ibfk_4` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+   `quote_id` int NOT NULL AUTO_INCREMENT,
+   `project_id` int DEFAULT NULL,
+   `customer_name` varchar(255) DEFAULT NULL,
+   `date` date NOT NULL DEFAULT (curdate()),
+   `automation_cost` decimal(10,2) DEFAULT NULL,
+   `drip_cost` decimal(10,2) DEFAULT NULL,
+   `electronics_cost` decimal(10,2) DEFAULT NULL,
+   `labour_cost` decimal(10,2) DEFAULT NULL,
+   `plumbing_cost` decimal(10,2) DEFAULT NULL,
+   `pumping_cost` decimal(10,2) DEFAULT NULL,
+   `tools_cost` decimal(10,2) DEFAULT NULL,
+   `additional_cost` decimal(10,2) DEFAULT NULL,
+   `total_cost` decimal(10,2) DEFAULT NULL,
+   PRIMARY KEY (`quote_id`),
+   KEY `project_id` (`project_id`),
+   CONSTRAINT `quotesdata_ibfk_1` FOREIGN KEY (`project_id`) REFERENCES `project` (`pid`) ON DELETE CASCADE
+ ) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -268,43 +298,33 @@ CREATE TABLE `rates` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `rates`
---
 
-LOCK TABLES `rates` WRITE;
-/*!40000 ALTER TABLE `rates` DISABLE KEYS */;
-/*!40000 ALTER TABLE `rates` ENABLE KEYS */;
+INSERT INTO `rates` (`rate_id`, `item_id`, `rate_type`, `item_name`, `quantity`, `price_pu`, `category_id`) VALUES
+(1, 1, 'Tools', 'Hammer', 20, 500.00, 1),
+(2, 2, 'Tools', 'Screwdriver Set', 15, 750.00, 1),
+(3, 3, 'Electronics', 'LED Monitor', 12, 15000.00, 2),
+(4, 4, 'Electronics', 'Laptop', 10, 60000.00, 2),
+(5, 5, 'Pumping', 'Water Pump', 5, 25000.00, 3),
+(6, 6, 'Pumping', 'Submersible Pump', 3, 30000.00, 3),
+(7, 7, 'Drip', 'Drip Irrigation Kit', 8, 10000.00, 4),
+(8, 8, 'Drip', 'Smart Irrigation Controller', 6, 12000.00, 4),
+(9, 9, 'Plumbing', 'PVC Pipes', 25, 2000.00, 5),
+(10, 10, 'Plumbing', 'Pipe Fittings Set', 30, 1500.00, 5),
+(11, 11, 'Automation', 'Electric Valve', 10, 5000.00, 6),
+(12, 12, 'Automation', 'Automation Controller', 5, 25000.00, 6),
+(13, 13, 'Automation', 'Solar Panel', 7, 40000.00, 6),
+(14, 14, 'Automation', 'Wiring Kit', 20, 3000.00, 6),
+(15, 15, 'Labour', 'Skilled Labour ', 50, 500.00, 7),
+(16, 16, 'Labour', 'Unskilled Labour ', 70, 300.00, 7),
+(17, 17, 'Labour', 'Plumbing Labour ', 40, 400.00, 7),
+(18, 18, 'Labour', 'Masonry Labour ', 30, 450.00, 7);
+/*!40101 ALTER TABLE `rates` ENABLE KEYS */;
 UNLOCK TABLES;
-
 --
 -- Table structure for table `stock`
 --
 
-DROP TABLE IF EXISTS `stock`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `stock` (
-  `stock_id` int NOT NULL AUTO_INCREMENT,
-  `item_name` varchar(100) NOT NULL,
-  `category_id` int NOT NULL,
-  `quantity` int NOT NULL,
-  `price_pu` decimal(10,2) NOT NULL,
-  PRIMARY KEY (`stock_id`),
-  KEY `category_id` (`category_id`),
-  CONSTRAINT `stock_ibfk_1` FOREIGN KEY (`category_id`) REFERENCES `category` (`category_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `stock`
---
-
-LOCK TABLES `stock` WRITE;
-/*!40000 ALTER TABLE `stock` DISABLE KEYS */;
-INSERT INTO `stock` VALUES (1,'Hammer',1,20,500.00),(2,'Screwdriver Set',1,15,750.00),(3,'LED Monitor',2,12,15000.00),(4,'Laptop',2,10,60000.00),(5,'Water Pump',3,5,25000.00),(6,'Submersible Pump',3,3,30000.00),(7,'Drip Irrigation Kit',4,8,10000.00),(8,'Smart Irrigation Controller',4,6,12000.00);
-/*!40000 ALTER TABLE `stock` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `works_on`
@@ -336,6 +356,35 @@ UNLOCK TABLES;
 ALTER TABLE inventory_spent MODIFY spent_id INT AUTO_INCREMENT;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
+
+DROP TABLE IF EXISTS `add_expenses`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `add_expenses` (
+  `Exp_ID` int NOT NULL,
+  `Date` date NOT NULL,
+  `id` int NOT NULL,
+  `pid` int NOT NULL,
+  `Amount` decimal(10,2) NOT NULL,
+  `Status` enum('Pending','Approved','Rejected') NOT NULL DEFAULT 'Pending',
+  `Comments` text,
+  PRIMARY KEY (`Exp_ID`),
+  KEY `id` (`id`),
+  KEY `pid` (`pid`),
+  CONSTRAINT `add_expenses_ibfk_1` FOREIGN KEY (`id`) REFERENCES `employee` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `add_expenses_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `add_expenses`
+--
+
+LOCK TABLES `add_expenses` WRITE;
+/*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
+/*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
+UNLOCK TABLES;
+
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
 /*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
@@ -345,4 +394,3 @@ ALTER TABLE inventory_spent MODIFY spent_id INT AUTO_INCREMENT;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
 -- Dump completed on 2025-02-23 11:31:00
-

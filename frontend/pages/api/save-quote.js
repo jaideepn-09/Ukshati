@@ -12,7 +12,7 @@ export default async function handler(req, res) {
 
       // Create the SQL query dynamically using the categories
       const query = `
-        INSERT INTO quotesdata (pid, customer_name, ${categories.join(", ")}, additional_cost, total_cost)
+        INSERT INTO quotesdata (project_id, customer_name, ${categories.join(", ")}, additional_cost, total_cost)
         VALUES (?, ?, ${categoryValues.map(() => "?").join(", ")}, ?, ?)
       `;
 

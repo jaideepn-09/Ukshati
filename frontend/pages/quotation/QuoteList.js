@@ -4,6 +4,7 @@ import { useState } from "react";
 import jsPDF from "jspdf";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from "@/components/BackButton";
+import ScrollToTopButton from "@/components/scrollup";
 
 const months = [
     { value: "01", label: "January" },
@@ -96,35 +97,39 @@ export default function SearchQuotes() {
             const logo = await loadImage(logoUrl);
             const qrCode = await loadImage(qrCodeUrl);
 
-            doc.setFillColor(173, 216, 230);
-            doc.rect(0, 0, 210, 30, "F");
-            doc.addImage(logo, "PNG", 15, 5, 20, 20);
+            doc.setFillColor(173, 216, 230); // RGB for light blue
+doc.rect(15, 15, 180, 20, 'F');
+            doc.addImage(logo, "PNG", 20,15 , 25, 25);
 
             doc.setFont("helvetica", "bold");
             doc.setTextColor(0, 64, 128);
             doc.setFontSize(18);
             const companyName = "Ukshati Technologies Pvt Ltd";
+            const quoteDate = new Date().toLocaleDateString('en-GB', { 
+                day: '2-digit', 
+                month: 'long', 
+                year: 'numeric' 
+              });
             const textWidth = doc.getTextWidth(companyName);
             const pageWidth = doc.internal.pageSize.width;
-            doc.text(companyName, (pageWidth - textWidth) / 2, 15);
+            doc.text(companyName, (pageWidth - textWidth) / 2, 25);
 
             doc.setFontSize(10);
             doc.setTextColor(0, 0, 0);
-            doc.text("2nd Floor, Pramod Automobiles Building,", 15, 38);
-            doc.text("Karangalpady, Mangalore - 575003, Karnataka", 15, 44);
-            doc.text("Phone: +91 8861567365", 15, 50);
-            doc.text("www.ukshati.com", 15, 56);
+            doc.text("2nd Floor, Pramod Automobiles Building,", 15, 45);
+            doc.text("Karangalpady, Mangalore - 575003, Karnataka", 15, 50);
+            doc.text("Phone: +91 8861567365", 15, 56);
+            doc.text("www.ukshati.com", 15, 62);
 
             doc.setDrawColor(50, 50, 150);
             doc.setLineWidth(0.6);
-            doc.line(15, 60, 195, 60);
+            doc.line(15, 70, 195, 70);
 
             doc.setFont("helvetica", "normal");
-            doc.text(`Quote ID: ${quote.quote_id}`, 15, 68);
-            doc.text(`Date: ${quote.date}`, 15, 76);
-            doc.text(`Customer: ${quote.customer_name}`, 15, 84);
-            doc.text(`Address: ${quote.address || "N/A"}`, 15, 92);
-            doc.text(`Phone: ${quote.phone || "N/A"}`, 15, 100);
+            doc.text(`Quote ID: ${quote.quote_id}                                      Date: ${quoteDate}`, 20, 80);
+            doc.text(`Customer: ${quote.customer_name}                            Address: ${quote.address || "N/A"}`, 20, 90);
+       
+            doc.text(`Phone: ${quote.phone || "N/A"}`, 20, 100);
 
             let yPos = 115;
             doc.setFillColor(200, 200, 200);
@@ -165,12 +170,12 @@ export default function SearchQuotes() {
             doc.setTextColor(0, 0, 0);
             doc.text("Total Cost", 20, yPos + 5);
             doc.text(`Rs ${totalCostValue.toFixed(2)}`, 140, yPos + 5);
-            yPos += 14;
+            yPos += 24;
 
             doc.setFontSize(11);
             doc.setFont("helvetica", "bold");
             doc.setTextColor(50, 50, 150);
-            doc.text("Bank Details", 15, yPos);
+            doc.text("Bank Details", 20, yPos);
             doc.setFont("helvetica", "normal");
             doc.setTextColor(0, 0, 0);
             yPos += 8;
@@ -182,7 +187,7 @@ export default function SearchQuotes() {
             ];
 
             bankDetails.forEach((detail) => {
-                doc.text(detail, 15, yPos);
+                doc.text(detail, 20, yPos);
                 yPos += 8;
             });
             // Draw the line after bank details
@@ -190,7 +195,26 @@ export default function SearchQuotes() {
           doc.setLineWidth(0.6);
           doc.line(15, yPos + 5, 195, yPos + 5);
 
-            doc.addImage(qrCode, "PNG", 160, 260, 30, 30);
+            doc.addImage(qrCode, "PNG", 145, 180, 30, 30);
+
+           // 5 units below the QR code (which is 40px tall)
+  // Green color (RGB: 0,128,0)
+      // Thick line
+  // Draw line from x=20 to x=190
+  
+  // 3. Add Special Notes below the green line (starting a little further down)
+  const specialNotesY = yPos +15 ; // 10 units below the green line
+  doc.setFont('150', 'normal');
+  doc.setFontSize(12);
+  doc.text('Special Notes:', 20, specialNotesY);
+  doc.text('Two-year warranty included.', 20, specialNotesY + 6);
+  doc.text('SIM card not included in the package.', 20, specialNotesY + 12);
+  doc.text('Payment terms: 70% advance, 30% after installation.', 20, specialNotesY + 18);
+  doc.text('Extra work charged separately.', 20, specialNotesY + 24);
+  doc.text('Wi-Fi extender extra if signal weak.', 20, specialNotesY + 30);
+  doc.text('Quote validity: 6 months from date of issue.', 20, specialNotesY + 36);
+
+            
             doc.save(`Quote_${quote.quote_id}.pdf`);
         } catch (error) {
             console.error("Error generating PDF:", error);
@@ -198,11 +222,13 @@ export default function SearchQuotes() {
     };
 
     return (
-        <div className="shadow-lg rounded-lg text-white">
-            <StarryBackground />
-            <BackButton route="/quotation/home"/>
-            <div className='flex flex-col min-h-screen text-gray-900 justify-center items-center'>
-            <h2 className="text-3xl font-bold mb-8 text-white">Quote Management System</h2>
+        <div className='flex flex-col bg-center'>
+        <StarryBackground/>
+        <BackButton route="/quotation/home"/>
+        <ScrollToTopButton/>
+        <div className="items-center justify-center">
+        <div className="max-w-4xl mx-auto mt-8 p-6 bg-white shadow-lg rounded-lg text-black">
+            <h2 className="text-3xl font-bold mb-4">Quote Management System</h2>
 
             <div className="p-6 border rounded-lg shadow-md bg-gray-100">
                 <h3 className="text-2xl font-semibold mb-4">Search Quotes</h3>
@@ -272,7 +298,7 @@ export default function SearchQuotes() {
                     <span><strong>Date:</strong> {quote.date}</span>
                 </div>
                 <div className="flex justify-between mb-4 text-black">
-                    <span><strong>Total Cost:</strong> Rs {parseFloat(quote.total_cost).toFixed(2)}</span>
+                    <span><strong>Total Cost:</strong> ₹ {parseFloat(quote.total_cost).toFixed(2)}</span>
                     <button
                         onClick={() => generateQuote(quote)}
                         className="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600 transition"
@@ -285,6 +311,7 @@ export default function SearchQuotes() {
     </div>
 )}
 
+            </div>
             </div>
             </div>
         </div>

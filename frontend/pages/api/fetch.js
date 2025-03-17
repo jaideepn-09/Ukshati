@@ -12,7 +12,7 @@ export default async function handler(req, res) {
             let query = `
                 SELECT 
                     q.quote_id, 
-                    q.pid, 
+                    q.project_id, 
                     c.cname AS customer_name,  
                     c.cphone AS phone,  -- ✅ Fetch customer phone
                     c.cadd AS address,  -- ✅ Fetch customer address
@@ -25,7 +25,7 @@ export default async function handler(req, res) {
                     p.pname,
                     q.total_cost  
                 FROM quotesdata q
-                LEFT JOIN project p ON q.pid = p.pid  -- ✅ Link to project table
+                LEFT JOIN project p ON q.project_id = p.pid  -- ✅ Link to project table
                 LEFT JOIN customer c ON p.cid = c.cid  -- ✅ Link to customer table using cid
                 WHERE 1=1
             `;

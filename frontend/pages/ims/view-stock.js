@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Papa from "papaparse";
 import StarryBackground from "@/components/StarryBackground";
 import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiCheck, FiArrowUp, FiActivity } from "react-icons/fi";
+import ScrollToTopButton from "@/components/scrollup";
 
 export default function StockDetails() {
   const router = useRouter();
@@ -75,7 +76,7 @@ export default function StockDetails() {
   return (
     <div className="min-h-screen text-gray-100">
       <StarryBackground />
-      
+      <ScrollToTopButton/>
       <header className="ml-8 p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <button

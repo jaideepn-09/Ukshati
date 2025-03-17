@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import { FaPlus, FaEye } from "react-icons/fa";
 import { motion } from "framer-motion";
@@ -11,39 +11,36 @@ export default function Home() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [activeCard, setActiveCard] = useState(null);
 
-
-  const inventoryCards = [
-          { 
-            id: 1, 
-            title: "Generate Quote", 
-            Icon: FaPlus, 
-            colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"], // Dark → Light → Dark
-            route: "/quotation/QuoteManager", 
-            image: "https://www.pngmart.com/files/8/Inventory-PNG-HD.png" 
-          },
-        
-          { 
-            id: 2, 
-            title: "View Quote", 
-            Icon: FaEye, 
-            colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"], // Dark → Light → Dark
-            route: "/quotation/QuoteList", 
-            image: "https://png.pngtree.com/png-clipart/20230825/original/pngtree-inventory-control-vector-warehouse-industry-picture-image_8773876.png" 
-             
-      
-          }
-        ];
+  const quotationCards = [
+    { 
+      id: 1, 
+      title: "Generate Quotes", 
+      Icon: FaPlus, 
+      colors: ["#1e40af", "#3b82f6", "#93c5fd", "#3b82f6", "#1e40af"],
+      route: "/quotation/QuoteManager", 
+      image: "https://www.shutterstock.com/shutterstock/photos/2208542867/display_1500/stock-photo-close-up-wooden-house-model-businesswoman-using-laptop-housing-purchase-property-real-estate-2208542867.jpg" 
+    },
+    { 
+      id: 2, 
+      title: "View Quotes", 
+      Icon: FaEye, 
+      colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"],
+      route: "/quotation/QuoteList", 
+      image: "https://www.shutterstock.com/shutterstock/photos/105700781/display_1500/stock-photo-graphs-and-charts-of-stock-market-105700781.jpg"
+    },
+  ];
 
   return (
-    <div className="flex flex-col min-h-screen text-white pt-16">
-      <StarryBackground/>
-      <BackButton route="/dashboard"/>
+    <div className="flex flex-col min-h-screen  text-black">
+        <StarryBackground/>
+        <BackButton route="/dashboard"/>
       {/* Main Content */}
       <div className="flex flex-col items-center flex-grow p-6 pt-20">
-        <h1 className="text-4xl font-bold mb-12 text-center pb-4">Quote Management System</h1>
+        <h1 className="text-4xl font-bold mb-12 text-center">Quote Management System</h1>
 
         {/* Accordion-Style Cards */}
-        <div className="w-full max-w-7xl px-4 text-black">
+        <div className="w-full max-w-7xl px-4">
+        <div className="w-full max-w-7xl px-4">
           <motion.div
             className="flex gap-4 h-[500px]"
             animate={{
@@ -51,7 +48,7 @@ export default function Home() {
             }}
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
           >
-            {inventoryCards.map((card) => (
+            {quotationCards.map((card) => (
               <motion.div
                 key={card.id}
                 className="relative rounded-2xl overflow-hidden cursor-pointer shadow-xl"
@@ -120,11 +117,12 @@ export default function Home() {
             ))}
           </motion.div>
         </div>
+        </div>
       </div>
 
       {/* Footer */}
-      <footer className="w-full backdrop-blur-sm text-white py-4 text-center mt-auto">
-        <p className="text-sm">© {new Date().getFullYear()} Quote Management</p>
+      <footer className="w-full bg-gray-800 text-white py-4 text-center mt-auto">
+        <p className="text-sm">© {new Date().getFullYear()} Quote Management System</p>
       </footer>
     </div>
   );
