@@ -35,7 +35,7 @@ const QuoteManager = () => {
       setIsLoading(true);
       Promise.all([
         fetch(`/api/customer/${projectId}`).then((res) => res.json()),
-        fetch('/api/categories').then((res) => res.json()),
+        fetch('/api/category').then((res) => res.json()),
       ])
         .then(([customerRes, categoriesRes]) => {
           setCustomer(customerRes);
@@ -308,19 +308,12 @@ const bankXOffset = 45;  // Change this value to shift more to the right
     }));
   };
 
-  const getFilteredItems = (categoryId, filter) => {
+  const getFilteredItems = (categoryId) => {
+    const filter = searchFilters[categoryId]?.toLowerCase() || '';
     const items = itemsByCategory[categoryId] || [];
-  
-    // Check if items is an array before filtering
-    if (!Array.isArray(items)) {
-      console.error('Expected items to be an array but got:', items);
-      return [];  // Return an empty array if items is not an array
-    }
-  
-    if (!filter) return items; // Return items as is if no filter
-  
+    if (!filter) return [];
     return items.filter((item) =>
-      item.item_name.toLowerCase().includes(filter.toLowerCase())
+      item.item_name.toLowerCase().includes(filter)
     );
   };
   
