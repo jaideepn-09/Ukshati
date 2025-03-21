@@ -10,7 +10,7 @@ export default function StockDetails() {
   const router = useRouter();
   const [stocks, setStocks] = useState([]);
   const [categories, setCategories] = useState([]);
-  const [formData, setFormData] = useState({ categoryId: "", productName: "", quantity: "", price: "" });
+  const [formData, setFormData] = useState({ categoryName: "", productName: "", quantity: "", price: "" });
   const [csvData, setCsvData] = useState([]);
   const [uploadProgress, setUploadProgress] = useState(0);
   const [errors, setErrors] = useState([]);
@@ -26,13 +26,13 @@ export default function StockDetails() {
           fetch("/api/stocks")
         ]);
         
-        const [categories, stocks] = await Promise.all([
+        const [categoriesData, stocksData] = await Promise.all([
           catRes.json(),
           stockRes.json()
         ]);
         
-        setCategories(categories);
-        setStocks(stocks.sort((a, b) => b.stock_id - a.stock_id));
+        setCategories(categoriesData.categories || []);
+        setStocks((stocksData || []).sort((a, b) => b.stock_id - a.stock_id));
       } catch (error) {
         setErrors(["Failed to load initial data"]);
       } finally {
@@ -185,30 +185,43 @@ export default function StockDetails() {
     setIsDragging(e.type === 'dragover');
   };
 
-  // Form Submission
   const handleAddStock = async (e) => {
     e.preventDefault();
-    const { categoryId, productName, quantity, price } = formData;
+    const { categoryName, productName, quantity, price } = formData;
     
     try {
       const response = await fetch("/api/stocks", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ categoryId, productName, quantity, price })
+        body: JSON.stringify({ 
+          category_name: categoryName,
+          productName,
+          quantity: Number(quantity),
+          price: Number(price)
+        })
       });
+      window.location.reload();
+      const result = await response.json();
 
-      if (!response.ok) throw new Error("Failed to add stock");
+      if (!response.ok) {
+        throw new Error(result.error || "Failed to add stock");
+      }
       
-      const newStock = await response.json();
-      setStocks(prev => [newStock, ...prev]);
-      setFormData({ categoryId: "", productName: "", quantity: "", price: "" });
+      // Update local state with new stock
+      setStocks(prev => [{
+        stock_id: result.stockId || Date.now(),
+        item_name: productName,
+        category_name: categoryName,
+        quantity: Number(quantity),
+        price_pu: Number(price)
+      }, ...prev]);
+      
+      setFormData({ categoryName: "", productName: "", quantity: "", price: "" });
     } catch (error) {
       setErrors([error.message]);
     }
-    window.location.reload();
   };
 
-  // Filtered stocks
   const filteredStocks = stocks.filter(stock => {
     const itemName = String(stock?.item_name || '').toLowerCase();
     const searchTerm = String(searchQuery || '').toLowerCase();
@@ -234,11 +247,11 @@ export default function StockDetails() {
           </div>
 
           <button
-            onClick={() => router.push("/ims/inventory-spent")}
+            onClick={() => router.push("/ims/view-stock")}
             className="flex items-center gap-2 hover:text-blue-400 transition-colors mr-8"
           >
             <FiActivity className="text-xl" />
-            <span className="font-semibold">View Spent Inventory</span>
+            <span className="font-semibold">View Inventory</span>
           </button>
         </div>
       </header>
@@ -303,14 +316,14 @@ export default function StockDetails() {
               
               <form onSubmit={handleAddStock} className="w-full space-y-4">
                 <select
-                  value={formData.categoryId}
-                  onChange={(e) => setFormData({ ...formData, categoryId: e.target.value })}
+                  value={formData.categoryName}
+                  onChange={(e) => setFormData({ ...formData, categoryName: e.target.value })}
                   className="w-full p-3 bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-400"
                   required
                 >
                   <option value="">Select Category</option>
                   {categories.map(category => (
-                    <option key={category.category_id} value={category.category_id}>
+                    <option key={category.category_id} value={category.category_name}>
                       {category.category_name}
                     </option>
                   ))}
@@ -365,15 +378,15 @@ export default function StockDetails() {
               Current Stock List
             </h2>
             <div className="flex items-center space-x-2">
-                        <FiSearch className="text-blue-400" />
-                <input
-                  type="text"
-                  placeholder="Search products..."
-                  className="p-2 bg-gray-700 rounded-lg w-full md:w-64"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </div>
+              <FiSearch className="text-blue-400" />
+              <input
+                type="text"
+                placeholder="Search products..."
+                className="p-2 bg-gray-700 rounded-lg w-full md:w-64"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+              />
+            </div>
           </div>
 
           <div className="overflow-x-auto">
@@ -408,7 +421,7 @@ export default function StockDetails() {
                       className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors text-white"
                     >
                       <td className="p-3">{stock.item_name}</td>
-                      <td className="p-3">{stock.category_id}</td>
+                      <td className="p-3">{stock.category_name}</td>
                       <td className="p-3">{stock.quantity}</td>
                       <td className="p-3">₹{stock.price_pu}</td>
                     </tr>

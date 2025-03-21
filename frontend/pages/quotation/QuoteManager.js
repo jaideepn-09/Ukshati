@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-//import { jsPDF } from 'jspdf';
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
-import { FiArrowUp } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from '@/components/BackButton';
 import ScrollToTopButton from '@/components/scrollup';
@@ -82,23 +80,28 @@ const QuoteManager = () => {
 
   const handleItemSelection = (categoryId, item_id, cost) => {
     setSelectedItems((prev) => {
-      const categoryItems = prev[categoryId] || [];
-      if (categoryItems.some((item) => item.item_id === item_id)) {
+      const categoryItems = prev[categoryId] || []; // Get existing items in category
+      const itemExists = categoryItems.some((item) => item.item_id === item_id);
+  
+      if (itemExists) {
+        // Remove item if already selected
         return {
           ...prev,
           [categoryId]: categoryItems.filter((item) => item.item_id !== item_id),
         };
       } else {
+        // Add new item
         return {
           ...prev,
           [categoryId]: [
             ...categoryItems,
-            { item_id, cost: parseFloat(cost), quantity: 1 },
+            { item_id, cost: parseFloat(cost) || 0, quantity: 1 },
           ],
         };
       }
     });
   };
+  
 
   const handleQuantityChange = (categoryId, item_id, quantity) => {
     setSelectedItems((prev) => {
@@ -361,69 +364,78 @@ const bankXOffset = 45;  // Change this value to shift more to the right
           </p>
         )}
   
-        {categories.map((cat) => (
-          <div key={cat.category_id} style={{ marginBottom: '20px', width: '100%' }}>
-            <h3 className="text-white" style={{ marginBottom: '10px' }}>
-              {cat.category_name}
-            </h3>
-            <input
-              type="text"
-              placeholder={`Search items in ${cat.category_name}`}
-              value={searchFilters[cat.category_id] || ''}
-              onChange={(e) => handleSearchChange(cat.category_id, e.target.value)}
-              className="bg-gray-700 text-white"
-              style={{
-                padding: '10px',
-                marginBottom: '10px',
-                width: '50%',
-                borderRadius: '5px',
-                border: '1px solid #ddd',
-              }}
-            />
-  
-            {getFilteredItems(cat.category_id)?.map((item) => (
-              <motion.div
-                key={item.item_id}
-                style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}
-                initial={{ opacity: 0, x: -20 }} // Initial animation state
-                animate={{ opacity: 1, x: 0 }} // Animate to this state
-                transition={{ duration: 0.3 }} // Animation duration
-              >
-                <input
-                  type="checkbox"
-                  id={`item-${item.item_id}`}
-                  onChange={() => handleItemSelection(cat.category_id, item.item_id, item.price_pu)}
-                  checked={selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) || false}
-                  style={{ marginRight: '10px' }}
-                />
-                <label htmlFor={`item-${item.item_id}`} className="text-white" style={{ flex: 1 }}>
-                  {item.item_name} (₹{item.price_pu})
-                </label>
-                {selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) && (
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '50%' }}>
-                    <input
-                      type="number"
-                      value={selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1}
-                      min="1"
-                      onChange={(e) => handleQuantityChange(cat.category_id, item.item_id, e.target.value)}
-                      className="bg-gray-700 text-white"
-                      style={{
-                        padding: '5px',
-                        width: '50px',
-                        borderRadius: '4px',
-                        border: '1px solid #ddd',
-                      }}
-                    />
-                    <span className="text-white" style={{ marginLeft: '10px' }}>
-                      Total: ₹{(selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1) *
-                      item.price_pu}
-                    </span>
-                  </div>
-                )}
-              </motion.div>
-            ))}
-          </div>
-        ))}
+  {categories.map((cat) => (
+        <div key={cat.category_id} style={{ marginBottom: '20px', width: '100%' }}>
+          <h3 className="text-white" style={{ marginBottom: '10px' }}>
+            {cat.category_name}
+          </h3>
+          <input
+            type="text"
+            placeholder={`Search items in ${cat.category_name}`}
+            value={searchFilters[cat.category_id] || ''}
+            onChange={(e) => handleSearchChange(cat.category_id, e.target.value)}
+            className="bg-gray-700 text-white"
+            style={{
+              padding: '10px',
+              marginBottom: '10px',
+              width: '50%',
+              borderRadius: '5px',
+              border: '1px solid #ddd',
+            }}
+          />
+
+          {getFilteredItems(cat.category_id)?.map((item) => (
+            <motion.div
+              key={item.item_id}
+              style={{ display: 'flex', alignItems: 'center', marginBottom: '10px' }}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              <input
+                type="checkbox"
+                id={`item-${item.item_id}`}
+                onChange={() => handleItemSelection(cat.category_id, item.item_id, item.price_pu)}
+                checked={selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) || false}
+                style={{ marginRight: '10px' }}
+              />
+              <label htmlFor={`item-${item.item_id}`} className="text-white" style={{ flex: 1 }}>
+                {item.item_name} (₹{item.price_pu})
+              </label>
+              {selectedItems[cat.category_id]?.some((i) => i.item_id === item.item_id) && (
+                <div
+                  style={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    width: '50%',
+                  }}
+                >
+                  <input
+                    type="number"
+                    value={selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1}
+                    min="1"
+                    onChange={(e) => handleQuantityChange(cat.category_id, item.item_id, e.target.value)}
+                    className="bg-gray-700 text-white"
+                    style={{
+                      padding: '5px',
+                      width: '50px',
+                      borderRadius: '4px',
+                      border: '1px solid #ddd',
+                    }}
+                  />
+                  <span className="text-white" style={{ marginLeft: '10px' }}>
+                    Total: ₹{
+                      (selectedItems[cat.category_id]?.find((i) => i.item_id === item.item_id)?.quantity || 1) *
+                      item.price_pu
+                    }
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          ))}
+        </div>
+      ))}
   
         <div style={{ marginBottom: '20px', width: '100%' }}>
           <label className="text-white">Add Additional Cost:</label>

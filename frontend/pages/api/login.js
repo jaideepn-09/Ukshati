@@ -31,7 +31,8 @@ export default async function handler(req, res) {
     console.log('Database Query Result:', rows);
 
     if (rows.length === 0) {
-      await connection.end();
+      // Release the connection back to the pool
+      connection.release();
       return res.status(401).json({ message: 'Invalid credentials: User not found' });
     }
 
@@ -47,7 +48,8 @@ export default async function handler(req, res) {
     console.log('Password Comparison Result:', isPasswordValid);
 
     if (!isPasswordValid) {
-      await connection.end();
+      // Release the connection back to the pool
+      connection.release();
       return res.status(401).json({ message: 'Invalid credentials: Password mismatch' });
     }
 
@@ -57,7 +59,8 @@ export default async function handler(req, res) {
     // Remove password from user data
     const { password: _, ...userData } = user;
 
-    await connection.end();
+    // Release the connection back to the pool
+    connection.release();
     
     res.status(200).json({ 
       token,

@@ -68,7 +68,7 @@ export default function Dashboard() {
   const features = [
     { 
       name: "CRM", 
-      path: "/crm", 
+      path: "/crm/home", 
       icon: <FaUsers className="text-5xl" />, 
       gradient: "bg-gradient-to-r from-red-400 to-orange-600", 
       description: "Manage customer relationships.",

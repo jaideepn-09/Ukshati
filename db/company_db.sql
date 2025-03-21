@@ -60,10 +60,13 @@ DROP TABLE IF EXISTS `customer`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `customer` (
   `cid` int NOT NULL AUTO_INCREMENT,
-  `cname` varchar(50) NOT NULL,
-  `cphone` varchar(15) DEFAULT NULL,
-  `status` enum('lead','customer') DEFAULT 'lead',
-  `cadd` varchar(255) DEFAULT NULL,
+  `cname` varchar(255) NOT NULL,
+  `cphone` varchar(15) NOT NULL,
+  `alternate_phone` varchar(15) DEFAULT NULL,
+  `status` enum('lead','customer') NOT NULL DEFAULT 'customer',
+  `follow_up_date` date DEFAULT NULL,
+  `join_date` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `remark` text,
   PRIMARY KEY (`cid`)
 ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -74,7 +77,12 @@ CREATE TABLE `customer` (
 
 LOCK TABLES `customer` WRITE;
 /*!40000 ALTER TABLE `customer` DISABLE KEYS */;
-INSERT INTO `customer` VALUES (1,'John Doe','9876543210','lead',NULL),(2,'Jane Smith','9123456789','customer',NULL),(3,'Michael Green','9456723421','lead',NULL),(4,'Sarah Miller','9781234567','customer',NULL),(5,'Daniel Scott','9345678901','lead',NULL);
+INSERT INTO `customer` VALUES 
+(1,'John Doe','9876543210',NULL,'lead',NULL,CURRENT_TIMESTAMP,NULL),
+(2,'Jane Smith','9123456789',NULL,'customer',NULL,CURRENT_TIMESTAMP,NULL),
+(3,'Michael Green','9456723421',NULL,'lead',NULL,CURRENT_TIMESTAMP,NULL),
+(4,'Sarah Miller','9781234567',NULL,'customer',NULL,CURRENT_TIMESTAMP,NULL),
+(5,'Daniel Scott','9345678901',NULL,'lead',NULL,CURRENT_TIMESTAMP,NULL);
 /*!40000 ALTER TABLE `customer` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -216,7 +224,7 @@ DROP TABLE IF EXISTS `project`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `project` (
-  `pid` int NOT NULL,
+  `pid` int NOT NULL AUTO_INCREMENT,
   `pname` varchar(50) NOT NULL,
   `cid` int DEFAULT NULL,
   `start_date` date DEFAULT NULL,

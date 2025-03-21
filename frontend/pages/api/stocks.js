@@ -1,21 +1,39 @@
 import { connectToDB } from "../../lib/db";
 
 export default async function handler(req, res) {
-  const db = await connectToDB();
+  let db;
+  try {
+    db = await connectToDB();
 
-  if (req.method === "POST") {
-    try {
-      console.log("Received POST request:", req.body);
+    if (req.method === "POST") {
+      console.time("POST request processing time");
 
+      // Extract and validate required fields
       const { category_name, productName, quantity, price } = req.body;
-
       if (!category_name || !productName || !quantity || !price) {
         return res.status(400).json({ error: "Missing required fields" });
       }
 
+      const parsedQuantity = parseInt(quantity, 10);
+      const parsedPrice = parseFloat(price);
+      if (parsedQuantity <= 0 || parsedPrice <= 0) {
+        return res.status(400).json({ error: "Quantity and price must be positive" });
+      }
+
+      const normalizedProductName = productName.trim().toLowerCase(); // Normalize
+
+      // Fetch category_id
+      const [[category]] = await db.execute(
+        "SELECT category_id FROM category WHERE category_name = ? LIMIT 1",
+        [category_name.trim()]
+      );
+      if (!category) return res.status(400).json({ error: "Category not found" });
+
+      const categoryId = category.category_id;
+
       // Check if stock already exists
       const [existingStock] = await db.execute(
-        "SELECT stock_id, quantity, price_pu FROM stock WHERE category_id = ? AND item_name = ?",
+        "SELECT stock_id, quantity, price_pu FROM stock WHERE category_id = ? AND TRIM(LOWER(item_name)) = TRIM(LOWER(?)) LIMIT 1",
         [categoryId, productName]
       );
 
@@ -27,43 +45,65 @@ export default async function handler(req, res) {
         const newQuantity = oldQuantity + parseInt(quantity);
       
         // Compute the new price per unit (weighted average)
-        const newPricePerUnit = ((oldPricePerUnit * oldQuantity) + (parseFloat(price) * parseInt(quantity))) / newQuantity;
+        const newPricePerUnit = oldPricePerUnit + parseFloat(price);
 
         console.log(`Updating Stock ID: ${stockId}, Old Price: ${oldPricePerUnit}, New Price: ${newPricePerUnit}`);
       
         // Update stock with new quantity & price
         await db.execute(
           "UPDATE stock SET quantity = ?, price_pu = ? WHERE stock_id = ?",
-          [newQuantity, newPricePerUnit+oldPricePerUnit, stockId]
+          [newQuantity, newPricePerUnit, stockId]
         );
-      
-        // Fetch updated stock details
-        const [updatedStock] = await db.execute("SELECT * FROM stock WHERE stock_id = ?", [stockId]);
-      
-        return res.status(200).json({ message: "Stock updated successfully", stock: updatedStock[0] });
+
+        // Update stock with new quantity & updated price
+        await db.execute(
+          "UPDATE stock SET quantity = ?, price_pu = ? WHERE stock_id = ?",
+          [newQuantity, newPricePerUnit, stockId]
+        );
+
+        console.timeEnd("POST request processing time");
+
+        return res.status(200).json({ message: "Stock updated successfully" });
       } else {
         // Insert new stock
         const [result] = await db.execute(
           "INSERT INTO stock (item_name, category_id, quantity, price_pu) VALUES (?, ?, ?, ?)",
-          [productName, categoryId, quantity, price]
+          [normalizedProductName, categoryId, parsedQuantity, parsedPrice]
         );
 
-        return res.status(201).json({ message: "Stock added successfully", stockId: result.insertId });
+        console.timeEnd("POST request processing time");
+
+        return res
+          .status(201)
+          .json({ message: "Stock added successfully", stockId: result.insertId });
       }
-    } catch (error) {
-      console.error("Error adding stock:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
     }
-  } else if (req.method === "GET") {
-    try {
-      const [stocks] = await db.execute("SELECT * FROM stock ORDER BY stock_id DESC");
+
+    else if (req.method === "GET") {
+      console.time("GET request processing time");
+
+      // Fetch stocks with category names (latest 100 entries)
+      const [stocks] = await db.execute(`
+        SELECT stock.stock_id, stock.item_name, stock.quantity, stock.price_pu, 
+               category.category_name 
+        FROM stock 
+        JOIN category ON stock.category_id = category.category_id
+        ORDER BY stock.stock_id DESC
+        LIMIT 100
+      `);
+
+      console.timeEnd("GET request processing time");
       return res.status(200).json(stocks);
-    } catch (error) {
-      console.error("Error fetching stocks:", error);
-      return res.status(500).json({ error: "Internal Server Error" });
     }
-  } else {
-    res.setHeader("Allow", ["POST", "GET"]);
-    res.status(405).end(`Method ${req.method} Not Allowed`);
+
+    else {
+      res.setHeader("Allow", ["POST", "GET"]);
+      return res.status(405).json({ error: `Method ${req.method} Not Allowed` });
+    }
+  } catch (error) {
+    console.error("Database error:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  } finally {
+    if (db) db.release(); // Ensure database connection is closed
   }
 }
