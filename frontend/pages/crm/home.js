@@ -34,7 +34,9 @@ const HomePage = () => {
     <div className="min-h-screen relative overflow-hidden">
       <StarryBackground />
       <BackButton route="/dashboard" />
-      
+      <div className="flex flex-col items-center flex-grow pt-20">
+        <h1 className="text-4xl font-bold mb-0 mt-8 text-center text-white">Customer Relationship Management</h1>
+
       {/* Notification System */}
       {notification && (
         <motion.div
@@ -46,7 +48,6 @@ const HomePage = () => {
           {notification}
         </motion.div>
       )}
-
       {/* Main Content */}
       <motion.div 
         className="flex justify-center items-center min-h-[60vh]"
@@ -54,7 +55,7 @@ const HomePage = () => {
         animate={{ opacity: 1 }}
         transition={{ delay: 0.2 }}
       >
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-20 max-w-4xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-20 max-w-6xl">
           <Link href="/crm/customers" passHref>
             <motion.a 
               className="card"
@@ -170,6 +171,7 @@ const HomePage = () => {
           transform: rotate(-90deg) scaleX(1.34) scaleY(0.77);
         }
       `}</style>
+    </div>
     </div>
   );
 };

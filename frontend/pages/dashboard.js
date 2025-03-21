@@ -3,19 +3,15 @@ import Link from "next/link";
 import { useState } from "react";
 import { motion } from "framer-motion";
 import Tilt from "react-parallax-tilt";
+import { useRouter } from "next/router";
 import { 
   FaUsers, 
   FaBoxOpen, 
   FaMoneyBillWave, 
   FaFileInvoiceDollar, 
   FaFileContract, 
-  FaPhone, 
-  FaEnvelope, 
   FaChevronDown,
-  FaFacebook,
-  FaInstagram,
-  FaLinkedin,
-  FaTwitter
+  FaSignOutAlt,
 } from "react-icons/fa";
 import { Navbar, NavbarBrand, NavbarContent, NavbarItem } from "@heroui/react";
 import Image from "next/image";
@@ -146,7 +142,7 @@ export default function Dashboard() {
   const [flipped, setFlipped] = useState(Array(features.length).fill(false));
   const [isAboutUsOpen, setIsAboutUsOpen] = useState(false);
   const [isContactUsOpen, setIsContactUsOpen] = useState(false);
-
+  const router = useRouter();
   const triggerBubbleTransition = (callback) => {
     const bubbles = document.getElementById("bubbles");
     bubbles?.classList.add("show");
@@ -170,6 +166,13 @@ export default function Dashboard() {
       return newFlipped;
     });
   };
+   
+  const handleLogout = () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("userRole");
+    localStorage.removeItem("token");
+    router.push("/login");
+  };
 
   const openAboutUs = () => triggerBubbleTransition(() => setIsAboutUsOpen(true));
   const closeAboutUs = () => triggerBubbleTransition(() => setIsAboutUsOpen(false));
@@ -192,16 +195,25 @@ export default function Dashboard() {
                 alt="Ukshati Logo" 
                 width={180} 
                 height={120} 
-                className="cursor-pointer hover:opacity-80 transition-opacity"
+                className="cursor-pointer hover:opacity-80 transition-opacity pb-2"
               />
             </Link>
           </NavbarBrand>
           <NavbarContent className="hidden sm:flex gap-6" justify="center">
             <NavbarItem>
-              <button onClick={openAboutUs} className="text-blue-400 hover:text-blue-300 transition-colors">About Us</button>
+              <button onClick={openAboutUs} className="text-blue-400 hover:text-blue-300 pb-2 transition-colors">About Us</button>
             </NavbarItem>
             <NavbarItem>
-            <button onClick={handleHelpClick} className="text-blue-400 hover:text-blue-300 transition-colors">Help</button>
+            <button onClick={handleHelpClick} className="text-blue-400 hover:text-blue-300 pb-2 transition-colors">Help</button>
+            </NavbarItem>
+            <NavbarItem>
+               <button
+                          onClick={handleLogout}
+                          className="w-full flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white mt-4 px-4 py-2 rounded-lg transition-all duration-200 mb-6"
+                        >
+                          <FaSignOutAlt className="text-lg" />
+                          <span>Logout</span>
+                        </button>
             </NavbarItem>
           </NavbarContent>
           <NavbarContent className="absolute left-1/2 transform -translate-x-1/2" justify="center">

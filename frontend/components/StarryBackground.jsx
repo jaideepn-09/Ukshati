@@ -44,7 +44,7 @@ const StarryBackground = () => {
     randomMotion: true,
     noiseLength: 1000,
     noiseStrength: 1,
-    shootingStarChance: 0.1, // Chance of a shooting star appearing
+    shootingStarChance: 0, // Chance of a shooting star appearing
     shootingStarSpeed: 5, // Speed of shooting stars
   };
 
