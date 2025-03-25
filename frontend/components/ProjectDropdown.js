@@ -42,7 +42,7 @@ export default function ProjectDropdown({ onSelect }) {
         onChange={handleChange}
         placeholder="Search or select a project..."
         isSearchable={true}
-        className="w-full"
+        className="w-full text-black"
       />
     </div>
   );

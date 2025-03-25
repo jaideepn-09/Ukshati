@@ -4,15 +4,23 @@ import BillHeading from '../../components/BillHeading';
 import ProjectDropdown from '../../components/ProjectDropdown';
 import ExpenseDetails from '../../components/ExpenseDetails';
 import  generatePDF  from '../../components/pdfGenerator';
+import StarryBackground from '@/components/StarryBackground';
+import BackButton from '@/components/BackButton';
+import ScrollToTopButton from '@/components/scrollup';
 
 export default function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [expenseData, setExpenseData] = useState(null);
 
   return (
-    <div className="p-6 w-full min-h-screen bg-white text-black rounded-xl shadow-md space-y-4">
+    <div>
+      <BackButton route='/dashboard' />
+      <ScrollToTopButton/>
+    <div className="flex items-center justify-center min-h-screen text-white">
+      <StarryBackground/>
+    <div className="p-6 backdrop-blur-sm text-white rounded-xl shadow-md space-y-4 w-full max-w mb-28">  
       <BillHeading />
-      <h2 className="text-xl text-black font-semibold">Invoice Generator</h2>
+      <h2 className="text-xl text-white font-semibold">Invoice Generator</h2>
       <ProjectDropdown onSelect={setSelectedProjectId} />
       {selectedProjectId && (
         <ExpenseDetails projectId={selectedProjectId} setExpenseData={setExpenseData} />
@@ -25,6 +33,8 @@ export default function Home() {
           Download PDF
         </button>
       )}
+    </div>
+    </div>
     </div>
   );
 }

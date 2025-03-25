@@ -94,7 +94,7 @@ export default function Dashboard() {
     },
     { 
       name: "Expense", 
-      path: "/expense", 
+      path: "/expense/home", 
       icon: <FaMoneyBillWave className="text-5xl" />, 
       gradient: "bg-gradient-to-r from-red-400 to-pink-500", 
       description: "Monitor business expenses.",

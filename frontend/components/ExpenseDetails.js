@@ -62,8 +62,8 @@ export default function ExpenseDetails({ projectId, setExpenseData }) {
   };
 
   // Calculate total expenses
-  const totalExpenses = (expenses?.reduce((sum, exp) => sum + parseFloat(exp.Amount || 0), 0)) || 0;
-  const totalInventoryCost = inventory.reduce((sum, item) => sum + Number(item.total_cost || 0), 0);
+  const totalExpenses = (expenses?.reduce((sum, exp) => sum + Number(exp.amount || 0), 0)) || 0;
+  const totalInventoryCost = inventory.reduce((sum, item) => sum + Number(item.price || 0), 0);
   const totalExtraExpense = extraExpenses.reduce((sum, exp) => sum + (exp.quantity * exp.unitPrice || 0), 0);
 
   // Calculate Grand Total
@@ -79,10 +79,10 @@ export default function ExpenseDetails({ projectId, setExpenseData }) {
     <div className="p-4 border rounded-lg shadow-md">
       <h1 className="text-lg font-medium mb-2">Expense Details</h1>
 
-      {pid ? <p className="text-gray-700">Project ID: {pid}</p> : <p className="text-red-500">Project ID not found</p>}
-      {pname ? <p className="text-gray-700">Project Name: {pname}</p> : <p className="text-red-500">Project Name not found</p>}
-      {cid ? <p className="text-gray-700">Customer ID: {cid}</p> : <p className="text-red-500">Customer ID not found</p>}
-      {cname ? <p className="text-gray-700">Customer Name: {cname}</p> : <p className="text-red-500">Customer Name not found</p>}
+      {pid ? <p className="text-gray-100">Project ID: {pid}</p> : <p className="text-red-500">Project ID not found</p>}
+      {pname ? <p className="text-gray-100">Project Name: {pname}</p> : <p className="text-red-500">Project Name not found</p>}
+      {cid ? <p className="text-gray-100">Customer ID: {cid}</p> : <p className="text-red-500">Customer ID not found</p>}
+      {cname ? <p className="text-gray-100">Customer Name: {cname}</p> : <p className="text-red-500">Customer Name not found</p>}
 
       <p className="font-bold text-red-600">Total Expense: ₹{totalExpenses}</p>
       <p className="font-bold text-green-600">Total Inventory Cost: ₹{totalInventoryCost}</p>

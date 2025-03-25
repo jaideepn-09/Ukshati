@@ -29,9 +29,10 @@ export default async function handler(req, res) {
 
     const project = projects[0];
 
-    // 🔹 Fetch expenses related to the project
+    // 🔹 Fetch expenses related to the project (Added `e.pid` here)
     const [expenses] = await connection.execute(
       `SELECT 
+          e.pid AS projectId,  -- Include project ID in response
           e.Exp_ID AS expId, 
           e.Date AS date, 
           e.Amount AS amount, 
