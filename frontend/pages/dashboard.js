@@ -109,7 +109,7 @@ export default function Dashboard() {
     },
     { 
       name: "Billing", 
-      path: "/billing", 
+      path: "billing/billing", 
       icon: <FaFileInvoiceDollar className="text-5xl" />, 
       gradient: "bg-gradient-to-r from-purple-400 to-indigo-500", 
       description: "Generate and manage invoices.",

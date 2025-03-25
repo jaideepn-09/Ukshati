@@ -13,12 +13,16 @@ export default async function handler(req, res) {
     
     const [results] = await connection.execute(`
       SELECT 
-        s.item_name AS productName,
-        ispent.quantity_used AS quantity,
-        ROUND(ispent.quantity_used * (s.price_pu / s.quantity), 2) AS price,
-        ispent.remark
+        ispent.*,
+        s.item_name,
+        p.pname AS project_name,
+        e.name AS employee_name,
+        ROUND((s.price_pu / s.quantity), 2) AS unit_price,
+        ROUND(ispent.quantity_used * (s.price_pu / s.quantity), 2) AS total_price
       FROM inventory_spent ispent
       JOIN stock s ON ispent.stock_id = s.stock_id
+      LEFT JOIN project p ON ispent.used_for = p.pid
+      LEFT JOIN employee e ON ispent.recorded_by = e.id
       ORDER BY ispent.spent_id DESC
     `);
 
@@ -27,7 +31,9 @@ export default async function handler(req, res) {
     res.status(200).json(results);
   } catch (error) {
     console.error('Error fetching inventory spent:', error);
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ 
+      message: 'Server error',
+      error: error.message 
+    });
   }
 }
-

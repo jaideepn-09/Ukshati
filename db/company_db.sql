@@ -123,27 +123,6 @@ UNLOCK TABLES;
 -- Table structure for table `inventory_spent`
 --
 
-
-DROP TABLE IF EXISTS `add_expenses`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `add_expenses` (
-  `Exp_ID` int NOT NULL,
-  `Date` date NOT NULL,
-  `id` int NOT NULL,
-  `pid` int NOT NULL,
-  `Amount` decimal(10,2) NOT NULL,
-  `Comments` text,
-  PRIMARY KEY (`Exp_ID`),
-  KEY `id` (`id`),
-  KEY `pid` (`pid`),
-  CONSTRAINT `add_expenses_ibfk_1` FOREIGN KEY (`id`) REFERENCES `employee` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `add_expenses_ibfk_2` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
-
-
 DROP TABLE IF EXISTS `stock`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
@@ -332,8 +311,6 @@ UNLOCK TABLES;
 -- Table structure for table `stock`
 --
 
-
-
 --
 -- Table structure for table `works_on`
 --
@@ -392,6 +369,34 @@ LOCK TABLES `add_expenses` WRITE;
 /*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
 /*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
 UNLOCK TABLES;
+
+
+--
+-- Table structure for table `invoices`
+--
+
+DROP TABLE IF EXISTS `invoices`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `invoices` (
+  `invoice_id` int NOT NULL AUTO_INCREMENT,
+  `pid` int NOT NULL,
+  `pname` varchar(255) NOT NULL,
+  `cid` int NOT NULL,
+  `cname` varchar(255) NOT NULL,
+  `expenses` json NOT NULL,
+  `extraExpenses` json NOT NULL,
+  `inventory` json NOT NULL,
+  `grandTotal` decimal(10,2) NOT NULL,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`invoice_id`),
+  KEY `pid` (`pid`),
+  KEY `cid` (`cid`),
+  CONSTRAINT `invoices_ibfk_1` FOREIGN KEY (`pid`) REFERENCES `project` (`pid`),
+  CONSTRAINT `invoices_ibfk_2` FOREIGN KEY (`cid`) REFERENCES `customer` (`cid`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

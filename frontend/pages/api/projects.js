@@ -8,13 +8,12 @@ export default async function handler(req, res) {
   let db;
   try {
     db = await connectToDB();
-    const [results] = await db.query("SELECT pid FROM project WHERE status != 'completed'");
-
-    res.status(200).json(results.length > 0 ? results : []);
+    const [results] = await db.query("SELECT * FROM project"); // Fetch all project details
+    res.status(200).json(results);
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Internal Server Error" });
   } finally {
-    if (db) db.release(); // Release the connection
+    if (db) db.release();
   }
 }
