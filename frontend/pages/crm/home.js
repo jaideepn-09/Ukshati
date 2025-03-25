@@ -67,7 +67,7 @@ const HomePage = () => {
               </motion.a>
             </Link>
 
-            <Link href="/reminders" passHref>
+            <Link href="/crm/reminders" passHref>
               <motion.a
                 className="card"
                 whileHover={{ scale: 1.05 }}

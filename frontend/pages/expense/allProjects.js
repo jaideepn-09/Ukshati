@@ -5,6 +5,7 @@ import StarryBackground from "@/components/StarryBackground";
 import { Scroll, Search } from "lucide-react";
 import EditButton from "./editButton";
 import BackButton from "@/components/BackButton";
+import ScrollToTopButton from "@/components/scrollup";
 
 export default function ProjectDetails() {
   const [projects, setProjects] = useState([]);
@@ -147,7 +148,7 @@ export default function ProjectDetails() {
   };
 
   return (
-    <div><BackButton route="/expense/home"/>
+    <div><BackButton route="/expense"/>
     <div className="min-h-screen flex flex-col items-center relative bg-cover bg-center space-y-8 p-10">
       <StarryBackground />
       <ScrollToTopButton />

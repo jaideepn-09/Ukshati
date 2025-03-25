@@ -108,7 +108,7 @@ export default function ProjectTable({ projects = [], showStatus = false }) {
   };
 
   return (
-    <div><BackButton route="/expense/home"/>
+    <div><BackButton route="/expense"/>
     <div className="min-h-screen flex justify-center items-center relative bg-cover bg-center">
       <StarryBackground />
       <ScrollToTopButton/>
