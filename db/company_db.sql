@@ -222,7 +222,11 @@ CREATE TABLE `project` (
 
 LOCK TABLES `project` WRITE;
 /*!40000 ALTER TABLE `project` DISABLE KEYS */;
-INSERT INTO `project` VALUES (2,'Website Development',2,'2024-01-01','2024-06-01','Ongoing','Jane Smith'),(4,'Mobile App',4,'2024-03-15','2024-09-15','Completed','Sarah Miller');
+INSERT INTO `project` VALUES (2,'Website Development',2,'2024-01-01','2024-06-01','Ongoing','Jane Smith'),(4,'Mobile App',4,'2024-03-15','2024-09-15','Completed','Sarah Miller'),
+(1, 'Irrigation System', 1, '2024-01-10', '2024-06-15', 'Ongoing', 'John Doe'), 
+(3, 'Greenhouse Automation', 3, '2024-03-20', '2024-09-25', 'Completed', 'Robert Brown'), 
+(5, 'Drone Surveillance Program', 5, '2025-02-10', '2025-09-10', 'On Hold', 'Sarah Johnson'), 
+(6, 'Automated Harvesting Beta', 4, '2025-02-21', '2025-07-21', 'Ongoing', 'Michael Green');
 /*!40000 ALTER TABLE `project` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -346,7 +350,7 @@ DROP TABLE IF EXISTS `add_expenses`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `add_expenses` (
-  `Exp_ID` int NOT NULL,
+  `Exp_ID` int NOT NULL AUTO_INCREMENT,
   `Date` date NOT NULL,
   `id` int NOT NULL,
   `pid` int NOT NULL,
@@ -367,6 +371,13 @@ CREATE TABLE `add_expenses` (
 
 LOCK TABLES `add_expenses` WRITE;
 /*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
+INSERT INTO `add_expenses` (`Exp_ID`, `Date`, `id`, `pid`, `Amount`, `Comments`) VALUES
+(1, '2024-03-01', 12, 1, 5000.00, 'Project material purchase'), 
+(2, '2024-03-02', 13, 2, 3000.50, 'Sensor installation cost'), 
+(3, '2024-03-05', 14, 3, 4200.75, 'Automation setup expense'), 
+(4, '2024-03-07', 15, 4, 2500.00, 'Consultation charges'), 
+(5, '2024-03-10', 16, 5, 10000.00, 'Drone surveillance setup'), 
+(6, '2024-03-12', 14, 6, 3200.25, 'Beta testing expenses');
 /*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
