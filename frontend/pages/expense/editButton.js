@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { FiEdit, FiX, FiCalendar, FiDollarSign,FiMessageSquare } from "react-icons/fi";
 
 export default function EditButton({ project, fetchProjects }) {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -140,9 +141,10 @@ export default function EditButton({ project, fetchProjects }) {
     <>
       <button
         onClick={handleEditClick}
-        className="px-3 py-1 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm text-sm"
+        className="px-4 py-2 bg-gradient-to-r from-purple-500 to-indigo-600 hover:from-purple-600 hover:to-indigo-700 text-white rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2"
       >
-        Edit
+        <FiEdit className="text-lg" />
+        <span>Edit Project</span>
       </button>
 
       <AnimatePresence>
@@ -151,22 +153,33 @@ export default function EditButton({ project, fetchProjects }) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm flex justify-center items-center z-50 overflow-y-auto p-4"
+            className="fixed inset-0 bg-black/30 backdrop-blur-md flex justify-center items-center z-9999 p-4"
           >
             <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="bg-white rounded-2xl w-full max-w-md shadow-2xl p-6 relative flex flex-col max-h-screen overflow-y-auto"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              className="bg-white rounded-2xl w-full max-w-lg shadow-2xl relative z-9999 "
             >
-              <h2 className="text-2xl font-bold text-gray-900 mb-6 text-center">
-                Edit Expense
-              </h2>
+              {/* Header */}
+              <div className="bg-gradient-to-r from-purple-600 to-indigo-700 p-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-2xl font-bold text-white">Edit Project Details</h2>
+                  <button
+                    onClick={() => setIsModalOpen(false)}
+                    className="p-2 hover:bg-white/10 rounded-full transition-colors"
+                  >
+                    <FiX className="text-white text-xl" />
+                  </button>
+                </div>
+              </div>
 
-              <div className="space-y-4">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+              {/* Form Content */}
+              <div className="p-6 space-y-6 text-black ">
+                {/* Project Name */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <FiEdit className="text-purple-600" />
                     Project Name
                   </label>
                   <input
@@ -174,12 +187,15 @@ export default function EditButton({ project, fetchProjects }) {
                     name="projectName"
                     value={editedProject.projectName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Enter project name"
                   />
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                {/* Client Name */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <FiEdit className="text-purple-600" />
                     Client Name
                   </label>
                   <input
@@ -187,13 +203,16 @@ export default function EditButton({ project, fetchProjects }) {
                     name="clientName"
                     value={editedProject.clientName}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Enter client name"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                {/* Date Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <FiCalendar className="text-purple-600" />
                       Start Date
                     </label>
                     <input
@@ -201,12 +220,13 @@ export default function EditButton({ project, fetchProjects }) {
                       name="startDate"
                       value={editedProject.startDate}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     />
                   </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                      <FiCalendar className="text-purple-600" />
                       End Date
                     </label>
                     <input
@@ -214,49 +234,60 @@ export default function EditButton({ project, fetchProjects }) {
                       name="endDate"
                       value={editedProject.endDate}
                       onChange={handleChange}
-                      className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
+                      className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
                     />
                   </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Amount (INR)
+                {/* Amount */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <FiDollarSign className="text-purple-600" />
+                    Project Budget
                   </label>
-                  <input
-                    type="number"
-                    name="amount"
-                    value={editedProject.amount}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
-                  />
+                  <div className="relative">
+                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400">₹</span>
+                    <input
+                      type="number"
+                      name="amount"
+                      value={editedProject.amount}
+                      onChange={handleChange}
+                      className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                      placeholder="Enter total amount"
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Comments
+                {/* Comments */}
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-gray-700 flex items-center gap-2">
+                    <FiMessageSquare className="text-purple-600" />
+                    Additional Comments
                   </label>
                   <textarea
                     name="comments"
                     value={editedProject.comments}
                     onChange={handleChange}
-                    className="w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring focus:border-indigo-500 text-gray-800"
+                    rows="4"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent transition-all"
+                    placeholder="Any special instructions or notes..."
                   />
                 </div>
               </div>
 
-              <div className="flex justify-end mt-6 space-x-2">
+              {/* Footer Actions */}
+              <div className="px-6 py-4 bg-gray-50 border-t border-gray-100 flex justify-end gap-4">
                 <button
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-gray-300 hover:bg-gray-400 text-gray-800 rounded-lg shadow-sm"
+                  className="px-6 py-2.5 text-gray-600 hover:text-gray-800 bg-white border border-gray-200 rounded-xl shadow-sm transition-all hover:shadow-md"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
-                  className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow-sm"
+                  className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-700 hover:from-purple-700 hover:to-indigo-800 text-white rounded-xl shadow-sm transition-all hover:shadow-md flex items-center gap-2"
                 >
-                  Save
+                  Save Changes
                 </button>
               </div>
             </motion.div>

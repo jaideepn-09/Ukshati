@@ -8,26 +8,30 @@ export default async function handler(req, res) {
   const db = await connectToDB();
 
   try {
-    const { stockId, spentQty, used_for, recorded_by, remark } = req.body;
+    const { stockId, spentQty, used_for, recorded_by, location, remark } = req.body;
     console.log("Request Body:", req.body);
 
     // Validate request body
-    const requiredFields = ['stockId', 'spentQty', 'used_for', 'recorded_by'];
-    const missingFields = requiredFields.filter(field => req.body[field] === undefined);
-    
+    const requiredFields = ["stockId", "spentQty", "used_for", "recorded_by", "location"];
+    const missingFields = requiredFields.filter(
+      (field) => req.body[field] === undefined
+    );
+
     if (missingFields.length > 0) {
       return res.status(400).json({
-        error: `Missing required fields: ${missingFields.join(', ')}`,
-        code: "MISSING_FIELDS"
+        error: `Missing required fields: ${missingFields.join(", ")}`,
+        code: "MISSING_FIELDS",
       });
     }
 
     if (isNaN(spentQty) || spentQty <= 0) {
       return res.status(400).json({
         error: "Invalid quantity - must be a positive number",
-        code: "INVALID_QUANTITY"
+        code: "INVALID_QUANTITY",
       });
     }
+
+    // Fetch stock details
     const [stockResult] = await db.execute(
       "SELECT quantity, price_pu FROM stock WHERE stock_id = ?",
       [stockId]
@@ -40,93 +44,74 @@ export default async function handler(req, res) {
     const { quantity, price_pu } = stockResult[0];
 
     if (spentQty > quantity) {
-      return res.status(400).json({ error: "Not enough stock available" });
+      return res.status(400).json({
+        error: "Not enough stock available",
+        available: quantity,
+        code: "INSUFFICIENT_STOCK",
+      });
     }
 
-    // Calculate total price deduction
-    const pricePerItem = price_pu / quantity;
-    const totalPriceDeduction = pricePerItem * spentQty;
-
-    // Update stock quantity and price
-    await db.execute(
-      "UPDATE stock SET quantity = quantity - ?, price_pu = price_pu - ? WHERE stock_id = ?",
-      [spentQty, totalPriceDeduction, stockId]
-    );
-
     // Validate database entities
-    const [stock] = await db.execute(
-      "SELECT quantity FROM stock WHERE stock_id = ?",
-      [stockId]
-    );
-    
-    const [project] = await db.execute(
-      "SELECT pid FROM project WHERE pid = ?",
-      [used_for]
-    );
-    
+    const [project] = await db.execute("SELECT pid FROM project WHERE pid = ?", [
+      used_for,
+    ]);
+
     const [employee] = await db.execute(
       "SELECT id FROM employee WHERE id = ?",
       [recorded_by]
     );
 
-    if (stock.length === 0) {
-      return res.status(404).json({
-        error: "Stock item not found",
-        code: "STOCK_NOT_FOUND"
-      });
-    }
-
     if (project.length === 0) {
       return res.status(404).json({
         error: "Project not found",
-        code: "PROJECT_NOT_FOUND"
+        code: "PROJECT_NOT_FOUND",
       });
     }
 
     if (employee.length === 0) {
       return res.status(404).json({
         error: "Employee not found",
-        code: "EMPLOYEE_NOT_FOUND"
+        code: "EMPLOYEE_NOT_FOUND",
       });
     }
 
-    if (spentQty > stock[0].quantity) {
-      return res.status(400).json({
-        error: "Insufficient stock quantity",
-        code: "INSUFFICIENT_STOCK",
-        available: stock[0].quantity
-      });
-    }
+    // Calculate total price deduction
+    const pricePerItem = price_pu / quantity;
+    const totalPriceDeduction = spentQty * pricePerItem;
 
     // Start transaction
     await db.beginTransaction();
 
     try {
-      // Create spent record
+      // Update stock quantity and price
+      await db.execute(
+        "UPDATE stock SET quantity = quantity - ?, price_pu = price_pu - ? WHERE stock_id = ?",
+        [spentQty, totalPriceDeduction, stockId]
+      );
+
+      // Create spent record with location
       const [insertResult] = await db.execute(
         `INSERT INTO inventory_spent 
-         (stock_id, quantity_used, used_for, recorded_by, remark)
-         VALUES (?, ?, ?, ?, ?)`,
-        [stockId, spentQty, used_for, recorded_by, remark || null]
+         (stock_id, quantity_used, used_for, recorded_by, location, remark)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [stockId, spentQty, used_for, recorded_by, location, remark || null]
       );
 
       await db.commit();
-      return res.status(200).json({ 
+      return res.status(200).json({
         message: "Stock usage recorded successfully",
-        spentId: insertResult.insertId
+        spentId: insertResult.insertId,
       });
-
     } catch (error) {
       await db.rollback();
       throw error;
     }
-
   } catch (error) {
     console.error("Database Error:", error);
-    return res.status(500).json({ 
+    return res.status(500).json({
       error: "Internal Server Error",
       code: "SERVER_ERROR",
-      details: error.message 
+      details: error.message,
     });
   } finally {
     if (db) db.release();

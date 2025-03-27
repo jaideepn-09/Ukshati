@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { FiArrowLeft, FiActivity, FiSearch } from "react-icons/fi";
+import { FiArrowLeft, FiActivity, FiSearch, FiMapPin } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -69,7 +69,7 @@ export default function InventorySpent() {
   }, []);
 
   const filteredStocks = spentStocks.filter((stock) => {
-    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name}`.toLowerCase();
+    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name} ${stock.location || ''}`.toLowerCase();
     return searchString.includes(searchQuery.toLowerCase());
   });
 
@@ -88,7 +88,7 @@ export default function InventorySpent() {
       <StarryBackground />
 
       <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between relative px-6">
+        <div className="max-w-8xl mx-auto flex items-center justify-between relative px-6">
           <div className="absolute left-6">
             <button
               onClick={() => router.push("/ims/home")}
@@ -115,7 +115,7 @@ export default function InventorySpent() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto p-4 space-y-8">
+      <main className="max-w-7.5xl mx-auto p-4 space-y-8">
         <section className="rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700">
           <div className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
@@ -124,7 +124,7 @@ export default function InventorySpent() {
                 <FiSearch className="text-blue-400" />
                 <input
                   type="text"
-                  placeholder="Search products, projects, or employees..."
+                  placeholder="Search products, projects, employees or locations..."
                   className="p-2 bg-gray-700 rounded-lg w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -146,7 +146,13 @@ export default function InventorySpent() {
                       <th className="p-4 text-left min-w-[220px]">Product</th>
                       <th className="p-4 text-left min-w-[120px]">Quantity</th>
                       <th className="p-4 text-left min-w-[150px]">Total Cost</th>
-                      <th className="p-4 text-left min-w-[200px]">Project</th>
+                      <th className="p-4 text-left min-w-[200px]">
+                        <div className="flex items-center">
+                          <FiMapPin className="mr-2" />
+                          Location
+                        </div>
+                      </th>
+                      <th className="p-4 text-left min-w-[150px] max-w-[300px] truncate">Project</th>
                       <th className="p-4 text-left min-w-[200px]">Recorded By</th>
                       <th className="p-4 text-left min-w-[300px]">Remarks</th>
                     </tr>
@@ -161,7 +167,12 @@ export default function InventorySpent() {
                         <td className="p-4">{spent.quantity_used}</td>
                         <td className="p-4 text-blue-400">₹{spent.total_price}</td>
                         <td className="p-4">
-                          <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                          {spent.location || (
+                            <span className="italic text-gray-500">Not specified</span>
+                          )}
+                        </td>
+                        <td className="p-4 max-w-[300px] truncate" title={spent.project_name || 'N/A'}>
+                          <span className="bg-gray-700 px-3 py-1 rounded-full text-sm whitespace-nowrap">
                             {spent.project_name || 'N/A'}
                           </span>
                         </td>

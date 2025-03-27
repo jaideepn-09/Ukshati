@@ -7,6 +7,7 @@ import generatePDF from '../../components/pdfGenerator';
 import StarryBackground from '@/components/StarryBackground';
 import BackButton from '@/components/BackButton';
 import ScrollToTopButton from '@/components/scrollup';
+import { AnimatePresence, motion } from 'framer-motion';
 
 export default function Home() {
   const [selectedProjectId, setSelectedProjectId] = useState('');
@@ -47,12 +48,17 @@ export default function Home() {
             <BillHeading />
             
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text">
+              <h2 className="text-xl font-semibold text-transparent bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text flex items-center justify-center gap-2">
+                <svg
+                  className="w-6 h-6 text-purple-400"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 3v4a1 1 0 001 1h4m0 10v1a2 2 0 01-2 2H6a2 2 0 01-2-2v-1m16-5H4m12-4H4m4-8H4m12 4H8M4 3h10a1 1 0 011 1v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1z" />
+                </svg>
                 Invoice Generation System
               </h2>
-              <p className="text-gray-400 text-sm">
-                Select a project to view detailed expenses and generate invoices
-              </p>
             </div>
 
             <div className="space-y-6">
@@ -68,22 +74,101 @@ export default function Home() {
               )}
             </div>
 
-            {expenseData && (
-              <div ref={pdfButtonRef} className="flex justify-end space-x-4 border-t border-white/10 pt-6">
-                <button
-                  onClick={() => generatePDF(expenseData)}
-                  className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-400 hover:to-emerald-500 text-white px-8 py-3 rounded-lg font-semibold transition-all transform hover:scale-105 flex items-center gap-2"
+            <AnimatePresence>
+              {expenseData && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: 20 }}
+                  className="mt-4 flex justify-center group"
                 >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fillRule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
-                  Generate PDF Invoice
-                </button>
-              </div>
-            )}
+                  <button
+                    onClick={() => generatePDF(expenseData)}
+                    className="relative overflow-hidden h-12 w-40 rounded-lg bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-500 hover:to-blue-500 transition-all duration-300"
+                  >
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-white text-sm transition-all duration-300 group-hover:-translate-y-4 group-hover:opacity-0">
+                        Download PDF
+                      </span>
+                      <svg
+                        className="absolute inset-0 m-auto w-5 h-5 text-white transition-all duration-300 opacity-0 translate-y-4 group-hover:opacity-100 group-hover:translate-y-0"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"
+                        />
+                      </svg>
+                    </div>
+                  </button>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
         </div>
       </div>
+
+      <style jsx global>{`
+        .button {
+          width: 50px;
+          height: 50px;
+          border-radius: 50%;
+          background-color: rgb(20, 20, 20);
+          border: none;
+          font-weight: 600;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.164);
+          cursor: pointer;
+          transition-duration: .3s;
+          overflow: hidden;
+          position: relative;
+        }
+
+        .svgIcon {
+          width: 12px;
+          transition-duration: .3s;
+        }
+
+        .svgIcon path {
+          fill: white;
+        }
+
+        .button:hover {
+          width: 140px;
+          border-radius: 50px;
+          transition-duration: .3s;
+          background-color: rgb(255, 69, 69);
+          align-items: center;
+        }
+
+        .button:hover .svgIcon {
+          width: 50px;
+          transition-duration: .3s;
+          transform: translateY(60%);
+        }
+
+        .button::before {
+          position: absolute;
+          top: -20px;
+          content: "Delete";
+          color: white;
+          transition-duration: .3s;
+          font-size: 2px;
+        }
+
+        .button:hover::before {
+          font-size: 13px;
+          opacity: 1;
+          transform: translateY(30px);
+          transition-duration: .3s;
+        }
+      `}</style>
     </div>
   );
 }

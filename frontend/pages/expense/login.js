@@ -48,7 +48,8 @@ export default function Login() {
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("userRole", data.user.role); // Store role separately
-
+      localStorage.setItem("userEmail", data.user.email);
+      
       // Redirect based on role
       router.push(
         data.user.role === "admin" ? "/expense/home" : "/expense/home"

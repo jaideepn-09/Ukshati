@@ -186,12 +186,25 @@ export default function ExpenseDetails({ projectId, setExpenseData }) {
                   }}
                   className="w-32 bg-white/5 border border-white/10 rounded px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-green-500"
                 />
-                <button
-                  onClick={() => setExtraExpenses(extraExpenses.filter((_, i) => i !== index))}
-                  className="w-full md:w-auto bg-red-600/30 hover:bg-red-600/40 text-red-300 px-4 py-2 rounded transition-all border border-red-500/30"
-                >
-                  Remove
-                </button>
+      <button
+  onClick={() => setExtraExpenses(extraExpenses.filter((_, i) => i !== index))}
+  className="p-2 transition-transform duration-200 hover:scale-110"
+>
+  <svg
+    className="w-7 h-7 text-gray-600 hover:text-red-500 transition-colors duration-200"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+    />
+  </svg>
+</button>
+
               </div>
             ))}
           </div>

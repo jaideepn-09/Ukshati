@@ -185,7 +185,7 @@ export default function ProjectDetails() {
       </div>
 
       {/* Table Section */}
-      <table className="w-full max-w-6xl text-white text-sm bg-white/10 backdrop-blur-lg rounded-3xl shadow-md overflow-hidden">
+      <table className="w-full max-w-6xl text-white text-sm bg-white/10 backdrop-blur-lg rounded-3xl shadow-md ">
         <thead>
           <tr className="bg-black/40">
             <th className="p-4">Project Name</th>
@@ -202,14 +202,14 @@ export default function ProjectDetails() {
           {filteredProjects.length > 0 ? (
             filteredProjects.map((proj, index) => (
               <tr key={index} className="hover:bg-white/10 transition-all">
-                <td className="py-4">{proj.pname || "N/A"}</td>
-                <td>{proj.cname || "N/A"}</td>
-                <td>{proj.status || "N/A"}</td>
-                <td>{proj.start_date || "N/A"}</td>
-                <td>{proj.end_date || "N/A"}</td>
+                <td className="py-4 text-center">{proj.pname || "N/A"}</td>
+                <td className="text-center">{proj.cname || "N/A"}</td>
+                <td className="text-center">{proj.status || "N/A"}</td>
+                <td className="text-center">{proj.start_date || "N/A"}</td>
+                <td className="text-center">{proj.end_date || "N/A"}</td>
                 <td className="text-center">₹{proj.total_amount || "0"}</td>
                 <td className="text-center">{proj.comments || "N/A"}</td>
-                <td>
+                <td className="text-center">
                   <EditButton project={proj} />
                 </td>
               </tr>

@@ -175,6 +175,7 @@ CREATE TABLE `inventory_spent` (
   `quantity_used` int DEFAULT NULL,
   `used_for` int DEFAULT NULL,
   `recorded_by` int DEFAULT NULL,
+  `location` varchar(100) DEFAULT NULL,
   `remark` text,
   PRIMARY KEY (`spent_id`),
   KEY `stock_id` (`stock_id`),

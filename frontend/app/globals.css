@@ -83,3 +83,32 @@ body {
   background: rgba(255, 255, 255, 0.2);
   border-radius: 4px;
 }
+.svgIcon {
+  width: 24px;  /* Default size (larger than before) */
+  height: 24px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.button:hover .svgIcon {
+  transform: scale(1.2); /* Slightly bigger on hover */
+}
+
+/* app/globals.css */
+.swal2-popup {
+  @apply !rounded-2xl !border-2 !border-red-500/50 !bg-gray-900 !text-gray-100;
+  animation: swal2-show 0.3s cubic-bezier(0.68, -0.55, 0.27, 1.55) !important;
+}
+
+@keyframes swal2-show {
+  0% { transform: scale(0.7); opacity: 0; }
+  80% { transform: scale(1.05); }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.swal2-title {
+  @apply !text-red-400 !text-2xl !font-bold;
+}
+
+.swal2-close {
+  @apply !text-gray-400 hover:!text-red-500 !transition-colors;
+}
