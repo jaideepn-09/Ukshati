@@ -5,25 +5,11 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: "Method Not Allowed" });
   }
 
-  const {
-    email,
-    projectName,
-    clientName,
-    startDate,
-    endDate,
-    amount,
-    comments,
-  } = req.body;
+  // Extract all fields, including comments
+  const { email, projectName, clientName, startDate, endDate, amount, comments } = req.body;
 
   // Basic validation
-  if (
-    !email ||
-    !projectName ||
-    !clientName ||
-    !startDate ||
-    !endDate ||
-    amount === undefined
-  ) {
+  if (!email || !projectName || !clientName || !startDate || !endDate || amount === undefined) {
     return res.status(400).json({ error: "Missing required fields" });
   }
 
@@ -40,14 +26,11 @@ export default async function handler(req, res) {
 
     console.log("Connected to database.");
 
-    //Verify user role
+    // Verify user role
     const [adminCheck] = await db.execute(
       `SELECT role FROM employee WHERE email = ? LIMIT 1`,
       [email]
     );
-
-    // Debugging: Log what the database is returning
-    console.log("Admin Check Result:", adminCheck);
 
     if (adminCheck.length === 0) {
       console.log("User not found in employee table.");
@@ -55,45 +38,43 @@ export default async function handler(req, res) {
     }
 
     const userRole = adminCheck[0].role;
-    console.log("👤 User Role from DB:", userRole);
-
     if (userRole.toLowerCase() !== "admin") {
-      console.log("Access denied. User is not an admin.");
-      return res
-        .status(403)
-        .json({ error: "Access denied. Only admins can update projects." });
+      return res.status(403).json({ error: "Access denied. Only admins can update projects." });
     }
 
-    //Update project
+    // Update project details
     const updateProjectQuery = `
       UPDATE project
       SET cname = ?, start_date = ?, end_date = ?
       WHERE pname = ?
     `;
 
-    const [projectUpdateResult] = await db.execute(updateProjectQuery, [
-      clientName,
-      startDate,
-      endDate,
-      projectName,
-    ]);
+    await db.execute(updateProjectQuery, [clientName, startDate, endDate, projectName]);
 
-    console.log("✅ Project update result:", projectUpdateResult);
+    // ✅ DYNAMICALLY UPDATE EXPENSE COLUMNS
+    let updateFields = [];
+    let updateValues = [];
 
-    //Update expense
-    const updateExpenseQuery = `
-      UPDATE add_expenses
-      SET Amount = ?, Comments = ?
-      WHERE pid = (SELECT pid FROM project WHERE pname = ? LIMIT 1)
-    `;
+    if (amount !== undefined) {
+      updateFields.push("Amount = ?");
+      updateValues.push(amount);
+    }
 
-    const [expenseUpdateResult] = await db.execute(updateExpenseQuery, [
-      amount,
-      comments,
-      projectName,
-    ]);
+    if (comments !== undefined) {
+      updateFields.push("Comments = ?");
+      updateValues.push(comments);
+    }
 
-    console.log("✅ Expense update result:", expenseUpdateResult);
+    if (updateFields.length > 0) {
+      const updateExpenseQuery = `
+        UPDATE add_expenses
+        SET ${updateFields.join(", ")}
+        WHERE pid = (SELECT pid FROM project WHERE pname = ? LIMIT 1)
+      `;
+
+      updateValues.push(projectName);
+      await db.execute(updateExpenseQuery, updateValues);
+    }
 
     res.status(200).json({
       success: true,
