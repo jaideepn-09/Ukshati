@@ -60,7 +60,7 @@ export default function Projects() {
       start_date: new Date(startDate).toISOString().split("T")[0],
       end_date: new Date(endDate).toISOString().split("T")[0],
       status,
-      cid: customerId,
+      cid: Number(customerId), // Convert to number
     };
 
     try {
@@ -73,12 +73,21 @@ export default function Projects() {
         body: JSON.stringify(editId ? { pid: editId, ...projectData } : projectData),
       });
 
+      const resultData = await response.json();
+      
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to save project");
+        throw new Error(resultData.error || "Failed to save project");
       }
 
-      fetchProjects();
+      // Update state directly with API response
+      if (method === "POST") {
+        setProjects([...projects, resultData]);
+      } else {
+        setProjects(projects.map(p => 
+          p.pid === editId ? {...resultData, pid: editId} : p
+        ));
+      }
+
       resetForm();
     } catch (error) {
       console.error("Error:", error.message);
@@ -101,7 +110,7 @@ export default function Projects() {
     setStartDate(formatDate(project.start_date));
     setEndDate(formatDate(project.end_date));
     setStatus(project.status);
-    setCustomerId(project.cid);
+    setCustomerId(project.cid.toString()); // Convert to string for select input
   };
 
   const handleDelete = async (pid) => {
@@ -117,7 +126,7 @@ export default function Projects() {
         throw new Error(errorData.error || "Failed to delete project");
       }
 
-      fetchProjects();
+      setProjects(projects.filter(project => project.pid !== pid));
     } catch (error) {
       console.error("Error deleting project:", error);
       alert(error.message);
@@ -231,7 +240,7 @@ export default function Projects() {
                     {project.status}
                   </span>
                 </td>
-                <td>{project.customer_name || "N/A"}</td>
+                <td>{project.cname || "N/A"}</td>
                 <td className="actions">
                   <button
                     onClick={() => handleEdit(project)}

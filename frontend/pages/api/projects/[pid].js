@@ -1,4 +1,4 @@
-import { connectToDB } from "../../../lib/db";
+import { connectToDB } from "@/lib/db";
 
 export default async function handler(req, res) {
   const { pid } = req.query;
@@ -10,13 +10,18 @@ export default async function handler(req, res) {
   let db;
   try {
     db = await connectToDB();
-    const [results] = await db.query("SELECT * FROM project WHERE pid = ?", [pid]);
+    const [results] = await db.query(`
+      SELECT p.*, c.cname 
+      FROM project p 
+      LEFT JOIN customer c ON p.cid = c.cid 
+      WHERE p.pid = ?
+    `, [pid]);
 
     if (results.length === 0) {
       return res.status(404).json({ error: "Project not found" });
     }
 
-    res.status(200).json(results[0]); // Return the single project
+    res.status(200).json(results[0]);
   } catch (error) {
     console.error("Database error:", error);
     res.status(500).json({ error: "Internal Server Error" });

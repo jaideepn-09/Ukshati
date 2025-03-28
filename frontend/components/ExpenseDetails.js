@@ -51,7 +51,7 @@ export default function ExpenseDetails({ projectId, setExpenseData }) {
               .then((customerData) => {
                 setCustomer(customerData);
                 // Update customer name only if not already set from project
-                setCname((prev) => prev || customerData.customer_name || "Unknown Customer");
+                setCname((prev) => prev || customerData.cname || "Unknown Customer");
               })
               .catch((err) => console.error("Error fetching customer:", err));
           }

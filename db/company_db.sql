@@ -369,7 +369,6 @@ CREATE TABLE `add_expenses` (
 --
 -- Dumping data for table `add_expenses`
 --
-
 LOCK TABLES `add_expenses` WRITE;
 /*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
 INSERT INTO `add_expenses` (`Exp_ID`, `Date`, `id`, `pid`, `Amount`, `Comments`) VALUES
@@ -382,7 +381,15 @@ INSERT INTO `add_expenses` (`Exp_ID`, `Date`, `id`, `pid`, `Amount`, `Comments`)
 /*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
-
+DROP TABLE IF EXISTS reminders;
+CREATE TABLE reminders (
+  rid INT AUTO_INCREMENT PRIMARY KEY,
+  cid INT NOT NULL,
+  reminder_date DATE NOT NULL,
+  reminder_time TIME NOT NULL,
+  message TEXT NOT NULL,
+  FOREIGN KEY (cid) REFERENCES customer(cid) ON DELETE CASCADE
+)ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 --
 -- Table structure for table `invoices`
 --
