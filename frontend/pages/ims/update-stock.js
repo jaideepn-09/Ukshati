@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import StarryBackground from "@/components/StarryBackground";
-import { FiArrowLeft, FiSearch, FiEdit, FiX, FiActivity } from "react-icons/fi";
+import { FiArrowLeft, FiSearch, FiEdit, FiX, FiActivity, FiFilter } from "react-icons/fi";
 import { useRouter } from "next/navigation";
 
 // Custom Pagination Component
@@ -48,51 +48,71 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 
 export default function StockUpdate() {
   const router = useRouter();
-  const [userRole, setUserRole] = useState(""); // Changed from "admin" to empty string
+  const [userRole, setUserRole] = useState("");
   const [stocks, setStocks] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [filteredStocks, setFilteredStocks] = useState([]);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentStock, setCurrentStock] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 10; // Adjust as necessary
+  const itemsPerPage = 10;
 
   useEffect(() => {
     const role = localStorage.getItem("userRole") || "";
-    console.log("User role:", role);
     setUserRole(role);
-    fetchStocks();
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    const filtered = stocks.filter((stock) =>
-      stock.item_name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredStocks(filtered);
-  }, [stocks, searchTerm]);
-
-  const fetchStocks = async () => {
+  const fetchData = async () => {
     try {
-      const token = localStorage.getItem("token"); // Retrieve token
+      const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
-      const response = await fetch("/api/stocks", {
-        headers: {
-          "Authorization": `Bearer ${token}`,
-        },
-      });
+      const [stocksRes, categoriesRes] = await Promise.all([
+        fetch("/api/stocks", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        }),
+        fetch("/api/categories", {
+          headers: {
+            "Authorization": `Bearer ${token}`,
+          },
+        })
+      ]);
 
-      if (!response.ok) throw new Error("Failed to fetch stocks");
-      const data = await response.json();
-      setStocks(data);
+      if (!stocksRes.ok) throw new Error("Failed to fetch stocks");
+      if (!categoriesRes.ok) throw new Error("Failed to fetch categories");
+
+      const stocksData = await stocksRes.json();
+      const categoriesData = await categoriesRes.json();
+
+      setStocks(stocksData);
+      setCategories(categoriesData.categories || []);
     } catch (err) {
       setError(err.message);
     }
   };
 
+  useEffect(() => {
+    const filtered = stocks.filter((stock) => {
+      // Apply category filter
+      const categoryMatch = selectedCategory === "all" || stock.category_name === selectedCategory;
+      
+      // Apply search filter
+      const searchMatch = stock.item_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        stock.category_name.toLowerCase().includes(searchTerm.toLowerCase());
+      
+      return categoryMatch && searchMatch;
+    });
+    setFilteredStocks(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [stocks, searchTerm, selectedCategory]);
+
   const handleUpdateStock = async () => {
-    // Case-insensitive role check
     if (userRole?.toLowerCase() !== "admin") { 
       alert("Admin access required to update stock");
       return;
@@ -107,7 +127,6 @@ export default function StockUpdate() {
       if (!price || isNaN(price)) 
         throw new Error("Invalid price");
 
-      // Retrieve the token from localStorage
       const token = localStorage.getItem("token");
       if (!token) throw new Error("No token found");
 
@@ -115,7 +134,7 @@ export default function StockUpdate() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${token}` // Send token in the Authorization header
+          "Authorization": `Bearer ${token}`
         },
         body: JSON.stringify({
           stockId: currentStock.stock_id,
@@ -128,8 +147,8 @@ export default function StockUpdate() {
       if (!response.ok) throw new Error(data.message);
       
       alert("Stock updated successfully!");
-      fetchStocks(); // Refresh stock list
-      setIsModalOpen(false); // Close modal
+      fetchData();
+      setIsModalOpen(false);
     } catch (err) {
       alert(`Error: ${err.message}`);
     }
@@ -141,6 +160,10 @@ export default function StockUpdate() {
 
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
   };
 
   const openModal = (stock) => {
@@ -188,17 +211,32 @@ export default function StockUpdate() {
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto p-4 space-y-8">
-        {/* Search Bar */}
-        <div className="flex items-center gap-4">
+        {/* Search and Filter Controls */}
+        <div className="flex flex-col md:flex-row gap-4">
           <div className="relative flex-1">
             <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Search products..."
+              placeholder="Search products or categories..."
               value={searchTerm}
               onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg focus:ring-2 focus:ring-blue-400"
             />
+          </div>
+          <div className="relative w-full md:w-64">
+            <FiFilter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+            <select
+              value={selectedCategory}
+              onChange={handleCategoryChange}
+              className="w-full pl-10 pr-4 py-2 bg-gray-700 rounded-lg appearance-none"
+            >
+              <option value="all">All Categories</option>
+              {categories.map((category) => (
+                <option key={category.category_id} value={category.category_name}>
+                  {category.category_name}
+                </option>
+              ))}
+            </select>
           </div>
         </div>
 
@@ -215,7 +253,7 @@ export default function StockUpdate() {
             <table className="w-full">
               <thead className="bg-gray-700">
                 <tr>
-                  {["Product", "Category", "Quantity", "Price", "Actions"].map((header, i) => (
+                  {["Product", "Category", "Quantity", "Price per Unit", "Total Price", "Actions"].map((header, i) => (
                     <th
                       key={i}
                       className={`p-3 text-sm font-semibold ${
@@ -235,9 +273,14 @@ export default function StockUpdate() {
                     className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors"
                   >
                     <td className="p-3 text-left">{stock.item_name}</td>
-                    <td className="p-3 text-center">{stock.category_name}</td>
+                    <td className="p-3 text-center">
+                      <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                        {stock.category_name}
+                      </span>
+                    </td>
                     <td className="p-3 text-center">{stock.quantity}</td>
                     <td className="p-3 text-center">₹{stock.price_pu || "0.00"}</td>
+                    <td className="p-3 text-center">₹{stock.price_pu * stock.quantity || "0.00"}</td>
                     <td className="p-3 text-center">
                       <button
                         onClick={() => openModal(stock)}
@@ -257,12 +300,21 @@ export default function StockUpdate() {
             </table>
           </div>
 
+          {/* Show empty state if no results */}
+          {filteredStocks.length === 0 && !error && (
+            <div className="p-8 text-center text-gray-400">
+              No matching stock items found
+            </div>
+          )}
+
           {/* Custom Pagination */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={handlePageChange}
-          />
+          {filteredStocks.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={handlePageChange}
+            />
+          )}
         </section>
 
         {/* Error Display */}
@@ -276,14 +328,16 @@ export default function StockUpdate() {
         )}
       </main>
 
-      {/* Modal */}
+      {/* Update Stock Modal */}
       {isModalOpen && currentStock && (
         <div className="fixed inset-0 flex justify-center items-center bg-black bg-opacity-50">
           <div className="bg-gray-800 p-6 rounded-lg w-80">
             <h2 className="text-xl font-bold mb-4 text-blue-400">Update Stock</h2>
             <p className="text-gray-300"><strong>Product:</strong> {currentStock.item_name}</p>
-            <p className="text-gray-300"><strong>Quantity:</strong> {currentStock.quantity}</p>
-            <p className="text-gray-300"><strong>Price:</strong> ₹{currentStock.price_pu || "0.00"}</p>
+            <p className="text-gray-300"><strong>Category:</strong> {currentStock.category_name}</p>
+            <p className="text-gray-300"><strong>Current Quantity:</strong> {currentStock.quantity}</p>
+            <p className="text-gray-300"><strong>Current Price:</strong> ₹{currentStock.price_pu || "0.00"}</p>
+            
             <div className="mt-4">
               <button
                 onClick={handleUpdateStock}

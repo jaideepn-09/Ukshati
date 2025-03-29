@@ -15,9 +15,8 @@ import {
   FaSignOutAlt,
 } from "react-icons/fa";
 import { motion, AnimatePresence } from "framer-motion";
-import StarryBackground from "@/components/StarryBackground";
+import dynamic from "next/dynamic";
 import BackButton from "@/components/BackButton";
-import { Scroll } from "lucide-react";
 import ScrollToTopButton from "@/components/scrollup";
 
 export default function Home() {
@@ -42,6 +41,11 @@ export default function Home() {
   const [userRole, setUserRole] = useState(null);
   const [userData, setUserData] = useState({});
   const [expandedEmployee, setExpandedEmployee] = useState(null);
+
+  const StarryBackground = dynamic(
+    () => import("@/components/StarryBackground"),
+    { ssr: false }
+  );
 
   const fetchEmployees = async () => {
     try {
@@ -174,184 +178,6 @@ export default function Home() {
       <StarryBackground />
       <BackButton route="/dashboard" />
       <ScrollToTopButton/>
-      {showSuccessMessage && (
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-6 py-3 rounded-lg flex items-center space-x-2 z-50 shadow-lg"
-        >
-          <FaCheck className="text-xl" />
-          <span>Account created successfully!</span>
-        </motion.div>
-      )}
-
-      <button
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-        className="fixed top-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-full shadow-lg z-50 transition-all duration-200"
-      >
-        {isMenuOpen ? (
-          <FaTimes className="text-xl" />
-        ) : (
-          <FaBars className="text-xl" />
-        )}
-      </button>
-
-      <div
-        className={`fixed inset-y-0 right-0 w-64 bg-gray-800 text-white shadow-lg transform transition-transform duration-200 ease-in-out ${
-          isMenuOpen ? "translate-x-0" : "translate-x-full"
-        } z-40`}
-      >
-        <div className="p-6">
-          {/* Profile Section */}
-          <div className="mb-6">
-            <h2 className="text-lg font-semibold mb-4">Profile</h2>
-            <div className="flex items-center space-x-3">
-              <FaUser className="text-2xl" />
-              <div>
-                <p className="text-sm font-medium">
-                  {userData?.name || "Unknown User"}
-                </p>
-                <p className="text-xs text-gray-400">
-                  {userData?.email || "No email"}
-                </p>
-                <p className="text-xs text-gray-400 capitalize">
-                  {userRole || "unknown"}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center space-x-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg transition-all duration-200 mb-6"
-          >
-            <FaSignOutAlt className="text-lg" />
-            <span>Logout</span>
-          </button>
-
-          {userRole === "admin" && (
-            <>
-              <button
-                onClick={() => setShowEmployeeDetails(!showEmployeeDetails)}
-                className="w-full flex items-center space-x-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-all duration-200 mb-4"
-              >
-                <FaUsers className="text-lg" />
-                <span>Employee Details</span>
-              </button>
-              <button
-                onClick={() => setShowEmployeeModal(true)}
-                className="w-full flex items-center space-x-2 bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg transition-all duration-200 mb-4"
-              >
-                <FaUserPlus className="text-lg" />
-                <span>Add Employee</span>
-              </button>
-
-              {showEmployeeDetails && (
-                <div className="mb-6">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-semibold">Employee List</h2>
-                    <button
-                      onClick={fetchEmployees}
-                      className="text-blue-400 text-sm hover:text-blue-300"
-                    >
-                      Refresh List
-                    </button>
-                  </div>
-
-                  {loadingEmployees && (
-                    <div className="flex items-center justify-center space-x-2 py-4">
-                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                      <span className="text-gray-400 text-sm">
-                        Loading employees...
-                      </span>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className="p-3 bg-red-800/50 rounded-lg">
-                      <p className="text-red-400 text-sm">Error: {error}</p>
-                    </div>
-                  )}
-
-                  {!loadingEmployees && employees.length === 0 && !error && (
-                    <div className="text-center py-6">
-                      <p className="text-gray-400 mb-2">No employees found</p>
-                      <button
-                        onClick={fetchEmployees}
-                        className="text-blue-400 hover:text-blue-300 text-sm"
-                      >
-                        Try Again
-                      </button>
-                    </div>
-                  )}
-
-                  {!loadingEmployees && employees.length > 0 && !error && (
-                    <div className="max-h-[calc(100vh-300px)] overflow-y-auto">
-                      {employees.map((employee) => (
-                        <div
-                          key={employee.id}
-                          className="border-b border-gray-700"
-                        >
-                          <motion.div
-                            className="p-3 hover:bg-gray-700 cursor-pointer flex items-center justify-between"
-                            onClick={() =>
-                              setExpandedEmployee((prev) =>
-                                prev === employee.id ? null : employee.id
-                              )
-                            }
-                            initial={false}
-                          >
-                            <span className="font-medium">{employee.name}</span>
-                            <motion.span
-                              animate={{
-                                rotate:
-                                  expandedEmployee === employee.id ? 180 : 0,
-                              }}
-                              className="text-gray-400 text-sm"
-                            >
-                              ▼
-                            </motion.span>
-                          </motion.div>
-
-                          <AnimatePresence initial={false}>
-                            {expandedEmployee === employee.id && (
-                              <motion.div
-                                initial={{ opacity: 0, height: 0 }}
-                                animate={{ opacity: 1, height: "auto" }}
-                                exit={{ opacity: 0, height: 0 }}
-                                className="bg-gray-800 px-4 pb-3"
-                              >
-                                <div className="space-y-2 pt-2">
-                                  <div className="flex items-center text-sm">
-                                    <span className="text-gray-300 break-all">
-                                      {employee.email}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center text-sm">
-                                    <span className="text-gray-300">
-                                      {employee.phone || "N/A"}
-                                    </span>
-                                  </div>
-                                  <div className="flex items-center text-sm">
-                                    <span className="text-gray-300 capitalize">
-                                      {employee.role}
-                                    </span>
-                                  </div>
-                                </div>
-                              </motion.div>
-                            )}
-                          </AnimatePresence>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      </div>
 
       <div className="flex flex-col items-center flex-grow p-6 pt-20">
         <h1 className="text-4xl font-bold mb-16 mt-16 text-center text-white">

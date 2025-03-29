@@ -55,6 +55,7 @@ export default async function handler(req, res) {
         return res.status(400).json({ error: "All fields are required" });
       }
 
+      // First check if customer exists
       const [customer] = await connection.query(
         "SELECT cid FROM customer WHERE cid = ?", 
         [cid]
@@ -64,21 +65,31 @@ export default async function handler(req, res) {
         return res.status(404).json({ error: "Customer not found" });
       }
 
-      const [result] = await connection.query(
-        `INSERT INTO reminders (cid, reminder_date, reminder_time, message) 
-         VALUES (?, ?, ?, ?)`,
-        [cid, reminder_date, reminder_time, message.trim()]
-      );
+      try {
+        const [result] = await connection.query(
+          `INSERT INTO reminders (cid, reminder_date, reminder_time, message) 
+           VALUES (?, ?, ?, ?)`,
+          [cid, reminder_date, reminder_time, message.trim()]
+        );
 
-      const [newReminder] = await connection.query(
-        `SELECT r.*, c.cname 
-         FROM reminders r
-         LEFT JOIN customer c ON r.cid = c.cid
-         WHERE r.rid = ?`,
-        [result.insertId]
-      );
+        const [newReminder] = await connection.query(
+          `SELECT r.*, c.cname 
+           FROM reminders r
+           LEFT JOIN customer c ON r.cid = c.cid
+           WHERE r.rid = ?`,
+          [result.insertId]
+        );
 
-      return res.status(201).json(newReminder[0]);
+        return res.status(201).json(newReminder[0]);
+      } catch (error) {
+        if (error.code === 'ER_NO_REFERENCED_ROW_2') {
+          return res.status(400).json({ 
+            error: "Invalid customer reference",
+            details: "The specified customer ID doesn't exist in the database"
+          });
+        }
+        throw error; // Re-throw other errors
+      }
     }
 
     // **DELETE A REMINDER**
@@ -86,13 +97,26 @@ export default async function handler(req, res) {
       const { rid } = req.query;
       if (!rid || isNaN(rid)) return res.status(400).json({ error: "Valid ID required" });
 
-      const [deleteResult] = await connection.query("DELETE FROM reminders WHERE rid = ?", [rid]);
+      try {
+        const [deleteResult] = await connection.query(
+          "DELETE FROM reminders WHERE rid = ?", 
+          [rid]
+        );
 
-      if (deleteResult.affectedRows === 0) {
-        return res.status(404).json({ error: "Reminder not found or already deleted" });
+        if (deleteResult.affectedRows === 0) {
+          return res.status(404).json({ error: "Reminder not found or already deleted" });
+        }
+
+        return res.status(204).end();
+      } catch (error) {
+        if (error.code === 'ER_ROW_IS_REFERENCED_2') {
+          return res.status(400).json({ 
+            error: "Cannot delete reminder",
+            details: "This reminder is referenced by other records"
+          });
+        }
+        throw error;
       }
-
-      return res.status(204).end();
     }
 
     res.status(405).json({ error: `Method ${req.method} Not Allowed` });

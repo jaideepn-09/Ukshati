@@ -21,13 +21,14 @@ export default async function handler(req, res) {
     // Base SQL Query
     let query = `
       SELECT 
-        p.pid, p.pname, p.status, p.cname, 
+        p.pid, p.pname, p.status, c.cname, 
         DATE_FORMAT(p.start_date, '%d-%m-%Y') AS start_date, 
         DATE_FORMAT(p.end_date, '%d-%m-%Y') AS end_date,
         COALESCE(SUM(e.Amount), 0) AS total_amount,
         GROUP_CONCAT(e.Comments SEPARATOR '; ') AS comments
       FROM project p
       LEFT JOIN add_expenses e ON p.pid = e.pid
+      LEFT JOIN customer c ON p.cid = c.cid
     `;
 
     // If start date is provided, add WHERE clause
@@ -38,7 +39,7 @@ export default async function handler(req, res) {
     }
 
     // Grouping & Ordering
-    query += ` GROUP BY p.pid, p.pname, p.status, p.cname, p.start_date, p.end_date 
+    query += ` GROUP BY p.pid, p.pname, p.status, c.cname, p.start_date, p.end_date 
                ORDER BY p.start_date, p.end_date;`;
 
     console.log("Running SQL query:", query, values);

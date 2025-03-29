@@ -353,7 +353,7 @@ const bankXOffset = 45;  // Change this value to shift more to the right
           <option value="">-- Select Project --</option>
           {projects.map((proj) => (
             <option key={proj.pid} value={proj.pid}>
-              {proj.pid}
+              {proj.pname}
             </option>
           ))}
         </select>

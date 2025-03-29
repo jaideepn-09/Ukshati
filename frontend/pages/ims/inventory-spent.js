@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { FiArrowLeft, FiActivity, FiSearch, FiMapPin } from "react-icons/fi";
+import { FiArrowLeft, FiActivity, FiSearch, FiMapPin, FiFilter } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
@@ -45,19 +45,47 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
 export default function InventorySpent() {
   const router = useRouter();
   const [spentStocks, setSpentStocks] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
-
+  const [stockItems, setStockItems] = useState([]);
+  
   useEffect(() => {
-    const fetchSpentStocks = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch("/api/inventory_spent");
-        if (!response.ok) throw new Error("Failed to fetch data");
-        const data = await response.json();
-        setSpentStocks(data);
+        const [spentRes, categoriesRes, stockRes] = await Promise.all([
+          fetch("/api/inventory_spent"),
+          fetch("/api/categories"),
+          fetch("/api/stocks")
+        ]);
+
+        if (!spentRes.ok) throw new Error("Failed to fetch spent items");
+        if (!categoriesRes.ok) throw new Error("Failed to fetch categories");
+        if (!stockRes.ok) throw new Error("Failed to fetch stock items");
+
+        const [spentData, categoriesData, stockData] = await Promise.all([
+          spentRes.json(),
+          categoriesRes.json(),
+          stockRes.json()
+        ]);
+
+        // Create stock ID to category name mapping
+        const stockCategoryMap = new Map(
+          stockData.map(item => [item.stock_id, item.category_name])
+        );
+
+        // Enhance spent items with category names from stocks
+        const spentWithCategories = spentData.map(spent => ({
+          ...spent,
+          category_name: stockCategoryMap.get(spent.stock_id) || null
+        }));
+
+        setSpentStocks(spentWithCategories);
+        setCategories(categoriesData.categories);
       } catch (err) {
         setError(err.message);
       } finally {
@@ -65,14 +93,19 @@ export default function InventorySpent() {
       }
     };
 
-    fetchSpentStocks();
+    fetchData();
   }, []);
 
   const filteredStocks = spentStocks.filter((stock) => {
-    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name} ${stock.location || ''}`.toLowerCase();
-    return searchString.includes(searchQuery.toLowerCase());
+    const categoryMatch = selectedCategory === "all" || 
+                        (selectedCategory === "uncategorized" && !stock.category_name) || 
+                        stock.category_name === selectedCategory;
+    
+    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name} ${stock.location || ''} ${stock.category_name || ''}`.toLowerCase();
+    const searchMatch = searchString.includes(searchQuery.toLowerCase());
+    
+    return categoryMatch && searchMatch;
   });
-
   const totalPages = Math.ceil(filteredStocks.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedStocks = filteredStocks.slice(startIndex, startIndex + itemsPerPage);
@@ -120,15 +153,32 @@ export default function InventorySpent() {
           <div className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-semibold text-white">Spent Stock Records</h2>
-              <div className="flex items-center space-x-2 w-full md:w-96">
-                <FiSearch className="text-blue-400" />
-                <input
-                  type="text"
-                  placeholder="Search products, projects, employees or locations..."
-                  className="p-2 bg-gray-700 rounded-lg w-full"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
+              <div className="flex flex-col md:flex-row gap-4 w-50">
+                <div className="relative flex items-center w-50">
+                  <FiSearch className="absolute left-3 text-blue-400" />
+                  <input
+                    type="text"
+                    placeholder="Search products, projects, employees, locations or categories..."
+                    className="pl-10 pr-4 py-2 bg-gray-700 rounded-lg w-full"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                <div className="relative flex items-center w-full md:w-64">
+                  <FiFilter className="absolute left-3 text-blue-400" />
+                  <select
+                    className="pl-10 pr-4 py-2 bg-gray-700 rounded-lg w-full appearance-none"
+                    value={selectedCategory}
+                    onChange={(e) => setSelectedCategory(e.target.value)}
+                  >
+                    <option value="all">All Categories</option>
+                    {categories.map((category) => (
+                      <option key={category.category_id} value={category.category_name}>
+                        {category.category_name}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
 
@@ -144,7 +194,9 @@ export default function InventorySpent() {
                   <thead className="bg-gray-700">
                     <tr>
                       <th className="p-4 text-left min-w-[220px]">Product</th>
+                      <th className="p-4 text-left min-w-[150px]">Category</th>
                       <th className="p-4 text-left min-w-[120px]">Quantity</th>
+                      <th className="p-4 text-left min-w-[150px]">Unit Price</th>
                       <th className="p-4 text-left min-w-[150px]">Total Cost</th>
                       <th className="p-4 text-left min-w-[200px]">
                         <div className="flex items-center">
@@ -164,7 +216,13 @@ export default function InventorySpent() {
                         className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors"
                       >
                         <td className="p-4 font-medium">{spent.item_name}</td>
+                        <td className="p-4">
+                          <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                            {spent.category_name || 'Uncategorized'}
+                          </span>
+                        </td>
                         <td className="p-4">{spent.quantity_used}</td>
+                        <td className="p-4">₹{spent.unit_price}</td>
                         <td className="p-4 text-blue-400">₹{spent.total_price}</td>
                         <td className="p-4">
                           {spent.location || (
@@ -172,9 +230,7 @@ export default function InventorySpent() {
                           )}
                         </td>
                         <td className="p-4 max-w-[300px] truncate" title={spent.project_name || 'N/A'}>
-                          <span className="bg-gray-700 px-3 py-1 rounded-full text-sm whitespace-nowrap">
-                            {spent.project_name || 'N/A'}
-                          </span>
+                          {spent.project_name || 'N/A'}
                         </td>
                         <td className="p-4">{spent.employee_name || 'Unknown'}</td>
                         <td className="p-4 text-gray-400">

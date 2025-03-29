@@ -29,7 +29,7 @@ export default function Projects() {
       console.error("Error fetching projects:", error);
     }
   };
-
+  
   const fetchCustomers = async () => {
     try {
       const res = await fetch("/api/customers");
@@ -47,6 +47,12 @@ export default function Projects() {
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     return date.toISOString().split("T")[0];
   };
+   
+  const statusOptions = [
+    { value: 'ongoing', label: 'Ongoing' },
+    { value: 'on hold', label: 'On Hold' },
+    { value: 'completed', label: 'Completed' }
+  ];
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -60,7 +66,7 @@ export default function Projects() {
       start_date: new Date(startDate).toISOString().split("T")[0],
       end_date: new Date(endDate).toISOString().split("T")[0],
       status,
-      cid: Number(customerId), // Convert to number
+      cid: customerId,
     };
 
     try {
@@ -73,21 +79,12 @@ export default function Projects() {
         body: JSON.stringify(editId ? { pid: editId, ...projectData } : projectData),
       });
 
-      const resultData = await response.json();
-      
       if (!response.ok) {
-        throw new Error(resultData.error || "Failed to save project");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to save project");
       }
 
-      // Update state directly with API response
-      if (method === "POST") {
-        setProjects([...projects, resultData]);
-      } else {
-        setProjects(projects.map(p => 
-          p.pid === editId ? {...resultData, pid: editId} : p
-        ));
-      }
-
+      fetchProjects();
       resetForm();
     } catch (error) {
       console.error("Error:", error.message);
@@ -110,7 +107,7 @@ export default function Projects() {
     setStartDate(formatDate(project.start_date));
     setEndDate(formatDate(project.end_date));
     setStatus(project.status);
-    setCustomerId(project.cid.toString()); // Convert to string for select input
+    setCustomerId(project.cid);
   };
 
   const handleDelete = async (pid) => {
@@ -126,7 +123,7 @@ export default function Projects() {
         throw new Error(errorData.error || "Failed to delete project");
       }
 
-      setProjects(projects.filter(project => project.pid !== pid));
+      fetchProjects();
     } catch (error) {
       console.error("Error deleting project:", error);
       alert(error.message);
@@ -175,16 +172,19 @@ export default function Projects() {
             />
           </div>
           <div className="input-group">
-            <label>Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value)}
-              required
-            >
-              <option value="ongoing">Ongoing</option>
-              <option value="completed">Completed</option>
-            </select>
-          </div>
+    <label>Status</label>
+    <select
+      value={status}
+      onChange={(e) => setStatus(e.target.value)}
+      required
+    >
+      {statusOptions.map((option) => (
+        <option key={option.value} value={option.value}>
+          {option.label}
+        </option>
+      ))}
+    </select>
+  </div>
           <div className="input-group">
             <label>Customer</label>
             <select
@@ -236,10 +236,10 @@ export default function Projects() {
                 <td>{formatDate(project.start_date)}</td>
                 <td>{formatDate(project.end_date)}</td>
                 <td>
-                  <span className={`status-badge ${project.status}`}>
-                    {project.status}
-                  </span>
-                </td>
+    <span className={`status-badge ${project.status.replace(' ', '-')}`}>
+      {project.status}
+    </span>
+  </td>
                 <td>{project.cname || "N/A"}</td>
                 <td className="actions">
                   <button

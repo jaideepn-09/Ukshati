@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
 import StarryBackground from "@/components/StarryBackground";
-import { FiArrowUp } from "react-icons/fi";
+import { FiArrowUp, FiCalendar, FiUser, FiDollarSign, FiFileText, FiCheckCircle } from "react-icons/fi";
 import BackButton from "@/components/BackButton";
 import { Scroll } from "lucide-react";
 import ScrollToTopButton from "@/components/scrollup";
@@ -60,215 +60,177 @@ export default function AddExpense() {
   };
 
   return (
-    <>
-    <div>
-    <BackButton route="/expense/home" Icon={FiArrowUp} />
-    
-      <div className="min-h-screen flex justify-center items-center relative bg-cover bg-center">
-        <StarryBackground />
+    <div className="min-h-screen relative overflow-hidden">
+      <StarryBackground />
+      <BackButton route="/expense/home" Icon={FiArrowUp} />
+      <ScrollToTopButton />
 
-        {/* Scroll to Top Button */}
-        <ScrollToTopButton/>
-        {/* Glass Card */}
-        <div className="glass-card w-full mb-14 max-w-md p-8 rounded-3xl text-center space-y-6 bg-white bg-opacity-10 backdrop-blur-lg border border-gray-200 border-opacity-20">
-          <h1 className="text-4xl font-extrabold text-white add-expense-heading">
-            Add Expense
-          </h1>
+      <div className="min-h-screen flex items-center justify-center px-4 md:px-8 py-12">
+        {/* Glass Card Container */}
+        <div className="w-full max-w-2xl bg-white/5 backdrop-blur-2xl rounded-3xl border border-white/10 shadow-2xl shadow-blue-900/20 transition-all duration-300 hover:shadow-blue-900/30">
+          <div className="p-8 md:p-12 space-y-8">
+            {/* Header Section */}
+            <div className="text-center space-y-4">
+              <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+                Add New Expense
+              </h1>
+              <p className="text-gray-300 text-lg">Track your project expenditures seamlessly</p>
+            </div>
 
-          <form
-            className="add-expense-form flex flex-col gap-4"
-            onSubmit={handleSubmit}
-          >
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">Date:</label>
-              <input
-                type="date"
-                value={date}
-                onChange={(e) => setDate(e.target.value)}
-                required
-                className="w-full p-3 rounded-lg bg-gray-100 bg-opacity-50 text-white border border-gray-300 focus:border-blue-500 focus:bg-opacity-70"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">Employee ID:</label>
-              <input
-                type="number"
-                value={employeeId}
-                readOnly // Make it read-only since it's autofilled
-                required
-                className="w-full p-3 rounded-lg bg-gray-300 bg-opacity-50 text-white border border-gray-300 cursor-not-allowed"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">
-                Project Status:
-              </label>
-              <select
-                value={projectStatus}
-                onChange={(e) => setProjectStatus(e.target.value)}
-                required
-                className="w-full p-3 rounded-lg bg-gray-100 bg-opacity-50 text-white border border-gray-300 focus:border-blue-500 focus:bg-opacity-70"
+            {/* Form Section */}
+            <form onSubmit={handleSubmit} className="space-y-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Date Input */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-blue-300 font-medium">
+                    <FiCalendar className="text-lg" />
+                    Date
+                  </label>
+                  <div className="relative">
+                    <input
+                      type="date"
+                      value={date}
+                      onChange={(e) => setDate(e.target.value)}
+                      required
+                      className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 backdrop-blur-sm text-white transition-all"
+                    />
+                  </div>
+                </div>
+
+                {/* Employee ID */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-blue-300 font-medium">
+                    <FiUser className="text-lg" />
+                    Employee ID
+                  </label>
+                  <input
+                    type="number"
+                    value={employeeId}
+                    readOnly
+                    className="w-full p-4 rounded-xl bg-white/5 border border-white/10 cursor-not-allowed opacity-80 text-gray-300"
+                  />
+                </div>
+
+                {/* Project Status */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-blue-300 font-medium">
+                    <FiCheckCircle className="text-lg" />
+                    Project Status
+                  </label>
+                  <select
+                    value={projectStatus}
+                    onChange={(e) => setProjectStatus(e.target.value)}
+                    required
+                    className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 backdrop-blur-sm text-white appearance-none"
+                  >
+                    <option value="" className="bg-gray-800">Select Status</option>
+                    <option value="Ongoing" className="bg-gray-800">Ongoing</option>
+                    <option value="On Hold" className="bg-gray-800">On Hold</option>
+                  </select>
+                </div>
+
+                {/* Project Select */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-blue-300 font-medium">
+                    <FiCheckCircle className="text-lg" />
+                    Select Project
+                  </label>
+                  <select
+                    value={projectId}
+                    onChange={(e) => setProjectId(e.target.value)}
+                    required
+                    disabled={!projectStatus}
+                    className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 backdrop-blur-sm text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <option value="" className="bg-gray-800">Select Project</option>
+                    {projects.map((project) => (
+                      <option key={project.pid} value={project.pid} className="bg-gray-800">
+                        {project.pname} (ID: {project.pid})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Amount Input */}
+                <div className="space-y-2">
+                  <label className="flex items-center gap-2 text-blue-300 font-medium">
+                    <FiDollarSign className="text-lg" />
+                    Amount
+                  </label>
+                  <input
+                    type="number"
+                    step="0.01"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    required
+                    className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 backdrop-blur-sm text-white"
+                  />
+                </div>
+              </div>
+
+              {/* Comments Textarea */}
+              <div className="space-y-2">
+                <label className="flex items-center gap-2 text-blue-300 font-medium">
+                  <FiFileText className="text-lg" />
+                  Comments
+                </label>
+                <textarea
+                  value={comments}
+                  onChange={(e) => setComments(e.target.value)}
+                  className="w-full p-4 rounded-xl bg-white/5 border border-white/10 focus:border-blue-400/50 focus:ring-2 focus:ring-blue-400/20 backdrop-blur-sm text-white min-h-[120px]"
+                />
+              </div>
+
+              {/* Submit Button */}
+              <button
+                type="submit"
+                className="w-full py-4 px-8 bg-gradient-to-r from-blue-500 to-purple-500 rounded-xl font-semibold text-white hover:from-blue-600 hover:to-purple-600 transition-all duration-300 transform hover:scale-[1.02] active:scale-95 shadow-lg hover:shadow-blue-500/30 flex items-center justify-center gap-2"
               >
-                <option value="">Select Status</option>
-                <option value="Ongoing">Ongoing</option>
-                <option value="On Hold">On Hold</option>
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">Project:</label>
-              <select
-                value={projectId}
-                onChange={(e) => setProjectId(e.target.value)}
-                required
-                disabled={!projectStatus}
-                className="w-full p-3 rounded-lg bg-gray-100 bg-opacity-50 text-white border border-gray-300 focus:border-blue-500 focus:bg-opacity-70 disabled:bg-gray-400 disabled:bg-opacity-50"
-              >
-                <option value="">Select Project</option>
-                {projects.map((project) => (
-                  <option key={project.pid} value={project.pid}>
-                    {project.pname} (ID: {project.pid})
-                  </option>
-                ))}
-              </select>
-            </div>
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">Amount:</label>
-              <input
-                type="number"
-                step="0.01"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                required
-                className="w-full p-3 rounded-lg bg-gray-100 bg-opacity-50 text-white border border-gray-300 focus:border-blue-500 focus:bg-opacity-70"
-              />
-            </div>
-            <div className="flex flex-col">
-              <label className="text-white font-semibold">Comments:</label>
-              <textarea
-                value={comments}
-                onChange={(e) => setComments(e.target.value)}
-                className="w-full p-3 rounded-lg bg-gray-100 bg-opacity-50 text-white border border-gray-300 focus:border-blue-500 focus:bg-opacity-70"
-              />
-            </div>
-            <button
-              type="submit"
-              className="glass-btn bg-gradient-to-br from-blue-400 to-blue-300 hover:from-blue-500 hover:to-blue-400 text-white font-semibold py-3 rounded-xl shadow-md transition-all"
-            >
-              Add Expense
-            </button>
-          </form>
+                Add Expense
+              </button>
+            </form>
 
-          {message && <p className="text-white mt-4">{message}</p>}
+            {/* Status Message */}
+            {message && (
+              <div className="p-4 rounded-xl bg-white/5 border border-white/10 text-center animate-fade-in">
+                <p className="text-sm font-medium text-blue-400">{message}</p>
+              </div>
+            )}
+          </div>
         </div>
       </div>
-      </div>
+
       {/* Embedded CSS */}
-      <style jsx>{`
-        /* Glass Card */
-        .glass-card {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(10px);
-          border: 1px solid rgba(255, 255, 255, 0.2);
+      <style jsx global>{`
+        /* Custom animations */
+        @keyframes fade-in {
+          from { opacity: 0; transform: translateY(10px); }
+          to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Glass Button */
-        .glass-btn {
-          background: rgba(255, 255, 255, 0.1);
-          backdrop-filter: blur(5px);
+        .animate-fade-in {
+          animation: fade-in 0.3s ease-out;
         }
 
-        /* Form Heading */
-        .add-expense-heading {
-          font-size: 28px;
-          font-weight: 700;
-          color: #fff;
-          text-align: center;
-          margin-bottom: 25px;
-          position: relative;
+        /* Custom select arrow */
+        select {
+          background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3e%3cpath d='M7 10l5 5 5-5z'/%3e%3c/svg%3e");
+          background-repeat: no-repeat;
+          background-position: right 1rem center;
+          background-size: 1.5em;
         }
 
-        .add-expense-heading::after {
-          content: "";
-          display: block;
-          width: 60px;
-          height: 4px;
-          background: linear-gradient(90deg, #007bff, #00c6ff);
-          margin: 10px auto 0;
-          border-radius: 2px;
+        /* Remove number input arrows */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+          -webkit-appearance: none;
+          margin: 0;
         }
 
-        /* Form Fields */
-        .add-expense-form {
-          display: flex;
-          flex-direction: column;
-          gap: 20px;
-        }
-
-        .add-expense-form label {
-          font-size: 16px;
-          font-weight: 600;
-          color: #fff;
-          margin-bottom: 5px;
-        }
-
-        .add-expense-form input,
-        .add-expense-form textarea,
-        .add-expense-form select {
-          width: 100%;
-          padding: 12px;
-          font-size: 14px;
-          border: 1px solid rgba(255, 255, 255, 0.3);
-          border-radius: 8px;
-          background: rgba(255, 255, 255, 0.1);
-          color: black;
-          transition: all 0.3s ease;
-        }
-
-        .add-expense-form input:focus,
-        .add-expense-form textarea:focus,
-        .add-expense-form select:focus {
-          border-color: #60a5fa;
-          background: rgba(255, 255, 255, 0.2);
-          box-shadow: 0 0 8px rgba(0, 123, 255, 0.2);
-          outline: none;
-        }
-
-        .add-expense-form textarea {
-          resize: vertical;
-          min-height: 100px;
-        }
-
-        .add-expense-form select:disabled {
-          background: rgba(255, 255, 255, 0.05);
-          color: #a0aec0;
-          cursor: not-allowed;
-        }
-
-        /* Submit Button */
-        .add-expense-form button {
-          background: linear-gradient(135deg, #007bff, #00c6ff);
-          color: white;
-          font-size: 16px;
-          font-weight: 600;
-          padding: 12px;
-          border: none;
-          border-radius: 8px;
-          cursor: pointer;
-          transition: all 0.3s ease;
-          margin-top: 10px;
-        }
-
-        .add-expense-form button:hover {
-          background: linear-gradient(135deg, #0056b3, #0099cc);
-          transform: translateY(-2px);
-          box-shadow: 0 5px 15px rgba(0, 123, 255, 0.3);
-        }
-
-        .add-expense-form button:active {
-          transform: translateY(0);
-          box-shadow: 0 3px 10px rgba(0, 123, 255, 0.3);
+        input[type=number] {
+          -moz-appearance: textfield;
         }
       `}</style>
-    </>
+    </div>
   );
 }

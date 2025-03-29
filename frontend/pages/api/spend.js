@@ -76,8 +76,7 @@ export default async function handler(req, res) {
     }
 
     // Calculate total price deduction
-    const pricePerItem = price_pu / quantity;
-    const totalPriceDeduction = spentQty * pricePerItem;
+    const totalPriceDeduction = spentQty * price_pu;
 
     // Start transaction
     await db.beginTransaction();
@@ -85,8 +84,8 @@ export default async function handler(req, res) {
     try {
       // Update stock quantity and price
       await db.execute(
-        "UPDATE stock SET quantity = quantity - ?, price_pu = price_pu - ? WHERE stock_id = ?",
-        [spentQty, totalPriceDeduction, stockId]
+        "UPDATE stock SET quantity = quantity - ?, price_pu = ? WHERE stock_id = ?",
+        [spentQty, price_pu, stockId]
       );
 
       // Create spent record with location

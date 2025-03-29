@@ -189,7 +189,7 @@ export default function ProjectDetails() {
         <thead>
           <tr className="bg-black/40">
             <th className="p-4">Project Name</th>
-            <th>Client Name</th>
+            <th>Customer Name</th>
             <th>Status</th>
             <th>Start Date</th>
             <th>End Date</th>

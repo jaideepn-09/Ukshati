@@ -17,8 +17,8 @@ export default async function handler(req, res) {
         s.item_name,
         p.pname AS project_name,
         e.name AS employee_name,
-        ROUND((s.price_pu / s.quantity), 2) AS unit_price,
-        ROUND(ispent.quantity_used * (s.price_pu / s.quantity), 2) AS total_price
+        s.price_pu AS unit_price,
+        ROUND(ispent.quantity_used * s.price_pu, 2) AS total_price
       FROM inventory_spent ispent
       JOIN stock s ON ispent.stock_id = s.stock_id
       LEFT JOIN project p ON ispent.used_for = p.pid

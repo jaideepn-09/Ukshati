@@ -148,7 +148,7 @@ INSERT INTO `stock` VALUES
 (1, 'Hammer', 1, 20, 500.00),
 (2, 'Screwdriver Set', 1, 15, 750.00),
 (3, 'LED Monitor', 2, 12, 15000.00),
-(4, 'Laptop', 2, 10, 60000.00),
+(4, 'Laptop', 2, 2, 60000.00),
 (5, 'Water Pump', 3, 5, 25000.00),
 (6, 'Submersible Pump', 3, 3, 30000.00),
 (7, 'Drip Irrigation Kit', 4, 8, 10000.00),
@@ -369,6 +369,7 @@ CREATE TABLE `add_expenses` (
 --
 -- Dumping data for table `add_expenses`
 --
+
 LOCK TABLES `add_expenses` WRITE;
 /*!40000 ALTER TABLE `add_expenses` DISABLE KEYS */;
 INSERT INTO `add_expenses` (`Exp_ID`, `Date`, `id`, `pid`, `Amount`, `Comments`) VALUES
@@ -381,15 +382,7 @@ INSERT INTO `add_expenses` (`Exp_ID`, `Date`, `id`, `pid`, `Amount`, `Comments`)
 /*!40000 ALTER TABLE `add_expenses` ENABLE KEYS */;
 UNLOCK TABLES;
 
-DROP TABLE IF EXISTS reminders;
-CREATE TABLE reminders (
-  rid INT AUTO_INCREMENT PRIMARY KEY,
-  cid INT NOT NULL,
-  reminder_date DATE NOT NULL,
-  reminder_time TIME NOT NULL,
-  message TEXT NOT NULL,
-  FOREIGN KEY (cid) REFERENCES customer(cid) ON DELETE CASCADE
-)ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 --
 -- Table structure for table `invoices`
 --
@@ -416,6 +409,18 @@ CREATE TABLE `invoices` (
 ) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+DROP TABLE IF EXISTS reminders;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE reminders (
+    rid INT AUTO_INCREMENT PRIMARY KEY,
+    cid INT NOT NULL,
+    reminder_date DATE NOT NULL,
+    reminder_time TIME NOT NULL,
+    message TEXT NOT NULL,
+    FOREIGN KEY (cid) REFERENCES customer(cid) ON DELETE CASCADE
+)ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
 /*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;

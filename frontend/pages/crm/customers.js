@@ -322,8 +322,8 @@ const handleCsvImport = async () => {
     onChange={(e) => setStatus(e.target.value)}
     className="glass-select text-black"
   >
-    <option value="lead" style={{ color: 'black' }}>⭐ Lead</option>
-    <option value="customer" style={{ color: 'black' }}>🤝 Customer</option>
+    <option value="lead" style={{ color: 'black' }}>Lead</option>
+    <option value="customer" style={{ color: 'black' }}>Customer</option>
   </select>
 </div>
 
@@ -340,7 +340,7 @@ const handleCsvImport = async () => {
             </div>
 
             <button type="submit" className="submit-button">
-              {editId ? "🔄 Update Customer" : "✨ Add Customer"}
+              {editId ? "🔄 Update Customer" : "Add Customer"}
             </button>
           </form>
         </div>
@@ -378,7 +378,7 @@ const handleCsvImport = async () => {
             <td>{customer.alternate_phone || "-"}</td>
             <td>
               <span className="status-badge">
-                {customer.status === 'customer' ? '🤝 Customer' : '⭐ Lead'}
+                {customer.status === 'customer' ? 'Customer' : 'Lead'}
               </span>
             </td>
             <td>
