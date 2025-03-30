@@ -10,6 +10,9 @@ class NotificationSystem {
         this.checkPermission();
         this.setupServiceWorkerCommunication();
         this.loadProcessedReminders();
+        // Initialize notification sound
+        this.notificationSound = new Audio('/notification.mp3');
+        this.notificationSound.volume = 0.3; // Set volume to 30%
       }
     }
   
@@ -73,7 +76,7 @@ class NotificationSystem {
     // Start reminder checks
     start() {
       if (!this.isBrowser) return;
-  
+
       this.checkInterval = setInterval(() => {
         this.checkReminders();
       }, 60000); // Check every minute
@@ -99,7 +102,7 @@ class NotificationSystem {
         console.error("Invalid reminder time:", reminderData.datetime);
         return null;
       }
-  
+
       // Only add if not already processed
       if (!this.processedReminders.has(reminder.id)) {
         this.activeReminders.push(reminder);
@@ -143,7 +146,7 @@ class NotificationSystem {
         const isProcessed = this.processedReminders.has(reminder.id);
         return isDue && !isProcessed;
       });
-  
+
       dueReminders.forEach(reminder => {
         this.sendNotification(reminder);
         this.processedReminders.add(reminder.id);
@@ -152,17 +155,27 @@ class NotificationSystem {
       });
     }
   
-    // Send system notification
+    // Send system notification (now with sound)
     sendNotification(reminder) {
       if (!this.checkPermission()) return;
-  
+
+      // Play notification sound
+      try {
+        this.notificationSound.currentTime = 0; // Rewind to start
+        this.notificationSound.play().catch(error => {
+          console.log('Audio playback prevented:', error);
+        });
+      } catch (e) {
+        console.log('Audio playback error:', e);
+      }
+
       const notification = new Notification(reminder.title, {
         body: reminder.message,
         icon: '/favicon.ico',
         tag: reminder.id,
         requireInteraction: true
       });
-  
+
       notification.onclick = () => {
         window.focus();
         notification.close();
@@ -170,7 +183,7 @@ class NotificationSystem {
           window.location.href = `/contacts/${reminder.contactId}`;
         }
       };
-  
+
       console.log(`Notification sent: ${reminder.title}`);
     }
   }
@@ -192,7 +205,7 @@ class NotificationSystem {
     if (typeof window !== 'undefined') {
       // Start the notification system
       ns.start();
-  
+
       // Sync with API
       const syncWithAPI = async () => {
         try {
@@ -211,17 +224,17 @@ class NotificationSystem {
           console.error('Reminder sync failed:', error);
         }
       };
-  
+
       // Initial sync and periodic updates
       syncWithAPI();
       const syncInterval = setInterval(syncWithAPI, 300000); // 5 minutes
-  
+
       // Return cleanup function
       return () => {
         clearInterval(syncInterval);
         ns.stop();
       };
     }
-  
+
     return { stopSync: () => ns.stop() };
   }
