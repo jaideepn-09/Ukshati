@@ -4,6 +4,7 @@ import Swal from 'sweetalert2';
 import { FiAlertCircle, FiUser, FiClock, FiCalendar, FiMessageSquare, FiTrash2, FiPlus, FiBell } from 'react-icons/fi';
 import StarryBackground from '@/components/StarryBackground';
 import BackButton from '@/components/BackButton';
+import { getNotificationSystem } from '@/utils/notification-system';
 
 const ReminderMaintenance = () => {
   const [reminders, setReminders] = useState([]);
@@ -17,6 +18,7 @@ const ReminderMaintenance = () => {
     customerId: ''
   });
   const [activeTab, setActiveTab] = useState('upcoming');
+  const [selectedReminders, setSelectedReminders] = useState([]);
 
   // Memoized filtered reminders
   const filteredReminders = useMemo(() => {
@@ -68,14 +70,15 @@ const ReminderMaintenance = () => {
           });
         }
         
-        Swal.fire({
-          icon: 'info',
-          title: 'Reminder Due',
-          text: `${reminder.message} for ${reminder.cname}`,
-          background: '#1a1a2e',
-          color: '#fff',
-          confirmButtonColor: '#4f46e5'
-        });
+        // Remove the Swal.fire popup
+        // Swal.fire({
+        //   icon: 'info',
+        //   title: 'Reminder Due',
+        //   text: `${reminder.message} for ${reminder.cname}`,
+        //   background: '#1a1a2e',
+        //   color: '#fff',
+        //   confirmButtonColor: '#4f46e5'
+        // });
       }
     };
 
@@ -91,8 +94,8 @@ const ReminderMaintenance = () => {
         try {
           registration = await navigator.serviceWorker.register('/service-worker.js');
           console.log('Service Worker registered with scope:', registration.scope);
-          setupNotificationListener();
-          
+          setupNotificationListener(); // Ensure this is called
+
           const readyRegistration = await navigator.serviceWorker.ready;
           if (readyRegistration.active) {
             readyRegistration.active.postMessage('startBackgroundChecks');
@@ -195,6 +198,16 @@ const ReminderMaintenance = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to save reminder');
 
+      // Add the new reminder to the NotificationSystem
+      const notificationSystem = getNotificationSystem();
+      notificationSystem.addReminder({
+        rid: data.rid,
+        cname: customers.find(c => c.cid === formData.customerId)?.cname || 'Unknown',
+        message: formData.message,
+        datetime: `${formData.date}T${formData.time}`,
+        cid: formData.customerId
+      });
+
       await showSuccess('Reminder Added!', 'Your reminder has been scheduled successfully');
       window.location.reload();
 
@@ -207,7 +220,7 @@ const ReminderMaintenance = () => {
         color: '#fff'
       });
     }
-  }, [formData, showSuccess]);
+  }, [formData, customers, showSuccess]);
 
   const deleteReminder = useCallback(async (rid) => {
     const { isConfirmed } = await Swal.fire({
@@ -224,14 +237,11 @@ const ReminderMaintenance = () => {
 
     if (isConfirmed) {
       try {
-        const response = await fetch(`/api/reminders?rid=${rid}`, { 
-          method: 'DELETE' 
-        });
-        
+        const response = await fetch(`/api/reminders?rid=${rid}`, { method: 'DELETE' });
         if (!response.ok) throw new Error('Failed to delete reminder');
-        
-        await showSuccess('Deleted!', 'Reminder has been deleted');
-        window.location.reload();
+
+        await Swal.fire('Deleted!', 'Reminder has been deleted.', 'success');
+        setReminders((prev) => prev.filter((reminder) => reminder.rid !== rid));
       } catch (error) {
         Swal.fire({
           icon: 'error',
@@ -242,7 +252,105 @@ const ReminderMaintenance = () => {
         });
       }
     }
-  }, [showSuccess]);
+  }, [setReminders]);
+
+  const deleteSelectedReminders = useCallback(async () => {
+    if (selectedReminders.length === 0) {
+      await Swal.fire({
+        icon: 'warning',
+        title: 'No Reminders Selected',
+        text: 'Please select reminders to delete.',
+        background: '#1a1a2e',
+        color: '#fff',
+        confirmButtonColor: '#4f46e5',
+        allowOutsideClick: false // Prevent popup from staying open
+      });
+      return; // Ensure the function exits after showing the popup
+    }
+
+    const { isConfirmed } = await Swal.fire({
+      title: 'Delete Selected Reminders?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#4f46e5',
+      cancelButtonColor: '#6b7280',
+      confirmButtonText: 'Yes, delete them!',
+      background: '#1a1a2e',
+      color: '#fff',
+      allowOutsideClick: false // Prevent popup from staying open
+    });
+
+    if (isConfirmed) {
+      try {
+        const response = await fetch('/api/reminders', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ rids: selectedReminders })
+        });
+
+        if (!response.ok) throw new Error('Failed to delete reminders');
+
+        setReminders((prev) => prev.filter((reminder) => !selectedReminders.includes(reminder.rid)));
+        setSelectedReminders([]);
+
+        await Swal.fire({
+          icon: 'success',
+          title: 'Deleted!',
+          text: 'Selected reminders have been deleted.',
+          background: '#1a1a2e',
+          color: '#fff',
+          confirmButtonColor: '#4f46e5',
+          allowOutsideClick: false // Ensure success popup also disappears
+        });
+      } catch (error) {
+        await Swal.fire({
+          icon: 'error',
+          title: 'Delete Failed',
+          text: error.message,
+          background: '#1a1a2e',
+          color: '#fff',
+          confirmButtonColor: '#4f46e5',
+          allowOutsideClick: false // Ensure error popup also disappears
+        });
+      }
+    }
+  }, [selectedReminders, setReminders, setSelectedReminders]);
+
+  // Handle selecting/deselecting reminders
+  const toggleReminderSelection = (rid) => {
+    setSelectedReminders((prev) =>
+      prev.includes(rid) ? prev.filter((id) => id !== rid) : [...prev, rid]
+    );
+  };
+
+  // Handle deleting all reminders
+  const deleteAllReminders = async () => {
+    const { isConfirmed } = await Swal.fire({
+      title: 'Delete All Reminders?',
+      text: "You won't be able to revert this!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#4f46e5',
+    });
+
+    if (isConfirmed) {
+      try {
+        const response = await fetch('/api/reminders', {
+          method: 'DELETE',
+        });
+
+        if (!response.ok) throw new Error('Failed to delete all reminders');
+
+        setReminders([]);
+        setSelectedReminders([]);
+        Swal.fire('Deleted!', 'All reminders have been deleted.', 'success');
+      } catch (error) {
+        console.error('Error deleting all reminders:', error);
+        Swal.fire('Error', 'Failed to delete all reminders.', 'error');
+      }
+    }
+  };
 
   return (
     <div className="min-h-screen p-4 md:p-8 relative">
@@ -388,6 +496,21 @@ const ReminderMaintenance = () => {
                 </div>
               </div>
               
+              <div className="flex justify-between items-center mb-4">
+                <button
+                  className="bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={deleteSelectedReminders}
+                >
+                  Delete Selected
+                </button>
+                <button
+                  className="bg-red-700 text-white px-4 py-2 rounded"
+                  onClick={deleteAllReminders}
+                >
+                  Delete All
+                </button>
+              </div>
+
               {loading ? (
                 <div className="flex flex-col items-center justify-center py-12">
                   <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
@@ -444,12 +567,20 @@ const ReminderMaintenance = () => {
                             </p>
                           </div>
                         </div>
-                        <button
-                          onClick={() => deleteReminder(reminder.rid)}
-                          className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-gray-600 transition-colors"
-                        >
-                          <FiTrash2 className="text-xl" />
-                        </button>
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="checkbox"
+                            checked={selectedReminders.includes(reminder.rid)}
+                            onChange={() => toggleReminderSelection(reminder.rid)}
+                            className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
+                          />
+                          <button
+                            onClick={() => deleteReminder(reminder.rid)}
+                            className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-gray-600 transition-colors"
+                          >
+                            <FiTrash2 className="text-xl" />
+                          </button>
+                        </div>
                       </div>
                     );
                   })}

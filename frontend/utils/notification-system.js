@@ -1,3 +1,4 @@
+import Swal from 'sweetalert2';
 // utils/notification-system.js
 class NotificationSystem {
     constructor() {
@@ -148,7 +149,7 @@ class NotificationSystem {
       });
 
       dueReminders.forEach(reminder => {
-        this.sendNotification(reminder);
+        this.sendNotification(reminder); // Trigger notification
         this.processedReminders.add(reminder.id);
         this.saveProcessedReminders();
         this.removeReminder(reminder.id);
@@ -169,6 +170,7 @@ class NotificationSystem {
         console.log('Audio playback error:', e);
       }
 
+      // Show system notification
       const notification = new Notification(reminder.title, {
         body: reminder.message,
         icon: '/favicon.ico',

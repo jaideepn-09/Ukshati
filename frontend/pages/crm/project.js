@@ -195,7 +195,7 @@ export default function Projects() {
               <option value="">Select Customer</option>
               {customers.map((customer) => (
                 <option key={customer.cid} value={customer.cid}>
-                  {customer.cname}
+                  {customer.cid} - {customer.cname}
                 </option>
               ))}
             </select>
