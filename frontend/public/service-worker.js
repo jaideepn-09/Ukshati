@@ -22,7 +22,7 @@ self.addEventListener('install', event => {
     checkForDueReminders();
     
     // Set up interval for future checks (every minute)
-    setInterval(checkForDueReminders, 60000);
+    setInterval(checkForDueReminders, 3000);
   }
   
   async function checkForDueReminders() {
