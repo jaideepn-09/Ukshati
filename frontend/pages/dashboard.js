@@ -417,203 +417,249 @@ export default function Dashboard() {
 
       {/* Navbar */}
       <div className="fixed top-0 left-0 w-full z-50">
-        <Navbar className="backdrop-blur-sm py-4 shadow-lg">
-          <NavbarBrand>
-            <Link href="/dashboard">
-              <Image 
-                src="/lg.png" 
-                alt="Ukshati Logo" 
-                width={180} 
-                height={120} 
-                className="cursor-pointer hover:opacity-80 transition-opacity pb-2"
-              />
-            </Link>
-          </NavbarBrand>
-          <NavbarContent className="hidden sm:flex gap-6" justify="center">
-            <NavbarItem>
-              <button onClick={openAboutUs} className="text-blue-400 hover:text-blue-300 pb-2 transition-colors">About Us</button>
-            </NavbarItem>
-            <NavbarItem>
-              <button onClick={handleHelpClick} className="text-blue-400 hover:text-blue-300 pb-2 transition-colors">Help</button>
-            </NavbarItem>
-          </NavbarContent>
-          <NavbarContent className="absolute left-1/2 transform -translate-x-1/2" justify="center">
-            <NavbarItem>
-              <h1 className="text-3xl sm:text-4xl font-bold text-white">Dashboard</h1>
-            </NavbarItem>
-          </NavbarContent>
-          <NavbarContent justify="end">
-            <div className="relative">
-              <button
-                onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-all duration-200"
-              >
-                <FaUser className="text-lg" />
-                <span>{userData?.name || 'User'}</span>
-                <motion.span
-                  animate={{ rotate: isDropdownOpen ? 180 : 0 }}
-                  transition={{ duration: 0.2 }}
+      <Navbar className="backdrop-blur-sm py-4 shadow-lg">
+  {/* Logo - Left Aligned */}
+  <NavbarContent className="flex-grow-0 sm:flex-grow">
+    <NavbarBrand className="ml-2 sm:ml-0">
+      <Link href="/dashboard">
+        <Image
+          src="/lg.png"
+          alt="Ukshati Logo"
+          width={120}
+          height={80}
+          className="cursor-pointer hover:opacity-80 transition-opacity"
+          style={{
+            maxWidth: "100%",
+            height: "auto",
+          }}
+        />
+      </Link>
+    </NavbarBrand>
+  </NavbarContent>
+
+  {/* Title - Centered */}
+  <NavbarContent className="hidden sm:flex absolute left-1/2 transform -translate-x-1/2">
+    <NavbarItem>
+      <h1 className="text-3xl sm:text-4xl font-bold text-white">Dashboard</h1>
+    </NavbarItem>
+  </NavbarContent>
+
+  {/* Right Section - Help, About Us, Profile */}
+  <NavbarContent justify="end" className="flex items-center space-x-4">
+    {/* Help Button */}
+    <NavbarItem>
+      <button
+        onClick={handleHelpClick}
+        className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base"
+      >
+        Help
+      </button>
+    </NavbarItem>
+
+    {/* About Us Button */}
+    <NavbarItem>
+      <button
+        onClick={openAboutUs}
+        className="text-blue-400 hover:text-blue-300 transition-colors font-medium text-sm sm:text-base"
+      >
+        About Us
+      </button>
+    </NavbarItem>
+
+    {/* Profile Dropdown */}
+    <NavbarItem>
+      <div className="relative">
+        <button
+          onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+          className="flex items-center space-x-2 bg-gray-800 hover:bg-gray-700 text-white px-4 py-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/50"
+        >
+          {/* User Icon - Visible on Mobile */}
+          <FaUser className="text-lg block sm:hidden" />
+
+          {/* Desktop Content */}
+          <div className="hidden sm:flex items-center space-x-2">
+            <FaUser className="text-lg text-gray-200 shrink-0" />
+            <span className="truncate max-w-[150px] text-sm sm:text-base font-medium text-left text-gray-200">
+              {userData?.name || 'User'}
+            </span>
+            <motion.span
+              animate={{ rotate: isDropdownOpen ? 180 : 0 }}
+              transition={{ duration: 0.25 }}
+              className="ml-1 text-gray-300"
+            >
+              <FaChevronDown className="text-xs sm:text-sm" />
+            </motion.span>
+          </div>
+        </button>
+
+        {/* Dropdown Menu */}
+        <AnimatePresence>
+          {isDropdownOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg z-50 overflow-hidden"
+            >
+              {/* User Info */}
+              <div className="p-4 border-b border-gray-700">
+                <div className="flex items-center space-x-3 text-white">
+                  <FaUser className="text-2xl" />
+                  <div>
+                    <p className="text-sm font-medium">{userData?.name || 'Unknown User'}</p>
+                    <p className="text-xs text-gray-400">{userData?.email || 'No email'}</p>
+                    <p className="text-xs text-gray-400 capitalize">{userRole || 'unknown'}</p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Logout Button */}
+              <div className="p-2">
+                <button
+                  onClick={handleLogout}
+                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-lg transition-all"
                 >
-                  <FaChevronDown className="text-sm" />
-                </motion.span>
-              </button>
+                  <span>Logout</span>
+                  <FaSignOutAlt />
+                </button>
+              </div>
 
-              <AnimatePresence>
-                {isDropdownOpen && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -10 }}
-                    className="absolute right-0 mt-2 w-64 bg-gray-800 rounded-lg shadow-lg z-50 overflow-hidden"
+              {/* Employee Management (Admin Only) */}
+              {userRole === 'admin' && (
+                <div className="p-2 border-t border-gray-700">
+                  <button
+                    onClick={() => {
+                      setShowEmployeeDetails(!showEmployeeDetails);
+                      if (!showEmployeeDetails) fetchEmployees();
+                    }}
+                    className="w-full flex items-center justify-between px-4 py-2 text-sm text-white hover:bg-gray-700 rounded-lg transition-all"
                   >
-                    <div className="p-4 border-b border-gray-700">
-                      <div className="flex items-center space-x-3 text-white">
-                        <FaUser className="text-2xl" />
-                        <div>
-                          <p className="text-sm font-medium">{userData?.name || 'Unknown User'}</p>
-                          <p className="text-xs text-white">{userData?.email || 'No email'}</p>
-                          <p className="text-xs text-white capitalize">{userRole || 'unknown'}</p>
-                        </div>
-                      </div>
-                    </div>
+                    <span>Employee Management</span>
+                    <motion.span
+                      animate={{ rotate: showEmployeeDetails ? 180 : 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      <FaChevronDown />
+                    </motion.span>
+                  </button>
 
-                    <div className="p-2">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-between px-4 py-2 text-sm text-red-400 hover:bg-gray-700 rounded-lg transition-all"
+                  {/* Employee Details */}
+                  <AnimatePresence>
+                    {showEmployeeDetails && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
                       >
-                        <span>Logout</span>
-                        <FaSignOutAlt />
-                      </button>
-                    </div>
-
-                    {userRole === 'admin' && (
-                      <div className="p-2 border-t border-gray-700">
-                        <button
-                          onClick={() => {
-                            setShowEmployeeDetails(!showEmployeeDetails);
-                            if (!showEmployeeDetails) fetchEmployees();
-                          }}
-                          className="w-full flex items-center justify-between px-4 py-2 text-sm text-white hover:bg-gray-700 rounded-lg transition-all"
-                        >
-                          <span>Employee Management</span>
-                          <motion.span
-                            animate={{ rotate: showEmployeeDetails ? 180 : 0 }}
-                            transition={{ duration: 0.2 }}
+                        <div className="px-2 py-1">
+                          {/* Add Employee Button */}
+                          <button
+                            onClick={() => setShowEmployeeModal(true)}
+                            className="w-full flex items-center justify-between px-4 py-2 text-sm text-green-400 hover:bg-gray-700 rounded-lg transition-all mb-2"
                           >
-                            <FaChevronDown />
-                          </motion.span>
-                        </button>
+                            <span>Add Employee</span>
+                            <FaUserPlus />
+                          </button>
 
-                        <AnimatePresence>
-                          {showEmployeeDetails && (
-                            <motion.div
-                              initial={{ opacity: 0, height: 0 }}
-                              animate={{ opacity: 1, height: 'auto' }}
-                              exit={{ opacity: 0, height: 0 }}
-                              className="overflow-hidden"
-                            >
-                              <div className="px-2 py-1">
-                                <button
-                                  onClick={() => setShowEmployeeModal(true)}
-                                  className="w-full flex items-center justify-between px-4 py-2 text-sm text-green-400 hover:bg-gray-700 rounded-lg transition-all mb-2"
-                                >
-                                  <span>Add Employee</span>
-                                  <FaUserPlus />
-                                </button>
-
-                                {loadingEmployees && (
-                                  <div className="flex items-center justify-center space-x-2 py-2">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
-                                    <span className="text-white text-xs">Loading employees...</span>
-                                  </div>
-                                )}
-
-                                {error && (
-                                  <div className="p-2 bg-red-800/50 rounded-lg mb-2">
-                                    <p className="text-red-400 text-xs">Error: {error}</p>
-                                  </div>
-                                )}
-
-                                {!loadingEmployees && employees.length === 0 && !error && (
-                                  <div className="text-center py-2">
-                                    <p className="text-gray-400 text-xs mb-1">No employees found</p>
-                                    <button
-                                      onClick={fetchEmployees}
-                                      className="text-blue-400 hover:text-blue-300 text-xs"
-                                    >
-                                      Try Again
-                                    </button>
-                                  </div>
-                                )}
-
-                                {!loadingEmployees && employees.length > 0 && !error && (
-                                  <div className="max-h-60 overflow-y-auto text-white">
-                                    {employees.map((employee) => (
-                                      <div 
-                                        key={employee.id} 
-                                        className="mb-2 border-b border-gray-700 last:border-0"
-                                      >
-                                        <button
-                                          onClick={() => toggleEmployeeDetails(employee.id)}
-                                          className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-700 rounded-lg transition-all"
-                                        >
-                                          <span className="truncate">{employee.name}</span>
-                                          <motion.span
-                                            animate={{ rotate: expandedEmployee === employee.id ? 180 : 0 }}
-                                            className="text-gray-400 text-xs"
-                                          >
-                                            <FaChevronDown />
-                                          </motion.span>
-                                        </button>
-
-                                        <AnimatePresence>
-                                          {expandedEmployee === employee.id && (
-                                            <motion.div
-                                              initial={{ opacity: 0, height: 0 }}
-                                              animate={{ opacity: 1, height: 'auto' }}
-                                              exit={{ opacity: 0, height: 0 }}
-                                              className="bg-gray-700/50 rounded-lg px-3 py-2 ml-2"
-                                            >
-                                              <div className="text-xs space-y-1">
-                                                <div className="flex items-center">
-                                                  <span className="text-gray-300">Email: </span>
-                                                  <span className="ml-1 truncate">{employee.email}</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                  <span className="text-gray-300">Phone: </span>
-                                                  <span className="ml-1">{employee.phone || 'N/A'}</span>
-                                                </div>
-                                                <div className="flex items-center">
-                                                  <span className="text-gray-300">Role: </span>
-                                                  <span className="ml-1 capitalize">{employee.role}</span>
-                                                </div>
-                                                <button
-                                                  onClick={() => handleDeleteEmployee(employee.id)}
-                                                  className="w-full mt-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-all"
-                                                >
-                                                  Delete
-                                                </button>
-                                              </div>
-                                            </motion.div>
-                                          )}
-                                        </AnimatePresence>
-                                      </div>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            </motion.div>
+                          {/* Loading State */}
+                          {loadingEmployees && (
+                            <div className="flex items-center justify-center space-x-2 py-2">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              <span className="text-white text-xs">Loading employees...</span>
+                            </div>
                           )}
-                        </AnimatePresence>
-                      </div>
+
+                          {/* Error State */}
+                          {error && (
+                            <div className="p-2 bg-red-800/50 rounded-lg mb-2">
+                              <p className="text-red-400 text-xs">Error: {error}</p>
+                            </div>
+                          )}
+
+                          {/* No Employees Found */}
+                          {!loadingEmployees && employees.length === 0 && !error && (
+                            <div className="text-center py-2">
+                              <p className="text-gray-400 text-xs mb-1">No employees found</p>
+                              <button
+                                onClick={fetchEmployees}
+                                className="text-blue-400 hover:text-blue-300 text-xs"
+                              >
+                                Try Again
+                              </button>
+                            </div>
+                          )}
+
+                          {/* Employee List */}
+                          {!loadingEmployees && employees.length > 0 && !error && (
+                            <div className="max-h-60 overflow-y-auto text-white">
+                              {employees.map((employee) => (
+                                <div
+                                  key={employee.id}
+                                  className="mb-2 border-b border-gray-700 last:border-0"
+                                >
+                                  <button
+                                    onClick={() => toggleEmployeeDetails(employee.id)}
+                                    className="w-full flex items-center justify-between px-3 py-2 text-sm hover:bg-gray-700 rounded-lg transition-all"
+                                  >
+                                    <span className="truncate">{employee.name}</span>
+                                    <motion.span
+                                      animate={{ rotate: expandedEmployee === employee.id ? 180 : 0 }}
+                                      className="text-gray-400 text-xs"
+                                    >
+                                      <FaChevronDown />
+                                    </motion.span>
+                                  </button>
+
+                                  {/* Expanded Employee Details */}
+                                  <AnimatePresence>
+                                    {expandedEmployee === employee.id && (
+                                      <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: 'auto' }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        className="bg-gray-700/50 rounded-lg px-3 py-2 ml-2"
+                                      >
+                                        <div className="text-xs space-y-1">
+                                          <div className="flex items-center">
+                                            <span className="text-gray-300">Email: </span>
+                                            <span className="ml-1 truncate">{employee.email}</span>
+                                          </div>
+                                          <div className="flex items-center">
+                                            <span className="text-gray-300">Phone: </span>
+                                            <span className="ml-1">{employee.phone || 'N/A'}</span>
+                                          </div>
+                                          <div className="flex items-center">
+                                            <span className="text-gray-300">Role: </span>
+                                            <span className="ml-1 capitalize">{employee.role}</span>
+                                          </div>
+                                          <button
+                                            onClick={() => handleDeleteEmployee(employee.id)}
+                                            className="w-full mt-1 px-2 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs transition-all"
+                                          >
+                                            Delete
+                                          </button>
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </motion.div>
                     )}
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
-          </NavbarContent>
-        </Navbar>
+                  </AnimatePresence>
+                </div>
+              )}
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </NavbarItem>
+  </NavbarContent>
+</Navbar>
       </div>
 
       {/* About Us Content */}
@@ -659,9 +705,8 @@ export default function Dashboard() {
         loading={formSubmitting}
       />
 
-      {/* Main Content */}
-      <div className="flex flex-col items-center justify-center flex-grow pt-24">
-        <div className="mb-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 lg:grid-rows-2 gap-8 w-full max-w-5xl px-4 perspective-1000 lg:h-[500px]">
+<div className="flex flex-col items-center justify-center flex-grow pt-24">
+        <div className="mb-28 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 w-full max-w-7xl px-4 perspective-1000">
           {features.map((feature, index) => (
             <Tilt
               key={index}
@@ -678,15 +723,7 @@ export default function Dashboard() {
               tiltReverse={true}
               trackOnWindow={true}
               gyroscope={true}
-              className={`relative ${
-                index === 1 ? 'lg:h-[500px]' : 'h-[180px] sm:h-[240px]'
-              } ${
-                index === 0 ? 'lg:col-start-1 lg:row-start-1' :
-                index === 1 ? 'lg:col-start-2 lg:row-start-1 lg:row-span-2' :
-                index === 2 ? 'lg:col-start-3 lg:row-start-1' :
-                index === 3 ? 'lg:col-start-1 lg:row-start-2' :
-                'lg:col-start-3 lg:row-start-2'
-              }`}
+              className="relative h-[240px] sm:h-[280px] lg:h-[320px]"
             >
               <motion.div
                 className="cursor-pointer w-full h-full"
@@ -697,8 +734,8 @@ export default function Dashboard() {
                   return newFlipped;
                 })}
                 whileHover={{ 
-                  y: index === 1 ? -20 : -10, 
-                  scale: index === 1 ? 1.02 : 1.05,
+                  y: -10,
+                  scale: 1.05,
                   boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.5)"
                 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
@@ -714,7 +751,7 @@ export default function Dashboard() {
                   <motion.div whileHover={{ scale: 1.1 }} transition={{ type: "spring", stiffness: 300 }}>
                     {feature.icon}
                   </motion.div>
-                  <h2 className="text-xl sm:text-2xl font-bold mt-4 text-white drop-shadow-md">
+                  <h2 className="text-xl sm:text-2xl font-bold mt-4 text-white drop-shadow-md text-center">
                     {feature.name}
                   </h2>
                 </motion.div>
@@ -727,7 +764,7 @@ export default function Dashboard() {
                   transition={{ duration: 0.6, type: "spring", bounce: 0.25 }}
                   style={{ backfaceVisibility: "hidden", transformStyle: "preserve-3d" }}
                 >
-                  <div className={`w-full ${index === 1 ? 'h-64' : 'h-32'} mb-4 relative`}>
+                  <div className="w-full h-32 mb-4 relative">
                     <Image
                       src={feature.image}
                       alt={feature.imageDescription}
@@ -738,7 +775,7 @@ export default function Dashboard() {
                   </div>
                   <Link href={feature.path} className="w-full flex justify-center">
                     <motion.button 
-                      className="px-6 py-3 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 shadow-lg"
+                      className="px-4 py-2 bg-white/10 text-white rounded-lg hover:bg-white/20 transition-all duration-300 border border-white/20 hover:border-white/40 shadow-lg text-sm sm:text-base"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >

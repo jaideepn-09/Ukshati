@@ -117,7 +117,7 @@ export default function Home() {
     },
     { 
       id: 2, 
-      title: "View Stock", 
+      title: "Spend Stock", 
       Icon: FaEye, 
       colors: ["#065f46", "#10b981", "#6ee7b7", "#10b981", "#065f46"],
       route: "/ims/view-stock", 

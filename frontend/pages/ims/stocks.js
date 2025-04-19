@@ -5,6 +5,7 @@ import Papa from "papaparse";
 import StarryBackground from "@/components/StarryBackground";
 import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiFile, FiUpload, FiActivity, FiSearch, FiCheckCircle, FiFilter } from "react-icons/fi";
 import ScrollToTopButton from "@/components/scrollup";
+import BackButton from "@/components/BackButton";
 
 export default function StockDetails() {
   const router = useRouter();
@@ -18,6 +19,8 @@ export default function StockDetails() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const [startDate, setStartDate] = useState(""); 
+  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -45,15 +48,17 @@ export default function StockDetails() {
   
   // Apply category filter
   const filteredStocks = stocks.filter(stock => {
-    // Apply category filter
     const categoryMatch = selectedCategory === "all" || stock.category_name === selectedCategory;
-    
-    // Apply search filter
     const itemName = String(stock?.item_name || '').toLowerCase();
     const searchTerm = String(searchQuery || '').toLowerCase();
     const searchMatch = itemName.includes(searchTerm);
-    
-    return categoryMatch && searchMatch;
+
+    // Filter by date range
+    const createdAt = new Date(stock.created_at);
+    const startDateMatch = startDate ? createdAt >= new Date(startDate) : true;
+    const endDateMatch = endDate ? createdAt <= new Date(endDate) : true;
+
+    return categoryMatch && searchMatch && startDateMatch && endDateMatch;
   });
 
   // Enhanced drag & drop handlers
@@ -243,7 +248,8 @@ export default function StockDetails() {
         item_name: productName,
         category_name: categoryName,
         quantity: Number(quantity),
-        price_pu: Number(price)
+        price_pu: Number(price),
+        created_at: new Date().toISOString() 
       }, ...prev]);
       
       setFormData({ categoryName: "", productName: "", quantity: "", price: "" });
@@ -251,22 +257,21 @@ export default function StockDetails() {
       setErrors([error.message]);
     }
   };
+  const formatDateTime = (dateTime) => {
+    const date = new Date(dateTime);
+    return date.toLocaleString();
+  };
 
   return (
     <div className="min-h-screen text-gray-100">
       <StarryBackground />
       <ScrollToTopButton/>
-      <header className="ml-8 p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
+      <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
-          <button
-            onClick={() => router.push("/ims/home")}
-            className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-          >
-            <FiArrowLeft className="text-xl" />
-            <span className="font-semibold">Back</span>
-          </button>
-
-          <div className="flex-1 text-center">
+        <div className="pr-4">
+          <BackButton route="/ims/home"/>
+          </div>
+          <div className="flex-1 text-center pr-4">
             <h1 className="text-2xl font-bold text-blue-400">Stock Management</h1>
           </div>
 
@@ -444,26 +449,47 @@ export default function StockDetails() {
 
 
         <section className="rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700">
-          <div className="p-4 border-b border-gray-700 flex flex-col md:flex-row items-center justify-between gap-4">
-            <h2 className="text-xl font-semibold flex items-center gap-2">
+          {/* Filters */}
+          <div className="p-4 border-b border-gray-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <h2 className="text-lg sm:text-xl font-semibold flex items-center gap-2">
               <FiShoppingCart className="text-blue-400" />
               Current Stock List
             </h2>
-            <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-              <div className="flex items-center space-x-2 w-full md:w-64">
-                <FiSearch className="text-blue-400" />
+            
+            <div className="w-full sm:w-auto flex flex-col sm:flex-row gap-4">
+              {/* Date Filters */}
+              <div className="grid grid-cols-2 gap-2 w-full sm:w-64">
+                <input
+                  type="date"
+                  value={startDate}
+                  onChange={(e) => setStartDate(e.target.value)}
+                  className="p-2 text-sm rounded bg-gray-800 text-white"
+                />
+                <input
+                  type="date"
+                  value={endDate}
+                  onChange={(e) => setEndDate(e.target.value)}
+                  className="p-2 text-sm rounded bg-gray-800 text-white"
+                />
+              </div>
+
+              {/* Search */}
+              <div className="relative flex items-center w-full sm:w-64">
+                <FiSearch className="absolute left-3 text-blue-400" />
                 <input
                   type="text"
                   placeholder="Search products..."
-                  className="p-2 bg-gray-700 rounded-lg w-full"
+                  className="p-2 pl-8 text-sm bg-gray-700 rounded-lg w-full"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
-              <div className="relative flex items-center w-full md:w-64">
+
+              {/* Category Filter */}
+              <div className="relative flex items-center w-full sm:w-64">
                 <FiFilter className="absolute left-3 text-blue-400" />
                 <select
-                  className="pl-10 pr-4 py-2 bg-gray-700 rounded-lg w-full appearance-none"
+                  className="pl-10 pr-4 py-2 text-sm bg-gray-700 rounded-lg w-full"
                   value={selectedCategory}
                   onChange={(e) => setSelectedCategory(e.target.value)}
                 >
@@ -478,12 +504,13 @@ export default function StockDetails() {
             </div>
           </div>
 
+          {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead className="bg-gray-700">
                 <tr>
-                  {["Product", "Category", "Quantity", "Unit Price", "Total Price"].map((header, i) => (
-                    <th key={i} className="p-3 text-left text-sm font-semibold min-w-[150px]">
+                  {["Product", "Category", "Quantity", "Unit Price", "Total Price", "Transaction Date"].map((header) => (
+                    <th key={header} className="p-2 sm:p-3 text-left text-sm font-semibold">
                       {header}
                     </th>
                   ))}
@@ -493,13 +520,13 @@ export default function StockDetails() {
               <tbody>
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-gray-400">
+                    <td colSpan="6" className="p-4 text-center text-gray-400 text-sm">
                       Loading stock data...
                     </td>
                   </tr>
                 ) : filteredStocks.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="p-8 text-center text-gray-400">
+                    <td colSpan="6" className="p-4 text-center text-gray-400 text-sm">
                       No matching stock items found
                     </td>
                   </tr>
@@ -507,17 +534,18 @@ export default function StockDetails() {
                   filteredStocks.map((stock) => (
                     <tr 
                       key={stock.stock_id} 
-                      className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors text-white"
+                      className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors"
                     >
-                      <td className="p-3">{stock.item_name}</td>
-                      <td className="p-3">
-                        <span className="bg-gray-700 px-3 py-1 rounded-full text-sm">
+                      <td className="p-2 sm:p-3 text-sm">{stock.item_name}</td>
+                      <td className="p-2 sm:p-3">
+                        <span className="bg-gray-700 px-2 py-1 rounded-full text-xs sm:text-sm">
                           {stock.category_name}
                         </span>
                       </td>
-                      <td className="p-3">{stock.quantity}</td>
-                      <td className="p-3">₹{stock.price_pu}</td>
-                      <td className="p-3">₹{(stock.quantity * stock.price_pu).toFixed(2)}</td>
+                      <td className="p-2 sm:p-3 text-sm">{stock.quantity}</td>
+                      <td className="p-2 sm:p-3 text-sm">₹{stock.price_pu}</td>
+                      <td className="p-2 sm:p-3 text-sm">₹{(stock.quantity * stock.price_pu).toFixed(2)}</td>
+                      <td className="p-2 sm:p-3 text-xs sm:text-sm">{formatDateTime(stock.created_at)}</td>
                     </tr>
                   ))
                 )}

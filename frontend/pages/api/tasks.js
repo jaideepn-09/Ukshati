@@ -50,7 +50,7 @@ export default async function handler(req, res) {
           `INSERT INTO project 
           (pname, start_date, end_date, status, cid) 
           VALUES (?, ?, ?, ?, ?)`,
-          [pname, start_date, end_date, status, cid]
+          [pname, start_date,  end_date === 'TBD' ? null : end_date, status, cid]
         );
 
         // Return complete project data

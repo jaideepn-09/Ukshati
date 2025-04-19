@@ -4,7 +4,6 @@ import Swal from 'sweetalert2';
 import { FiAlertCircle, FiUser, FiClock, FiCalendar, FiMessageSquare, FiTrash2, FiPlus, FiBell } from 'react-icons/fi';
 import StarryBackground from '@/components/StarryBackground';
 import BackButton from '@/components/BackButton';
-import { getNotificationSystem } from '@/utils/notification-system';
 
 const ReminderMaintenance = () => {
   const [reminders, setReminders] = useState([]);
@@ -18,7 +17,6 @@ const ReminderMaintenance = () => {
     customerId: ''
   });
   const [activeTab, setActiveTab] = useState('upcoming');
-  const [selectedReminders, setSelectedReminders] = useState([]);
 
   // Memoized filtered reminders
   const filteredReminders = useMemo(() => {
@@ -45,6 +43,9 @@ const ReminderMaintenance = () => {
       if (permission === "granted") {
         setNotificationsEnabled(true);
         showSuccess("Notifications Enabled", "You'll receive reminder notifications");
+        setTimeout(() => {
+          window.location.reload();
+        }, 2000);
       } else {
         showError("Notifications Disabled", "You won't receive reminder notifications");
       }
@@ -70,15 +71,14 @@ const ReminderMaintenance = () => {
           });
         }
         
-        // Remove the Swal.fire popup
-        // Swal.fire({
-        //   icon: 'info',
-        //   title: 'Reminder Due',
-        //   text: `${reminder.message} for ${reminder.cname}`,
-        //   background: '#1a1a2e',
-        //   color: '#fff',
-        //   confirmButtonColor: '#4f46e5'
-        // });
+        Swal.fire({
+          icon: 'info',
+          title: 'Reminder Due',
+          text: `${reminder.message} for ${reminder.cname}`,
+          background: '#1a1a2e',
+          color: '#fff',
+          confirmButtonColor: '#4f46e5'
+        });
       }
     };
 
@@ -94,8 +94,8 @@ const ReminderMaintenance = () => {
         try {
           registration = await navigator.serviceWorker.register('/service-worker.js');
           console.log('Service Worker registered with scope:', registration.scope);
-          setupNotificationListener(); // Ensure this is called
-
+          setupNotificationListener();
+          
           const readyRegistration = await navigator.serviceWorker.ready;
           if (readyRegistration.active) {
             readyRegistration.active.postMessage('startBackgroundChecks');
@@ -198,16 +198,6 @@ const ReminderMaintenance = () => {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || 'Failed to save reminder');
 
-      // Add the new reminder to the NotificationSystem
-      const notificationSystem = getNotificationSystem();
-      notificationSystem.addReminder({
-        rid: data.rid,
-        cname: customers.find(c => c.cid === formData.customerId)?.cname || 'Unknown',
-        message: formData.message,
-        datetime: `${formData.date}T${formData.time}`,
-        cid: formData.customerId
-      });
-
       await showSuccess('Reminder Added!', 'Your reminder has been scheduled successfully');
       window.location.reload();
 
@@ -220,7 +210,7 @@ const ReminderMaintenance = () => {
         color: '#fff'
       });
     }
-  }, [formData, customers, showSuccess]);
+  }, [formData, showSuccess]);
 
   const deleteReminder = useCallback(async (rid) => {
     const { isConfirmed } = await Swal.fire({
@@ -237,11 +227,14 @@ const ReminderMaintenance = () => {
 
     if (isConfirmed) {
       try {
-        const response = await fetch(`/api/reminders?rid=${rid}`, { method: 'DELETE' });
+        const response = await fetch(`/api/reminders?rid=${rid}`, { 
+          method: 'DELETE' 
+        });
+        
         if (!response.ok) throw new Error('Failed to delete reminder');
-
-        await Swal.fire('Deleted!', 'Reminder has been deleted.', 'success');
-        setReminders((prev) => prev.filter((reminder) => reminder.rid !== rid));
+        
+        await showSuccess('Deleted!', 'Reminder has been deleted');
+        window.location.reload();
       } catch (error) {
         Swal.fire({
           icon: 'error',
@@ -252,154 +245,58 @@ const ReminderMaintenance = () => {
         });
       }
     }
-  }, [setReminders]);
-
-  const deleteSelectedReminders = useCallback(async () => {
-    if (selectedReminders.length === 0) {
-      await Swal.fire({
-        icon: 'warning',
-        title: 'No Reminders Selected',
-        text: 'Please select reminders to delete.',
-        background: '#1a1a2e',
-        color: '#fff',
-        confirmButtonColor: '#4f46e5',
-        allowOutsideClick: false // Prevent popup from staying open
-      });
-      return; // Ensure the function exits after showing the popup
-    }
-
-    const { isConfirmed } = await Swal.fire({
-      title: 'Delete Selected Reminders?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#4f46e5',
-      cancelButtonColor: '#6b7280',
-      confirmButtonText: 'Yes, delete them!',
-      background: '#1a1a2e',
-      color: '#fff',
-      allowOutsideClick: false // Prevent popup from staying open
-    });
-
-    if (isConfirmed) {
-      try {
-        const response = await fetch('/api/reminders', {
-          method: 'DELETE',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ rids: selectedReminders })
-        });
-
-        if (!response.ok) throw new Error('Failed to delete reminders');
-
-        setReminders((prev) => prev.filter((reminder) => !selectedReminders.includes(reminder.rid)));
-        setSelectedReminders([]);
-
-        await Swal.fire({
-          icon: 'success',
-          title: 'Deleted!',
-          text: 'Selected reminders have been deleted.',
-          background: '#1a1a2e',
-          color: '#fff',
-          confirmButtonColor: '#4f46e5',
-          allowOutsideClick: false // Ensure success popup also disappears
-        });
-      } catch (error) {
-        await Swal.fire({
-          icon: 'error',
-          title: 'Delete Failed',
-          text: error.message,
-          background: '#1a1a2e',
-          color: '#fff',
-          confirmButtonColor: '#4f46e5',
-          allowOutsideClick: false // Ensure error popup also disappears
-        });
-      }
-    }
-  }, [selectedReminders, setReminders, setSelectedReminders]);
-
-  // Handle selecting/deselecting reminders
-  const toggleReminderSelection = (rid) => {
-    setSelectedReminders((prev) =>
-      prev.includes(rid) ? prev.filter((id) => id !== rid) : [...prev, rid]
-    );
-  };
-
-  // Handle deleting all reminders
-  const deleteAllReminders = async () => {
-    const { isConfirmed } = await Swal.fire({
-      title: 'Delete All Reminders?',
-      text: "You won't be able to revert this!",
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonColor: '#4f46e5',
-    });
-
-    if (isConfirmed) {
-      try {
-        const response = await fetch('/api/reminders', {
-          method: 'DELETE',
-        });
-
-        if (!response.ok) throw new Error('Failed to delete all reminders');
-
-        setReminders([]);
-        setSelectedReminders([]);
-        Swal.fire('Deleted!', 'All reminders have been deleted.', 'success');
-      } catch (error) {
-        console.error('Error deleting all reminders:', error);
-        Swal.fire('Error', 'Failed to delete all reminders.', 'error');
-      }
-    }
-  };
+  }, [showSuccess]);
 
   return (
-    <div className="min-h-screen p-4 md:p-8 relative">
+    <div className="min-h-screen p-2 sm:p-4 md:p-6 lg:p-8 relative">
       <StarryBackground />
-      <div className="absolute inset-0 z-0" /> {/* Add overlay for background */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-b from-gray-900/80 to-gray-900/30" />
       
-      <div className="max-w-6xl mx-auto space-y-8 relative z-10">
-        <BackButton route='/crm/home' />
+      <div className="max-w-7xl mx-auto space-y-4 sm:space-y-6 md:space-y-8 relative z-10">
+        <div className="px-2 sm:px-4">
+          <BackButton route='/crm/home' />
+        </div>
 
-        <div className="text-center space-y-2 px-4">
-          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">
+        <div className="text-center space-y-2 px-2 sm:px-4">
+          <h1 className="text-2xl sm:text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 to-purple-500">
             Reminder Management
           </h1>
           
           <button
             onClick={requestNotificationPermission}
-            className={`mt-2 inline-flex items-center px-3 py-1 text-sm font-medium rounded-full shadow-sm transition-colors ${
+            className={`mt-1 sm:mt-2 inline-flex items-center px-3 py-1 text-xs sm:text-sm font-medium rounded-full shadow-sm transition-colors ${
               notificationsEnabled 
                 ? 'bg-green-700 hover:bg-green-800 text-white' 
                 : 'bg-indigo-600 hover:bg-indigo-700 text-white'
             }`}
           >
-            <FiBell className="mr-1" />
+            <FiBell className="mr-1 text-sm sm:text-base" />
             {notificationsEnabled ? 'Notifications Enabled' : 'Enable Notifications'}
           </button>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 px-4">
-          {/* Create Reminder Form */}
-          <div className="lg:col-span-1">
-            <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-2xl p-4 sm:p-6 border border-gray-700/50">
-              <div className="flex items-center mb-4 sm:mb-6">
-                <FiPlus className="text-indigo-500 mr-2 text-xl" />
-                <h2 className="text-xl font-semibold text-white">
+        <div className="grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6 px-2 sm:px-4">
+          {/* Create Reminder Form - Always full width on mobile, then becomes sidebar on xl+ */}
+          <div className="xl:col-span-1">
+            <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl sm:rounded-2xl shadow-lg sm:shadow-2xl p-3 sm:p-4 md:p-6 border border-gray-700/50">
+              <div className="flex items-center mb-3 sm:mb-4 md:mb-6">
+                <FiPlus className="text-indigo-500 mr-2 text-lg sm:text-xl" />
+                <h2 className="text-lg sm:text-xl font-semibold text-white">
                   Create New Reminder
                 </h2>
               </div>
               
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
-                    <FiUser className="inline mr-2" />
+              <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
+                    <FiUser className="inline mr-1 sm:mr-2" />
                     Customer
                   </label>
                   <select
                     name="customerId"
                     value={formData.customerId}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white text-sm sm:text-base"
                     required
                   >
                     <option value="">Select a customer...</option>
@@ -411,26 +308,26 @@ const ReminderMaintenance = () => {
                   </select>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="block text-sm font-medium text-gray-300">
-                    <FiMessageSquare className="inline mr-2" />
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="block text-xs sm:text-sm font-medium text-gray-300">
+                    <FiMessageSquare className="inline mr-1 sm:mr-2" />
                     Message
                   </label>
                   <textarea
                     name="message"
                     value={formData.message}
                     onChange={handleInputChange}
-                    className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
+                    className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white text-sm sm:text-base"
                     rows="3"
                     placeholder="Enter reminder message..."
                     required
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      <FiCalendar className="inline mr-2" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3 md:gap-4">
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300">
+                      <FiCalendar className="inline mr-1 sm:mr-2" />
                       Date
                     </label>
                     <input
@@ -438,13 +335,13 @@ const ReminderMaintenance = () => {
                       name="date"
                       value={formData.date}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white text-sm sm:text-base"
                       required
                     />
                   </div>
-                  <div className="space-y-2">
-                    <label className="block text-sm font-medium text-gray-300">
-                      <FiClock className="inline mr-2" />
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="block text-xs sm:text-sm font-medium text-gray-300">
+                      <FiClock className="inline mr-1 sm:mr-2" />
                       Time
                     </label>
                     <input
@@ -452,7 +349,7 @@ const ReminderMaintenance = () => {
                       name="time"
                       value={formData.time}
                       onChange={handleInputChange}
-                      className="w-full px-4 py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white"
+                      className="w-full px-3 sm:px-4 py-2 sm:py-3 bg-gray-700/50 border border-gray-600 rounded-lg focus:ring-2 focus:ring-indigo-500 text-white text-sm sm:text-base"
                       required
                     />
                   </div>
@@ -460,7 +357,7 @@ const ReminderMaintenance = () => {
 
                 <button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-3 rounded-lg transition-all duration-200 mt-4 shadow-lg hover:shadow-indigo-500/20"
+                  className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-medium py-2 sm:py-3 rounded-lg transition-all duration-200 mt-2 sm:mt-4 shadow-md sm:shadow-lg hover:shadow-indigo-500/20 text-sm sm:text-base"
                 >
                   Schedule Reminder
                 </button>
@@ -468,23 +365,23 @@ const ReminderMaintenance = () => {
             </div>
           </div>
 
-          {/* Reminders List */}
-          <div className="lg:col-span-2">
-            <div className="bg-gray-800/50 backdrop-blur-lg rounded-2xl shadow-2xl p-6 border border-gray-700/50 h-full">
-              <div className="flex items-center justify-between mb-6">
+          {/* Reminders List - Full width on mobile, then 2/3 on xl+ */}
+          <div className="xl:col-span-2">
+            <div className="bg-gray-800/50 backdrop-blur-lg rounded-xl sm:rounded-2xl shadow-lg sm:shadow-2xl p-3 sm:p-4 md:p-6 border border-gray-700/50 h-full">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 gap-2 sm:gap-0">
                 <div className="flex items-center">
-                  <FiAlertCircle className="text-indigo-500 mr-2 text-xl" />
-                  <h2 className="text-xl font-semibold text-white">
+                  <FiAlertCircle className="text-indigo-500 mr-2 text-lg sm:text-xl" />
+                  <h2 className="text-lg sm:text-xl font-semibold text-white">
                     Your Reminders
                   </h2>
                 </div>
                 
-                <div className="flex space-x-2 bg-gray-700/50 rounded-lg p-1">
+                <div className="flex space-x-1 sm:space-x-2 bg-gray-700/50 rounded-lg p-1">
                   {['upcoming', 'past', 'all'].map(tab => (
                     <button
                       key={tab}
                       onClick={() => setActiveTab(tab)}
-                      className={`px-3 py-1 text-sm rounded-md transition-colors ${
+                      className={`px-2 sm:px-3 py-1 text-xs sm:text-sm rounded-md transition-colors ${
                         activeTab === tab 
                           ? 'bg-indigo-600 text-white' 
                           : 'text-gray-300 hover:bg-gray-600'
@@ -496,31 +393,16 @@ const ReminderMaintenance = () => {
                 </div>
               </div>
               
-              <div className="flex justify-between items-center mb-4">
-                <button
-                  className="bg-red-500 text-white px-4 py-2 rounded"
-                  onClick={deleteSelectedReminders}
-                >
-                  Delete Selected
-                </button>
-                <button
-                  className="bg-red-700 text-white px-4 py-2 rounded"
-                  onClick={deleteAllReminders}
-                >
-                  Delete All
-                </button>
-              </div>
-
               {loading ? (
-                <div className="flex flex-col items-center justify-center py-12">
-                  <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mb-4"></div>
-                  <p className="text-gray-400">Loading reminders...</p>
+                <div className="flex flex-col items-center justify-center py-8 sm:py-12">
+                  <div className="animate-spin rounded-full h-10 sm:h-12 w-10 sm:w-12 border-t-2 border-b-2 border-indigo-500 mb-3 sm:mb-4"></div>
+                  <p className="text-gray-400 text-sm sm:text-base">Loading reminders...</p>
                 </div>
               ) : filteredReminders.length === 0 ? (
-                <div className="flex flex-col items-center justify-center py-12 text-center">
-                  <FiAlertCircle className="text-gray-500 text-4xl mb-4" />
-                  <h3 className="text-lg font-medium text-gray-300">No reminders found</h3>
-                  <p className="text-gray-500 mt-1">
+                <div className="flex flex-col items-center justify-center py-8 sm:py-12 text-center">
+                  <FiAlertCircle className="text-gray-500 text-3xl sm:text-4xl mb-3 sm:mb-4" />
+                  <h3 className="text-base sm:text-lg font-medium text-gray-300">No reminders found</h3>
+                  <p className="text-gray-500 mt-1 text-xs sm:text-sm">
                     {activeTab === 'upcoming' 
                       ? "You don't have any upcoming reminders" 
                       : activeTab === 'past' 
@@ -529,7 +411,7 @@ const ReminderMaintenance = () => {
                   </p>
                 </div>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-2 sm:space-y-3">
                   {filteredReminders.map(reminder => {
                     const reminderDate = new Date(reminder.datetime);
                     const isPast = reminderDate <= new Date();
@@ -537,22 +419,22 @@ const ReminderMaintenance = () => {
                     return (
                       <div 
                         key={reminder.rid} 
-                        className={`bg-gray-700/50 rounded-xl p-4 flex justify-between items-start hover:bg-gray-600/50 border-l-4 ${
+                        className={`bg-gray-700/50 rounded-lg sm:rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row sm:justify-between sm:items-start gap-2 sm:gap-4 hover:bg-gray-600/50 border-l-4 ${
                           isPast ? 'border-red-500/50' : 'border-indigo-500/50'
                         }`}
                       >
-                        <div className="flex-1 space-y-2">
-                          <div className="flex items-center gap-2">
-                            <FiUser className="text-indigo-400" />
-                            <h3 className="font-medium text-white">{reminder.cname}</h3>
+                        <div className="flex-1 space-y-1 sm:space-y-2">
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <FiUser className="text-indigo-400 text-sm sm:text-base" />
+                            <h3 className="font-medium text-white text-sm sm:text-base">{reminder.cname}</h3>
                           </div>
-                          <div className="flex gap-2">
-                            <FiMessageSquare className="text-indigo-400 mt-1" />
-                            <p className="text-gray-300">{reminder.message}</p>
+                          <div className="flex gap-1 sm:gap-2">
+                            <FiMessageSquare className="text-indigo-400 mt-0.5 sm:mt-1 text-sm sm:text-base" />
+                            <p className="text-gray-300 text-xs sm:text-sm">{reminder.message}</p>
                           </div>
-                          <div className="flex items-center gap-2">
-                            <FiClock className="text-indigo-400" />
-                            <p className={`text-sm ${isPast ? 'text-red-400' : 'text-indigo-400'}`}>
+                          <div className="flex items-center gap-1 sm:gap-2">
+                            <FiClock className="text-indigo-400 text-sm sm:text-base" />
+                            <p className={`text-xs sm:text-sm ${isPast ? 'text-red-400' : 'text-indigo-400'}`}>
                               {reminderDate.toLocaleString('en-US', {
                                 month: 'short',
                                 day: 'numeric',
@@ -560,27 +442,19 @@ const ReminderMaintenance = () => {
                                 minute: '2-digit'
                               })}
                               {isPast && (
-                                <span className="ml-2 px-2 py-0.5 bg-red-900/30 text-red-400 text-xs rounded-full">
+                                <span className="ml-1 sm:ml-2 px-1.5 sm:px-2 py-0.5 bg-red-900/30 text-red-400 text-xxs sm:text-xs rounded-full">
                                   Past Due
                                 </span>
                               )}
                             </p>
                           </div>
                         </div>
-                        <div className="flex items-center gap-2">
-                          <input
-                            type="checkbox"
-                            checked={selectedReminders.includes(reminder.rid)}
-                            onChange={() => toggleReminderSelection(reminder.rid)}
-                            className="form-checkbox h-5 w-5 text-indigo-600 transition duration-150 ease-in-out"
-                          />
-                          <button
-                            onClick={() => deleteReminder(reminder.rid)}
-                            className="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-gray-600 transition-colors"
-                          >
-                            <FiTrash2 className="text-xl" />
-                          </button>
-                        </div>
+                        <button
+                          onClick={() => deleteReminder(reminder.rid)}
+                          className="text-red-400 hover:text-red-300 p-1 sm:p-2 rounded-lg hover:bg-gray-600 transition-colors self-end sm:self-auto"
+                        >
+                          <FiTrash2 className="text-lg sm:text-xl" />
+                        </button>
                       </div>
                     );
                   })}

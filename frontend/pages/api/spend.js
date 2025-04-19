@@ -33,7 +33,7 @@ export default async function handler(req, res) {
 
     // Fetch stock details
     const [stockResult] = await db.execute(
-      "SELECT quantity, price_pu FROM stock WHERE stock_id = ?",
+      "SELECT quantity, price_pu, item_name FROM stock WHERE stock_id = ?",
       [stockId]
     );
 
@@ -41,7 +41,7 @@ export default async function handler(req, res) {
       return res.status(404).json({ error: "Stock item not found" });
     }
 
-    const { quantity, price_pu } = stockResult[0];
+    const { quantity, price_pu, item_name } = stockResult[0];
 
     if (spentQty > quantity) {
       return res.status(400).json({
@@ -52,12 +52,12 @@ export default async function handler(req, res) {
     }
 
     // Validate database entities
-    const [project] = await db.execute("SELECT pid FROM project WHERE pid = ?", [
+    const [project] = await db.execute("SELECT pid, pname FROM project WHERE pid = ?", [
       used_for,
     ]);
 
     const [employee] = await db.execute(
-      "SELECT id FROM employee WHERE id = ?",
+      "SELECT id, name FROM employee WHERE id = ?",
       [recorded_by]
     );
 
@@ -75,6 +75,9 @@ export default async function handler(req, res) {
       });
     }
 
+    const projectName = project[0].pname;
+    const employeeName = employee[0].name;
+
     // Calculate total price deduction
     const totalPriceDeduction = spentQty * price_pu;
 
@@ -82,27 +85,53 @@ export default async function handler(req, res) {
     await db.beginTransaction();
 
     try {
-      // Update stock quantity and price
+      // Update stock quantity
       await db.execute(
-        "UPDATE stock SET quantity = quantity - ?, price_pu = ? WHERE stock_id = ?",
-        [spentQty, price_pu, stockId]
+        "UPDATE stock SET quantity = quantity - ? WHERE stock_id = ?",
+        [spentQty, stockId]
       );
 
-      // Create spent record with location
+      // Create spent record with timestamp
       const [insertResult] = await db.execute(
         `INSERT INTO inventory_spent 
-         (stock_id, quantity_used, used_for, recorded_by, location, remark)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+         (stock_id, quantity_used, used_for, recorded_by, location, remark, spent_at)
+         VALUES (?, ?, ?, ?, ?, ?, NOW())`,
         [stockId, spentQty, used_for, recorded_by, location, remark || null]
       );
 
+      // Log the transaction with all details
+      await db.execute(
+        `INSERT INTO stock_transactions 
+         (stock_id, transaction_type, quantity_change, previous_quantity, 
+          new_quantity, price_pu, project_id, employee_id, notes)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        [
+          stockId,
+          'SPEND',
+          -spentQty,
+          quantity,
+          quantity - spentQty,
+          price_pu,
+          used_for,
+          recorded_by,
+          `Stock spent by ${employeeName} for project ${projectName} at ${location}. ${remark || ''}`
+        ]
+      );
+
       await db.commit();
+      
       return res.status(200).json({
         message: "Stock usage recorded successfully",
         spentId: insertResult.insertId,
+        timestamp: new Date().toISOString(),
+        remainingStock: quantity - spentQty,
+        itemName: item_name,
+        projectName,
+        employeeName
       });
     } catch (error) {
       await db.rollback();
+      console.error("Transaction Error:", error);
       throw error;
     }
   } catch (error) {

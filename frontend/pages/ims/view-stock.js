@@ -7,9 +7,10 @@ import ScrollToTopButton from "@/components/scrollup";
 import { 
   FiShoppingCart, FiActivity, FiSearch, FiX, 
   FiUser, FiMapPin, FiAlertTriangle, FiArrowLeft, 
-  FiFilter, FiUpload, FiDownload 
+  FiFilter, FiUpload, FiDownload, FiMenu
 } from "react-icons/fi";
 import Papa from "papaparse";
+import BackButton from "@/components/BackButton";
 
 export default function StockDetails() {
   const router = useRouter();
@@ -28,6 +29,7 @@ export default function StockDetails() {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef(null);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -445,39 +447,85 @@ export default function StockDetails() {
       </div>
 
       <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
-        <div className="max-w-7xl mx-auto flex items-center justify-between relative px-6">
-          <div className="absolute left-6">
-            <button
-              onClick={() => router.push("/ims/home")}
-              className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+  <div className="max-w-7xl mx-auto flex justify-between items-center">
+    {/* Left Section - Back Button */}
+    <div className="flex-1">
+      <BackButton route="/ims/home" />
+    </div>
+
+    {/* Center Section - Heading */}
+    <div className="flex-1 flex justify-center">
+      <h1 className="text-2xl font-bold text-blue-400 text-center">
+        Spend Inventory
+      </h1>
+    </div>
+
+    {/* Right Section - Desktop Buttons & Mobile Menu */}
+    <div className="flex-1 flex justify-end items-center gap-4 mr-8">
+      {/* Desktop Buttons */}
+      <div className="hidden sm:flex items-center gap-4">
+        <button
+          onClick={() => setIsBulkModalOpen(true)}
+          className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+        >
+          <FiUpload className="text-xl" />
+          <span className="font-semibold">Bulk Upload</span>
+        </button>
+        <button
+          onClick={() => router.push("/ims/inventory-spent")}
+          className="flex items-center gap-2 hover:text-blue-400 transition-colors"
+        >
+          <FiActivity className="text-xl" />
+          <span className="font-semibold">View Inventory Spent</span>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className="sm:hidden relative">
+        <button
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          className="flex items-center hover:text-blue-400 transition-colors"
+        >
+          <FiMenu className="text-xl" />
+        </button>
+
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg z-50 overflow-hidden"
             >
-              <FiArrowLeft className="text-xl" />
-              <span className="font-semibold">Back</span>
-            </button>
-          </div>
-          
-          <h1 className="text-2xl pr-10 font-bold text-blue-400 mx-auto">
-            Spent Inventory
-          </h1>
-          
-          <div className="absolute right-6 flex gap-4">
-            <button
-              onClick={() => setIsBulkModalOpen(true)}
-              className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-            >
-              <FiUpload className="text-xl" />
-              <span className="font-semibold">Bulk Upload</span>
-            </button>
-            <button
-              onClick={() => router.push("/ims/inventory-spent")}
-              className="flex items-center gap-2 hover:text-blue-400 transition-colors"
-            >
-              <FiActivity className="text-xl" />
-              <span className="font-semibold">View Inventory Spent</span>
-            </button>
-          </div>
-        </div>
-      </header>
+              <div className="p-2">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    setIsBulkModalOpen(true);
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-gray-700 rounded-lg transition-all"
+                >
+                  <FiUpload className="text-lg" />
+                  <span>Bulk Upload</span>
+                </button>
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    router.push("/ims/inventory-spent");
+                  }}
+                  className="w-full flex items-center gap-2 px-4 py-2 text-sm text-white hover:bg-gray-700 rounded-lg transition-all mt-2"
+                >
+                  <FiActivity className="text-lg" />
+                  <span>View Inventory Spent</span>
+                </button>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  </div>
+</header>
 
       <main className="max-w-7xl mx-auto p-4 space-y-8">
         <section className="rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700">
