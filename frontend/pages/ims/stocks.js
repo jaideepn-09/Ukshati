@@ -2,8 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Papa from "papaparse";
-import StarryBackground from "@/components/StarryBackground";
-import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiArrowLeft, FiFile, FiUpload, FiActivity, FiSearch, FiCheckCircle, FiFilter } from "react-icons/fi";
+import { FiUploadCloud, FiFilePlus, FiShoppingCart, FiX, FiTag, FiBox, FiDollarSign , FiFile, FiUpload, FiActivity, FiSearch, FiCheckCircle, FiFilter } from "react-icons/fi";
 import ScrollToTopButton from "@/components/scrollup";
 import BackButton from "@/components/BackButton";
 
@@ -263,8 +262,7 @@ export default function StockDetails() {
   };
 
   return (
-    <div className="min-h-screen text-gray-100">
-      <StarryBackground />
+    <div className="min-h-screen bg-black text-gray-100">
       <ScrollToTopButton/>
       <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
@@ -272,12 +270,12 @@ export default function StockDetails() {
           <BackButton route="/ims/home"/>
           </div>
           <div className="flex-1 text-center pr-4">
-            <h1 className="text-2xl font-bold text-blue-400">Stock Management</h1>
+            <h1 className="text-2xl font-bold text-cyan-600">Stock Management</h1>
           </div>
 
           <button
             onClick={() => router.push("/ims/view-stock")}
-            className="flex items-center gap-2 hover:text-blue-400 transition-colors mr-8"
+            className="flex items-center gap-2 hover:text-cyan-400 transition-colors mr-8"
           >
             <FiActivity className="text-xl" />
             <span className="font-semibold">View Inventory</span>
@@ -506,27 +504,45 @@ export default function StockDetails() {
 
           {/* Table */}
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[600px]">
-              <thead className="bg-gray-700">
+            <table className="w-full min-w-[1000px]">
+              <thead className="bg-gray-850">
                 <tr>
-                  {["Product", "Category", "Quantity", "Unit Price", "Total Price", "Transaction Date"].map((header) => (
-                    <th key={header} className="p-2 sm:p-3 text-left text-sm font-semibold">
-                      {header}
-                    </th>
-                  ))}
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    <FiTag className="inline-block mr-2 -mt-1" />
+                    Product
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    <FiBox className="inline-block mr-2 -mt-1" />
+                    Category
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    Quantity
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    <FiDollarSign className="inline-block mr-2 -mt-1" />
+                    Unit Price
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    Total Value
+                  </th>
+                  <th className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 border-b border-gray-700">
+                    Date Added
+                  </th>
                 </tr>
               </thead>
               
-              <tbody>
+              <tbody className="divide-y divide-gray-700">
                 {loading ? (
                   <tr>
-                    <td colSpan="6" className="p-4 text-center text-gray-400 text-sm">
-                      Loading stock data...
+                    <td colSpan="6" className="px-6 py-6 text-center">
+                      <div className="flex items-center justify-center space-x-2 text-gray-500">
+                        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-indigo-500"></div>
+                      </div>
                     </td>
                   </tr>
                 ) : filteredStocks.length === 0 ? (
                   <tr>
-                    <td colSpan="6" className="p-4 text-center text-gray-400 text-sm">
+                    <td colSpan="6" className="px-6 py-6 text-center text-gray-500">
                       No matching stock items found
                     </td>
                   </tr>
@@ -534,18 +550,32 @@ export default function StockDetails() {
                   filteredStocks.map((stock) => (
                     <tr 
                       key={stock.stock_id} 
-                      className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors"
+                      className="hover:bg-gray-850/50 transition-colors duration-200"
                     >
-                      <td className="p-2 sm:p-3 text-sm">{stock.item_name}</td>
-                      <td className="p-2 sm:p-3">
-                        <span className="bg-gray-700 px-2 py-1 rounded-full text-xs sm:text-sm">
+                      <td className="px-6 py-4 text-sm font-medium text-white">
+                        {stock.item_name}
+                      </td>
+                      <td className="px-6 py-4">
+                        <span className="px-3 py-1.5 bg-indigo-900/30 text-indigo-400 rounded-full text-xs font-medium border border-indigo-400/20">
                           {stock.category_name}
                         </span>
                       </td>
-                      <td className="p-2 sm:p-3 text-sm">{stock.quantity}</td>
-                      <td className="p-2 sm:p-3 text-sm">₹{stock.price_pu}</td>
-                      <td className="p-2 sm:p-3 text-sm">₹{(stock.quantity * stock.price_pu).toFixed(2)}</td>
-                      <td className="p-2 sm:p-3 text-xs sm:text-sm">{formatDateTime(stock.created_at)}</td>
+                      <td className="px-6 py-4">
+                        <span className={`px-2 py-1 rounded-md text-sm font-medium ${
+                          stock.quantity < 10 ? 'bg-red-900/30 text-red-400' : 'bg-green-900/30 text-green-400'
+                        }`}>
+                          {stock.quantity}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-300">
+                        ₹{stock.price_pu}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-white">
+                        ₹{(stock.quantity * stock.price_pu).toFixed(2)}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-400">
+                        {formatDateTime(stock.created_at)}
+                      </td>
                     </tr>
                   ))
                 )}

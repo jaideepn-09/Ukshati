@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/router";
-import { FiArrowLeft, FiActivity, FiSearch, FiMapPin, FiFilter, FiClock, FiCalendar, FiX } from "react-icons/fi";
+import { FiArrowLeft, FiActivity, FiSearch, FiMapPin, FiFilter, FiClock, FiCalendar, FiPackage, FiBookmark, FiDollarSign, FiCreditCard, FiFolder, FiUser } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from "@/components/BackButton";
 
@@ -197,8 +197,7 @@ export default function InventorySpent() {
   const paginatedStocks = filteredStocks.slice(startIndex, startIndex + itemsPerPage);
 
   return (
-    <div className="min-h-screen text-gray-100 relative">
-      <StarryBackground />
+    <div className="min-h-screen bg-black text-gray-100 relative">
       <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
         <div className="max-w-8xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6">
           {/* Left Section - Back Button */}
@@ -229,7 +228,7 @@ export default function InventorySpent() {
       {/* Main Content */}
       <main className="max-w-7.5xl mx-auto p-4 space-y-8">
         {/* Filters Section */}
-        <section className="rounded-xl bg-gray-800/50 backdrop-blur-sm border-2 border-gray-700">
+        <section className="rounded-xl bg-black backdrop-blur-sm border-2 border-gray-700">
           <div className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-semibold text-white">Spent Stock Records</h2>
@@ -281,99 +280,97 @@ export default function InventorySpent() {
             </div>
             {/* Table */}
             {loading ? (
-              <div className="p-6 text-center text-gray-400">
-                Loading spent stock data...
+  <div className="p-8 text-center text-gray-400">
+    <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-indigo-500 mx-auto"></div>
+  </div>
+) : error ? (
+  <div className="p-6 text-center text-red-400 bg-red-900/20 rounded-lg">
+    Error: {error}
+  </div>
+) : filteredStocks.length === 0 ? (
+  <div className="p-6 text-center text-gray-400 bg-gray-700/20 rounded-lg">
+    No matching records found
+  </div>
+) : (
+  <div className="overflow-x-auto rounded-lg border border-gray-700">
+    <table className="w-full">
+      <thead className="bg-gray-850">
+        <tr>
+          {[
+            { key: "item_name", label: "Product", icon: <FiPackage className="w-4 h-4" /> },
+            { key: "category_name", label: "Category", icon: <FiBookmark className="w-4 h-4" /> },
+            { key: "quantity_used", label: "Quantity", icon: <FiActivity className="w-4 h-4" /> },
+            { key: "unit_price", label: "Unit Price", icon: <FiDollarSign className="w-4 h-4" /> },
+            { key: "total_price", label: "Total Cost", icon: <FiCreditCard className="w-4 h-4" /> },
+            { key: "location", label: "Location", icon: <FiMapPin className="w-4 h-4" /> },
+            { key: "project_name", label: "Project", icon: <FiFolder className="w-4 h-4" /> },
+            { key: "employee_name", label: "Recorded By", icon: <FiUser className="w-4 h-4" /> },
+            { key: "spent_at", label: "Date", icon: <FiCalendar className="w-4 h-4" /> }
+          ].map(({ key, label, icon }) => (
+            <th
+              key={key}
+              onClick={() => requestSort(key)}
+              className="px-6 py-4 text-left text-sm font-semibold text-indigo-400 cursor-pointer hover:bg-gray-800/30 transition-colors"
+            >
+              <div className="flex items-center space-x-2">
+                {icon}
+                <span>{label}</span>
+                <SortIndicator columnKey={key} sortConfig={sortConfig} />
               </div>
-            ) : error ? (
-              <div className="p-6 text-center text-red-400">
-                Error: {error}
+            </th>
+          ))}
+        </tr>
+      </thead>
+      
+      <tbody className="divide-y divide-gray-700">
+        {paginatedStocks.map((spent, index) => (
+          <tr key={index} className="hover:bg-gray-850/30 transition-colors">
+            <td className="px-6 py-4 font-medium text-gray-100">{spent.item_name}</td>
+            
+            <td className="px-6 py-4">
+              <span className="px-3 py-1.5 bg-indigo-900/30 text-indigo-400 rounded-full text-sm border border-indigo-400/20">
+                {spent.category_name || "Uncategorized"}
+              </span>
+            </td>
+            
+            <td className="px-6 py-4">
+              <span className={`px-3 py-1 rounded-md text-sm font-medium ${
+                spent.quantity_used < 5 ? 'bg-amber-900/30 text-amber-400' : 'bg-green-900/30 text-green-400'
+              }`}>
+                {spent.quantity_used}
+              </span>
+            </td>
+            
+            <td className="px-6 py-4 text-gray-300">₹{spent.unit_price}</td>
+            
+            <td className="px-6 py-4 font-medium text-indigo-400">
+              ₹{spent.total_price}
+            </td>
+            
+            <td className="px-6 py-4 text-gray-400">
+              {spent.location || (
+                <span className="italic text-gray-500">Not specified</span>
+              )}
+            </td>
+            
+            <td className="px-6 py-4 max-w-[200px] truncate text-gray-300" title={spent.project_name}>
+              {spent.project_name || "N/A"}
+            </td>
+            
+            <td className="px-6 py-4 text-gray-300">{spent.employee_name || "Unknown"}</td>
+            
+            <td className="px-6 py-4">
+              <div className="flex items-center space-x-2 text-gray-400">
+                <FiClock className="w-4 h-4" />
+                <span>{formatDateTime(spent.spent_at)}</span>
               </div>
-            ) : filteredStocks.length === 0 ? (
-              <div className="p-6 text-center text-gray-400">
-                No matching records found
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="w-full border-collapse">
-                  <thead className="bg-gray-700">
-                    <tr>
-                      <th
-                        className="p-4 text-left min-w-[220px] cursor-pointer hover:bg-gray-600"
-                        onClick={() => requestSort("item_name")}
-                      >
-                        Product <SortIndicator columnKey="item_name" sortConfig={sortConfig} />
-                      </th>
-                      <th
-                        className="p-4 text-left min-w-[150px] cursor-pointer hover:bg-gray-600"
-                        onClick={() => requestSort("category_name")}
-                      >
-                        Category <SortIndicator columnKey="category_name" sortConfig={sortConfig} />
-                      </th>
-                      <th
-                        className="p-4 text-left min-w-[120px] cursor-pointer hover:bg-gray-600"
-                        onClick={() => requestSort("quantity_used")}
-                      >
-                        Quantity <SortIndicator columnKey="quantity_used" sortConfig={sortConfig} />
-                      </th>
-                      <th className="p-4 text-left min-w-[150px]">Unit Price</th>
-                      <th className="p-4 text-left min-w-[150px]">Total Cost</th>
-                      <th
-                        className="p-4 text-left min-w-[200px] cursor-pointer hover:bg-gray-600"
-                        onClick={() => requestSort("location")}
-                      >
-                        <div className="flex items-center">
-                          <FiMapPin className="mr-2" />
-                          Location
-                        </div>
-                      </th>
-                      <th className="p-4 text-left min-w-[150px] max-w-[300px] truncate">Project</th>
-                      <th className="p-4 text-left min-w-[200px]">Recorded By</th>
-                      <th
-                        className="p-4 text-left min-w-[180px] cursor-pointer hover:bg-gray-600"
-                        onClick={() => requestSort("spent_at")}
-                      >
-                        <div className="flex items-center">
-                          <FiClock className="mr-2" />
-                          Date
-                        </div>
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {paginatedStocks.map((spent, index) => (
-                      <tr
-                        key={index}
-                        className="border-t border-gray-700 hover:bg-gray-700/50 transition-colors text-white"
-                      >
-                        <td className="p-4 font-medium">{spent.item_name}</td>
-                        <td className="p-4">
-                          <span
-                            className={`px-3 py-1 rounded-full text-sm ${
-                              spent.category_name ? "bg-gray-700" : "bg-gray-800 text-gray-400 italic"
-                            }`}
-                          >
-                            {spent.category_name || "Uncategorized"}
-                          </span>
-                        </td>
-                        <td className="p-4">{spent.quantity_used}</td>
-                        <td className="p-4">₹{spent.unit_price}</td>
-                        <td className="p-4 text-blue-400">₹{spent.total_price}</td>
-                        <td className="p-4">
-                          {spent.location || (
-                            <span className="italic text-gray-500">Not specified</span>
-                          )}
-                        </td>
-                        <td className="p-4 max-w-[300px] truncate" title={spent.project_name || "N/A"}>
-                          {spent.project_name || "N/A"}
-                        </td>
-                        <td className="p-4">{spent.employee_name || "Unknown"}</td>
-                        <td className="p-3 text-center">{formatDateTime(spent.spent_at)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  </div>
+)}
           </div>
         </section>
         {/* Pagination */}

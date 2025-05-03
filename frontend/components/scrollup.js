@@ -23,7 +23,7 @@ const ScrollToTopButton = () => {
       {showScrollButton && (
         <button
           onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
-          className="fixed bottom-8 right-8 p-3 bg-blue-600 rounded-full shadow-lg hover:bg-blue-500 transition-colors z-50"
+          className="fixed bottom-8 right-8 p-3 bg-cyan-600 rounded-full shadow-lg hover:bg-indigo-500 transition-colors z-50"
         >
           <FiArrowUp className="text-xl text-white" />
         </button>

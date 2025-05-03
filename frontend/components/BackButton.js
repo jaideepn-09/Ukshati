@@ -9,7 +9,7 @@ const BackButton = ({ route = "/", label = "Back" }) => {
       onClick={() => router.push(route)}
       className="flex items-center gap-2 py-2 px-4 sm:px-6 md:pl-14 mt-4 
                  text-base sm:text-lg font-semibold text-white 
-                 hover:text-blue-400 focus:text-blue-400 transition-colors 
+                 hover:text-cyan-400 focus:text-cyan-600 transition-colors 
                  rounded-md"
       style={{
         fontSize: "clamp(0.875rem, 2vw, 1.25rem)", // Responsive font size

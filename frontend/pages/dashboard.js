@@ -36,6 +36,7 @@ import {
 } from 'chart.js';
 
 import { Bar, Line, Doughnut } from 'react-chartjs-2';
+import Footer from "@/components/Footer";
 
 ChartJS.register(
   CategoryScale,
@@ -271,31 +272,25 @@ useEffect(() => {
         setLoading(true);
         
         // First fetch base data
-        const [customersRes, stocksRes, lastQuoteRes, invoicesRes, tasksRes, remindersRes] = await Promise.all([
+        const [customersRes, stocksRes, lastQuoteRes, invoicesRes, projectsRes, tasksRes, remindersRes] = await Promise.all([
           fetch('/api/customers'),
           fetch('/api/stocks'),
           fetch('/api/fetch'),
           fetch('/api/invoices'),
-          fetch('/api/tasks'),
+          fetch('/api/allProjects'),
+          fetch('api/tasks'),
           fetch('/api/reminders')
         ]);
   
-        // Check base responses
-        if (!customersRes.ok) throw new Error('Failed to fetch customers');
-        if (!stocksRes.ok) throw new Error('Failed to fetch stocks');
-        if (!lastQuoteRes.ok) throw new Error('Failed to fetch last quote');
-        if (!invoicesRes.ok) throw new Error('Failed to fetch invoices');
-        if (!tasksRes.ok) throw new Error('Failed to fetch tasks');
-        if (!remindersRes.ok) throw new Error('Failed to fetch reminders');
-  
         // Parse base data
-        const [customersData, stocksData, lastQuoteData, invoicesData, tasksData, remindersData] = await Promise.all([
-          customersRes.json(),
-          stocksRes.json(),
-          lastQuoteRes.json(),
-          invoicesRes.json(),
-          tasksRes.json(),
-          remindersRes.json()
+        const [customersData, stocksData, lastQuoteData, invoicesData, projectsData, tasksData, remindersData] = await Promise.all([
+          customersRes.ok ? await customersRes.json() : [],
+          stocksRes.ok ? await stocksRes.json() : [],
+          lastQuoteRes.ok ? await lastQuoteRes.json() : null,
+          invoicesRes.ok ? await invoicesRes.json() : [],
+          projectsRes.ok ? await projectsRes.json() : [],
+          tasksRes.ok ? await tasksRes.json() : [],
+          remindersRes.ok ? await remindersRes.json() : []
         ]);
   
         // Calculate total revenue from invoices
@@ -308,65 +303,15 @@ useEffect(() => {
           return sum + parseFloat(quote.total_cost || 0);
         }, 0);
   
-        // Get unique project IDs from tasks
-        const projectIds = [...new Set(tasksData.map(task => task.pid))];
-        
-        // Fetch expenses for each project
-        const expensePromises = projectIds.map(async (projectId) => {
-          try {
-            const res = await fetch(`/api/expenses/${projectId}`);
-            if (!res.ok) return { total: 0, expenses: [] };
-            const data = await res.json();
-            
-            // Process expenses for this project
-            const validExpenses = data.expenses
-              .filter(expense => expense.status === 'Approved')
-              .map(expense => ({
-                ...expense,
-                amount: parseFloat(expense.amount) || 0
-              }));
-            
-            return {
-              total: validExpenses.reduce((sum, exp) => sum + exp.amount, 0),
-              expenses: validExpenses
-            };
-          } catch (error) {
-            console.error(`Error fetching expenses for project ${projectId}:`, error);
-            return { total: 0, expenses: [] };
-          }
-        });
-  
-        const projectExpenses = await Promise.all(expensePromises);
-        
-        // Calculate total and daily expenses
-        const allExpenses = projectExpenses.flatMap(proj => proj.expenses);
-        const totalExpenses = projectExpenses.reduce((sum, proj) => sum + proj.total, 0);
-        
-        const today = new Date();
-        const dailyExpenses = allExpenses
-          .filter(expense => {
-            const expDate = new Date(expense.date);
-            return expDate.getDate() === today.getDate() && 
-                   expDate.getMonth() === today.getMonth() && 
-                   expDate.getFullYear() === today.getFullYear();
-          })
-          .reduce((sum, expense) => sum + expense.amount, 0);
+        const totalExpenses = projectsData.reduce((sum, project) => {
+          return sum + parseFloat(project.Amount || 0);
+        }, 0);
         
         // Calculate task stats
         const completedTasks = tasksData.filter(task => task.status === 'Completed').length;
         const inProgressTasks = tasksData.filter(task => task.status === 'Ongoing').length;
         const pendingTasks = tasksData.filter(task => task.status === 'On Hold').length;
         const totalTasks = tasksData.length;
-  
-        const calculateExpenseByCategory = (expenses) => {
-          const categories = {};
-          expenses.forEach(expense => {
-            const category = expense.category || 'Uncategorized';
-            const amount = parseFloat(expense.amount) || 0;
-            categories[category] = (categories[category] || 0) + amount;
-          });
-          return categories;
-        };
         
         // Set dashboard data
         setDashboardData({
@@ -382,15 +327,13 @@ useEffect(() => {
             completedTasks: totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0,
             inProgressTasks: totalTasks > 0 ? Math.round((inProgressTasks / totalTasks) * 100) : 0,
             pendingTasks: totalTasks > 0 ? Math.round((pendingTasks / totalTasks) * 100) : 0,
-            revenue: totalRevenue, // Updated to use calculated total revenue
+            revenue: Number(invoicesData?.total) || 0,
             expenses: Number(totalExpenses) || 0,
-            dailyExpenses: Number(dailyExpenses) || 0,
             quotesCount: totalQuotesValue || 0,
-            totalProjects: projectIds.length,
+            totalProjects: projectsData.length,
             activeProjects: tasksData.filter(task => 
               ['Ongoing', 'In Progress'].includes(task.status)
             ).length,
-            expenseByCategory: calculateExpenseByCategory(allExpenses)
           }
         });
   
@@ -449,7 +392,6 @@ useEffect(() => {
       imageDescription: "Expense Tracking Dashboard",
       stats: { 
         main: `₹${dashboardData.expenses.toLocaleString('en-IN')}`, 
-        secondary: `₹${dashboardData.stats.dailyExpenses}`
       },
       filedBy: "Finance team",
       accordion: [
@@ -804,7 +746,7 @@ useEffect(() => {
         </div>
         
         {/* User Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-black">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
               <FaUser className="text-gray-300" />
@@ -900,7 +842,7 @@ useEffect(() => {
         </div>
         
         {/* User Info */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-700">
+        <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-black">
           <div className="flex items-center space-x-3">
             <div className="w-10 h-10 rounded-full bg-gray-600 flex items-center justify-center">
               <FaUser className="text-gray-300" />
