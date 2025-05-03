@@ -85,12 +85,6 @@ export default async function handler(req, res) {
     await db.beginTransaction();
 
     try {
-      // Update stock quantity
-      await db.execute(
-        "UPDATE stock SET quantity = quantity - ? WHERE stock_id = ?",
-        [spentQty, stockId]
-      );
-
       // Create spent record with timestamp
       const [insertResult] = await db.execute(
         `INSERT INTO inventory_spent 

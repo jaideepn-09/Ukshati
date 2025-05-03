@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { FiArrowLeft, FiActivity, FiSearch, FiMapPin, FiFilter, FiClock, FiCalendar, FiX } from "react-icons/fi";
 import StarryBackground from "@/components/StarryBackground";
 import BackButton from "@/components/BackButton";
+
 const Pagination = ({ currentPage, totalPages, onPageChange }) => {
   const visiblePages = 5;
   let startPage = Math.max(1, currentPage - Math.floor(visiblePages / 2));
@@ -63,6 +64,7 @@ const Pagination = ({ currentPage, totalPages, onPageChange }) => {
     </div>
   );
 };
+
 const SortIndicator = ({ columnKey, sortConfig }) => {
   if (sortConfig.key !== columnKey) return null;
   return (
@@ -71,6 +73,7 @@ const SortIndicator = ({ columnKey, sortConfig }) => {
     </span>
   );
 };
+
 export default function InventorySpent() {
   const router = useRouter();
   const [spentStocks, setSpentStocks] = useState([]);
@@ -87,8 +90,6 @@ export default function InventorySpent() {
     active: false
   });
   const itemsPerPage = 10;
-  const [startDate, setStartDate] = useState(""); 
-  const [endDate, setEndDate] = useState("");
 
   useEffect(() => {
     const fetchData = async () => {
@@ -131,14 +132,14 @@ export default function InventorySpent() {
 
   const formatDateTime = (dateTime) => {
     const date = new Date(dateTime);
-    return date.toLocaleString(); 
+    return date.toLocaleString();
   };
 
   const handleDateFilterChange = (type, value) => {
-    setDateFilter(prev => ({
+    setDateFilter((prev) => ({
       ...prev,
       [type]: value,
-      active: !!value || (type === 'endDate' ? prev.startDate : prev.endDate)
+      active: !!value || (type === "endDate" ? prev.startDate : prev.endDate)
     }));
     setCurrentPage(1);
   };
@@ -162,12 +163,16 @@ export default function InventorySpent() {
     return 0;
   }).filter((stock) => {
     // Category filter
-    const categoryMatch = selectedCategory === "all" || 
-                          (selectedCategory === "uncategorized" && !stock.category_name) || 
-                          stock.category_name === selectedCategory;
+    const categoryMatch =
+      selectedCategory === "all" ||
+      (selectedCategory === "uncategorized" && !stock.category_name) ||
+      stock.category_name === selectedCategory;
+
     // Search filter
-    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name} ${stock.location || ""} ${stock.category_name || ""} ${stock.formatted_date}`.toLowerCase();
+    const searchString = `${stock.item_name} ${stock.project_name} ${stock.employee_name} ${stock.location || ""} ${stock.category_name || ""} ${stock.formatted_date}`
+      .toLowerCase();
     const searchMatch = searchString.includes(searchQuery.toLowerCase());
+
     // Date filter
     const stockDate = new Date(stock.spent_at);
     let dateMatch = true;
@@ -183,6 +188,7 @@ export default function InventorySpent() {
         dateMatch = dateMatch && stockDate <= endDate;
       }
     }
+
     return categoryMatch && searchMatch && dateMatch;
   });
 
@@ -194,36 +200,32 @@ export default function InventorySpent() {
     <div className="min-h-screen text-gray-100 relative">
       <StarryBackground />
       <header className="p-4 backdrop-blur-sm shadow-lg sticky top-0 z-10">
-  <div className="max-w-8xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6">
-    {/* Left Section - Back Button */}
-    <div className="flex-shrink-0">
-      <BackButton route="/ims/home" />
-    </div>
-
-    {/* Center Section - Heading */}
-    <h1 className="text-lg sm:text-2xl font-bold text-blue-400 text-center truncate px-2">
-      Spent Inventory History
-    </h1>
-
-    {/* Right Section - View Stocks Button */}
-    <div className="flex-shrink-0">
-      <button
-        onClick={() => router.push("/ims/view-stock")}
-        className="flex items-center gap-2 hover:text-blue-400 transition-colors group"
-      >
-        {/* Mobile Icon Only */}
-        <FiActivity className="text-xl md:hidden" />
-        
-        {/* Desktop Text + Icon */}
-        <div className="hidden md:flex items-center gap-2">
-          <FiActivity className="text-xl" />
-          <span className="font-semibold">View Stocks</span>
+        <div className="max-w-8xl mx-auto flex items-center justify-between gap-4 px-4 sm:px-6">
+          {/* Left Section - Back Button */}
+          <div className="flex-shrink-0">
+            <BackButton route="/ims/home" />
+          </div>
+          {/* Center Section - Heading */}
+          <h1 className="text-lg sm:text-2xl font-bold text-blue-400 text-center truncate px-2">
+            Spent Inventory History
+          </h1>
+          {/* Right Section - View Stocks Button */}
+          <div className="flex-shrink-0">
+            <button
+              onClick={() => router.push("/ims/view-stock")}
+              className="flex items-center gap-2 hover:text-blue-400 transition-colors group"
+            >
+              {/* Mobile Icon Only */}
+              <FiActivity className="text-xl md:hidden" />
+              {/* Desktop Text + Icon */}
+              <div className="hidden md:flex items-center gap-2">
+                <FiActivity className="text-xl" />
+                <span className="font-semibold">View Stocks</span>
+              </div>
+            </button>
+          </div>
         </div>
-      </button>
-    </div>
-  </div>
-</header>
-
+      </header>
       {/* Main Content */}
       <main className="max-w-7.5xl mx-auto p-4 space-y-8">
         {/* Filters Section */}
@@ -231,24 +233,22 @@ export default function InventorySpent() {
           <div className="p-6">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
               <h2 className="text-2xl font-semibold text-white">Spent Stock Records</h2>
-
               <div className="flex flex-col md:flex-row gap-4 w-full md:w-auto">
-                 {/* Date Filters */}
-              <div className="grid grid-cols-2 gap-2 w-full sm:w-64">
-                <input
-                  type="date"
-                  value={startDate}
-                  onChange={(e) => setStartDate(e.target.value)}
-                  className="p-2 text-sm rounded bg-gray-800 text-white"
-                />
-                <input
-                  type="date"
-                  value={endDate}
-                  onChange={(e) => setEndDate(e.target.value)}
-                  className="p-2 text-sm rounded bg-gray-800 text-white"
-                />
-              </div>
-
+                {/* Date Filters */}
+                <div className="grid grid-cols-2 gap-2 w-full sm:w-64">
+                  <input
+                    type="date"
+                    value={dateFilter.startDate || ""}
+                    onChange={(e) => handleDateFilterChange("startDate", e.target.value)}
+                    className="p-2 text-sm rounded bg-gray-800 text-white"
+                  />
+                  <input
+                    type="date"
+                    value={dateFilter.endDate || ""}
+                    onChange={(e) => handleDateFilterChange("endDate", e.target.value)}
+                    className="p-2 text-sm rounded bg-gray-800 text-white"
+                  />
+                </div>
                 {/* Search Input */}
                 <div className="relative flex items-center w-full md:w-80">
                   <FiSearch className="absolute left-3 text-blue-400" />
@@ -260,7 +260,6 @@ export default function InventorySpent() {
                     onChange={(e) => setSearchQuery(e.target.value)}
                   />
                 </div>
-
                 {/* Category Select */}
                 <div className="relative flex items-center w-full md:w-64">
                   <FiFilter className="absolute left-3 text-blue-400" />
@@ -280,7 +279,6 @@ export default function InventorySpent() {
                 </div>
               </div>
             </div>
-
             {/* Table */}
             {loading ? (
               <div className="p-6 text-center text-gray-400">
@@ -349,9 +347,11 @@ export default function InventorySpent() {
                       >
                         <td className="p-4 font-medium">{spent.item_name}</td>
                         <td className="p-4">
-                          <span className={`px-3 py-1 rounded-full text-sm ${
-                            spent.category_name ? "bg-gray-700" : "bg-gray-800 text-gray-400 italic"
-                          }`}>
+                          <span
+                            className={`px-3 py-1 rounded-full text-sm ${
+                              spent.category_name ? "bg-gray-700" : "bg-gray-800 text-gray-400 italic"
+                            }`}
+                          >
                             {spent.category_name || "Uncategorized"}
                           </span>
                         </td>
@@ -376,6 +376,14 @@ export default function InventorySpent() {
             )}
           </div>
         </section>
+        {/* Pagination */}
+        {filteredStocks.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </main>
     </div>
   );

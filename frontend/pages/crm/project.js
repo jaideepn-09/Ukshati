@@ -42,11 +42,15 @@ export default function Projects() {
   };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "TBD"; // Return "TBD" if no date is provided
+    if (!dateString || dateString === "TBD" || dateString === "null") return "TBD";
+  
     const date = new Date(dateString);
+    if (isNaN(date.getTime())) return "TBD"; // Guard against invalid dates
+  
     date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
     return date.toISOString().split("T")[0];
   };
+  
 
   const statusOptions = [
     { value: "", label: "Select Status" },
@@ -61,11 +65,21 @@ export default function Projects() {
       alert("Please fill all required fields.");
       return;
     }
-
+    const isValidDate = (date) => {
+      return date && !isNaN(new Date(date).getTime());
+    };
+    
+    if (!isValidDate(startDate)) {
+      alert("Start date is invalid or missing.");
+      return;
+    }
+    
     const projectData = {
       pname: name,
       start_date: new Date(startDate).toISOString().split("T")[0],
-      end_date: endDate ? new Date(endDate).toISOString().split("T")[0] : "TBD", // Handle "TBD" for end date
+      end_date: isValidDate(endDate)
+        ? new Date(endDate).toISOString().split("T")[0]
+        : "TBD", // Default to TBD if endDate is missing/invalid
       status,
       cid: customerId,
     };
